@@ -21,21 +21,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ExerciseListActivity" />
+        <activity
+            android:name=".ExerciseListActivity"
+            android:label="@string/lista_ejercicios" />
         <activity android:name=".ExerciseViewActivity" />
         <activity
             android:name=".RoutineListActivity"
-            android:label="@string/title_activity_routine_list"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/lista_rutinas" />
         <activity
             android:name=".RoutineEditActivity"
-            android:label="@string/title_activity_routine_edit"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/title_activity_routine_edit" />
         <activity android:name=".RoutineExecuteActivity" />
         <activity
             android:name=".PremiumLoginActivity"
-            android:label="@string/title_activity_premium_login" />
-        <activity android:name=".LoadingActivity"></activity>
+            android:label="@string/iniciar_sesion" />
+        <activity android:name=".LoadingActivity" />
     </application>
 
 </manifest>

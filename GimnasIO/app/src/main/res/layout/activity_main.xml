@@ -1,18 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/constraintlayout1"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="center"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.patan.gimnasio.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="194dp"
+        android:layout_height="639dp"
+        android:layout_marginBottom="-32dp"
+        android:layout_marginLeft="-8dp"
+        android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:srcCompat="@drawable/gym1" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="194dp"
+        android:layout_height="271dp"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/gym2"
+        android:layout_marginRight="0dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageButton2"
+        android:layout_marginTop="-1dp"
+        tools:layout_editor_absoluteY="-9dp"
+        tools:layout_editor_absoluteX="190dp" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="191dp"
+        android:layout_height="268dp"
+        android:layout_marginRight="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintRight_toRightOf="@+id/imageView2"
+        app:srcCompat="@drawable/gym3"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="252dp" />
+
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="113dp"
+        android:layout_height="49dp"
+        android:layout_marginLeft="45dp"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="287dp"
+        android:text="@string/Rutinas"
+        android:textColor="@color/colorText"
+        android:textSize="32sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageButton1" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Ejercicios"
+        android:textColor="@color/colorText"
+        android:textSize="32sp"
+        android:layout_marginRight="25dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="155dp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="33dp"
+        android:layout_marginTop="407dp"
+        android:text="@string/Premium"
+        android:textColor="@color/colorText"
+        android:textSize="32sp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/imageButton1"
+        android:layout_width="190dp"
+        android:layout_height="508dp"
+        android:background="?android:selectableItemBackground"
+        android:cropToPadding="false"
+        app:srcCompat="@drawable/routines"
+        android:onClick="goToRoutine"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintVertical_bias="0.666"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="0dp" />
+
+    <ImageButton
+        android:id="@+id/imageButton2"
+        android:layout_width="190dp"
+        android:layout_height="246dp"
+        app:srcCompat="@drawable/exercises"
+        android:onClick="goToExercise"
+        android:background="?android:selectableItemBackground"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="0dp"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_editor_absoluteX="193dp" />
+
+    <ImageButton
+        android:id="@+id/imageButton3"
+        android:layout_width="191dp"
+        android:layout_height="267dp"
+        app:srcCompat="@drawable/key"
+        android:onClick="goToPremium"
+        android:background="?android:selectableItemBackground"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="247dp"
+        android:layout_marginRight="1dp"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_editor_absoluteX="192dp" />
+
+    <ImageView
+        android:id="@+id/verticalSeparator"
+        android:layout_width="4dp"
+        android:layout_height="520dp"
+        android:layout_marginTop="-15dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@color/colorText"
+        tools:layout_editor_absoluteX="188dp" />
+
+    <ImageView
+        android:id="@+id/horizontalSeparator"
+        android:layout_width="192dp"
+        android:layout_height="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.487"
+        app:srcCompat="@color/colorText"
+        tools:layout_editor_absoluteX="192dp"
+        tools:layout_editor_absoluteY="240dp" />
+
 
 </android.support.constraint.ConstraintLayout>

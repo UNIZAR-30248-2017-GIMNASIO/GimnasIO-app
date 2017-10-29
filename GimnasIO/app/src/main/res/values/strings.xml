@@ -16,4 +16,20 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="Rutinas">Rutinas</string>
+    <string name="Ejercicios">Ejercicios</string>
+    <string name="Premium">Premium</string>
+    <string name="iniciar_sesion">Identificate</string>
+    <string name="lista_rutinas">Mis rutinas</string>
+    <string name="lista_ejercicios">Ejercicios</string>
+    <string name="create_new">Create new</string>
+    <string name="open">Open</string>
+    <string name="file">File</string>
+    <string name="title_activity_test">test</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main_menu">MainMenuActivity</string>
 </resources>
