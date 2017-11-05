@@ -2,9 +2,6 @@ package com.patan.gimnasio;
 
 import java.util.List;
 
-/**
- * Created by alejandro on 25/10/17.
- */
 
 public class Exercise {
 
