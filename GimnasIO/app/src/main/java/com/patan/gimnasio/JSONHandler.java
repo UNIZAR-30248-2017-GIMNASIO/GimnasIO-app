@@ -39,7 +39,7 @@ public class JSONHandler {
     }
 
     public Exercise readExercise(JsonReader reader) throws IOException{
-        //name: args[0], muscle: args[1], description: args[2], images: destiny, tag: args[4]}],
+        /*//name: args[0], muscle: args[1], description: args[2], images: destiny, tag: args[4]}],
         String name = "";
         List<String> muscle = new ArrayList<>();
         String description= "";
@@ -57,7 +57,8 @@ public class JSONHandler {
             else reader.skipValue();
         }
         reader.endObject();
-        return new Exercise(name,muscle,description,image,tags);
+        return new Exercise(name,muscle,description,image,tags);*/
+        return null;
     }
 
     public List<String> readArray(JsonReader reader) throws IOException{
