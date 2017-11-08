@@ -2,19 +2,16 @@ package com.patan.gimnasio;
 
 import java.util.List;
 
-/**
- * Created by alejandro on 25/10/17.
- */
 
 public class Exercise {
 
     private String name;
-    private List<String> muscle;
+    private String muscle;
     private String description;
     private String image;
     private List<String> tags;
 
-    public Exercise(String name,List<String> muscle,String description,String image,List<String> tags){
+    public Exercise(String name,String muscle,String description,String image,List<String> tags){
         this.name=name;
         this.muscle=muscle;
         this.description=description;
@@ -26,7 +23,7 @@ public class Exercise {
         this.name = name;
     }
 
-    public void setMuscle(List<String> muscle){
+    public void setMuscle(String muscle){
         this.muscle = muscle;
     }
 
@@ -42,7 +39,7 @@ public class Exercise {
         this.tags = tags;
     }
 
-    public List<String> getMuscle() {
+    public String getMuscle() {
         return muscle;
     }
 

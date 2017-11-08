@@ -2,9 +2,6 @@ package com.patan.gimnasio;
 
 import java.util.List;
 
-/**
- * Created by alejandro on 25/10/17.
- */
 
 public class Routine{
 
@@ -16,13 +13,14 @@ public class Routine{
     private double relxTime;
     private List<Exercise> excercises;
 
-    public void Routine(String nameGym,String name,String objective,int series,int relxTime,List<Exercise> exercises){
+    public Routine(String nameGym,String name,String objective,int series,double relxTime,int rep,List<Exercise> exercises){
         this.nameGym = nameGym;
         this.name = name;
         this.objective = objective;
         this.series = series;
         this.relxTime = relxTime;
         this.excercises = exercises;
+        this.rep=rep;
     }
 
     public void setRelxTime(double relxTime) {
