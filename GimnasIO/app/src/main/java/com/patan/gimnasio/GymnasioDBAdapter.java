@@ -277,6 +277,15 @@ public class GymnasioDBAdapter {
         return Db.insert(Table_Routine, null, v);
     }
 
+    /**
+     * Update a new Freemium Routine using the object provided. If the routine is
+     * successfully created return the new roId for that routine, otherwise return
+     * a -1 to indicate failure.
+     *
+     * @param r the object which contains the routine
+     * @param id id of the routine to be updated
+     * @return true if success or false if failure
+     */
     public boolean updateFreemiumRoutine(long id, Routine r) {
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());

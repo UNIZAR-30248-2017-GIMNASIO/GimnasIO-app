@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -36,20 +37,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_routine_edit);
 
-        db = new GymnasioDBAdapter(this);
-        db.open();
-
-        Intent intent = getIntent();
-        mode_in = intent.getStringExtra("MODE");
-
-        if (mode_in.equals("new")) {
-            // Abrimos en modo crear
-        } else if (mode_in.equals("edit")) {
-            // Abrimos en modo editar
-            id_in = intent.getLongExtra("ID", 0);
-            fillContentEdit(id_in);
-        }
-
         l = (ListView)findViewById(R.id.routineEditList);
         textName = (EditText) findViewById(R.id.nombreRutina);
         textGym = (EditText) findViewById(R.id.gimnasioRutina);;
@@ -57,14 +44,29 @@ public class RoutineEditActivity extends AppCompatActivity {
         textRep = (EditText) findViewById(R.id.repeticionesRutina);
         textRelax = (EditText) findViewById(R.id.tiempoRelaxRutina);
         textObjetivo = (EditText) findViewById(R.id.objetivoRutina);
-    }
 
-    /*
-     * Metodo que rellenara la actividad de editar rutina si se entra desde editar rutina
-     */
+        l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                Intent intent = new Intent(v.getContext(), ExerciseListActivity.class);
+                intent.putExtra("MODE","edit");
+                startActivity(intent);
+            }
+        });
 
-    public void fillContentEdit(float id_in) {
+        db = new GymnasioDBAdapter(this);
+        db.open();
 
+        Intent intent = getIntent();
+        mode_in = intent.getStringExtra("MODE");
+
+        if (mode_in.equals("new")) {
+            // No hacemos nada, los campos se muestran vacios
+        } else if (mode_in.equals("edit")) {
+            // Abrimos en modo editar
+            id_in = intent.getLongExtra("ID", 0);
+            populateFields();
+        }
     }
 
     @Override
@@ -82,43 +84,70 @@ public class RoutineEditActivity extends AppCompatActivity {
 
     public void saveState() {
         String nameGym = textGym.getText().toString();
-        String name = textName.getText().toString();
+        String name;
+        if (textName.getText().toString().equals("")) {
+            name = "Rutina sin nombre";
+        } else name = textName.getText().toString();
         String objective = textObjetivo.getText().toString();
-        int series = Integer.parseInt(textSeries.getText().toString());
-        int rep = Integer.parseInt(textRep.getText().toString());
-        double relxTime = Double.parseDouble(textRelax.getText().toString());
-        ArrayList<Exercise> exercises = new ArrayList<>();
+        int series = 0;
+        if (!textSeries.getText().toString().equals("")) {
+            series = Integer.parseInt(textSeries.getText().toString());
+        }
+        int rep = 0;
+        if (!textRep.getText().toString().equals("")) {
+            rep = Integer.parseInt(textRep.getText().toString());
+        }
+        double relxTime = 0.0;
+        if (!textRelax.getText().toString().equals("")) {
+            relxTime = Double.parseDouble(textRelax.getText().toString());
+        }
+        ArrayList<Integer> exercises = new ArrayList<>();
 
         Routine r = new Routine(nameGym, name, objective, series, relxTime, rep, exercises);
 
         if (mode_in.equals("new")) {
-            // Llamamos a create
             db.createFreemiumRoutine(r);
 
         } else if (mode_in.equals("edit")) {
-            // Llamamos a update
             db.updateFreemiumRoutine(id_in,r);
         }
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        populateFields();
+        // No se si es necesario
+        // populateFields();
     }
 
     public void populateFields() {
         Cursor routine = db.fetchRoutine(id_in);
         routine.moveToFirst();
         startManagingCursor(routine);
+        if (routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)) != null) {
+            textName.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)));
+        } else textName.setText("");
 
-        textName.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)));
-        textGym.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)));
-        textSeries.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_S)));
-        textRep.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_R)));
-        textRelax.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_RT)));
-        textObjetivo.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)));
+        if (routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)) != null) {
+            textGym.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)));
+        } else textGym.setText("");
+
+        if (routine.getString(routine.getColumnIndex(db.KEY_RO_S)) != null) {
+            textSeries.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_S)));
+        } else textSeries.setText("");
+
+        if (routine.getString(routine.getColumnIndex(db.KEY_RO_R)) != null) {
+            textRep.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_R)));
+        } else textRep.setText("");
+
+        if (routine.getString(routine.getColumnIndex(db.KEY_RO_RT)) != null) {
+            textRelax.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_RT)));
+        } else textRelax.setText("");
+
+        if (routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)) != null) {
+            textObjetivo.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)));
+        } else textObjetivo.setText("");
+
 
         // Faltara llenar el ArrayList de ejercicios
     }
