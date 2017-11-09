@@ -260,7 +260,7 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
         Log.w("DBInsertion", "Inserting freemium routine to database");
-        return Db.insert(Table_Exercise, null, v);
+        return Db.insert(Table_Routine, null, v);
     }
     /**
      * Create a new Freemium Routine using the object provided. If the routine is
@@ -280,7 +280,7 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, true);
         Log.w("DBInsertion", "Inserting Premium routine to database");
-        return Db.insert(Table_Exercise, null, v);
+        return Db.insert(Table_Routine, null, v);
     }
 
     /**
@@ -313,6 +313,11 @@ public class GymnasioDBAdapter {
         return mCursor;
 
     }
+
+    public boolean deleteRoutine(long rowId) throws SQLException {
+        return Db.delete(Table_Routine, KEY_RO_ID + "=" + rowId, null) > 0;
+    }
+
     /**
      * Return a Cursor positioned at the routine that matches the given name
      *

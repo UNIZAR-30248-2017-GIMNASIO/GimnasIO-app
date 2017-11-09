@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">GimnasIO</string>
-    <string name="title_activity_routine_list">RoutineListActivity</string>
-    <string name="title_activity_routine_edit">RoutineEditActivity</string>
+    <string name="title_activity_routine_list">Mis rutinas</string>
+    <string name="title_activity_routine_edit">Rutina</string>
     <string name="title_activity_premium_login">Sign in</string>
 
     <!-- Strings related to login -->
@@ -32,4 +32,8 @@
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_main_menu">MainMenuActivity</string>
+    <string name="title_activity_testtt">testtt</string>
+
+    <string name="update">Update</string>
+    <string name="menu_delete">Eliminar</string>
 </resources>
