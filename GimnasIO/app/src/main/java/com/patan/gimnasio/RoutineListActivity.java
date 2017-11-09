@@ -40,17 +40,12 @@ public class RoutineListActivity extends AppCompatActivity {
         db = new GymnasioDBAdapter(this);
         db.open();
 
-        List<String> list = new ArrayList<>();
+        ArrayList<String> list = new ArrayList<>();
         list.add("hola");
         list.add("test");
         Exercise e = new Exercise("Ej1","pecho","nada","nulete",list);
-        List<Exercise> liste = new ArrayList<>();
+        ArrayList<Exercise> liste = new ArrayList<>();
         liste.add(e);
-
-        // BORRAR CUANDO SE PUEDAN CREAR NOTAS
-        Routine r = new Routine("Gym1","rutina1","pechaco",3,4,20,liste);
-        long id = db.createFreemiumRoutine(r);
-        // BORRAR CUANDO SE PUEDAN CREAR NOTAS
 
         l = (ListView)findViewById(R.id.dbRoutinesList);
 
@@ -110,6 +105,12 @@ public class RoutineListActivity extends AppCompatActivity {
         } else {
             return false;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fillData();
     }
 
 

@@ -1,5 +1,6 @@
 package com.patan.gimnasio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -11,9 +12,9 @@ public class Routine{
     private int series;
     private int rep;
     private double relxTime;
-    private List<Exercise> excercises;
+    private ArrayList<Exercise> excercises;
 
-    public Routine(String nameGym,String name,String objective,int series,double relxTime,int rep,List<Exercise> exercises){
+    public Routine(String nameGym,String name,String objective,int series,double relxTime,int rep, ArrayList<Exercise> exercises){
         this.nameGym = nameGym;
         this.name = name;
         this.objective = objective;
@@ -27,7 +28,7 @@ public class Routine{
         this.relxTime = relxTime;
     }
 
-    public void setExcercises(List<Exercise> excercises) {
+    public void setExcercises(ArrayList<Exercise> excercises) {
         this.excercises = excercises;
     }
 

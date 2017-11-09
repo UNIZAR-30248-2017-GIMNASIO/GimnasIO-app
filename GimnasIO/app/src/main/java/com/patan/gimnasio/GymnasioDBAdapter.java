@@ -270,6 +270,20 @@ public class GymnasioDBAdapter {
         return Db.insert(Table_Routine, null, v);
     }
 
+    public boolean updateFreemiumRoutine(long id, Routine r) {
+        ContentValues v = new ContentValues();
+        v.put(KEY_RO_NAME, r.getName());
+        v.put(KEY_RO_GYM, r.getNameGym());
+        v.put(KEY_RO_S, r.getSeries());
+        v.put(KEY_RO_RT, r.getRelxTime());
+        v.put(KEY_RO_R, r.getRep());
+        v.put(KEY_RO_OBJ, r.getObjective());
+        v.put(KEY_RO_PREMIUM, false);
+        return Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+    }
+
+
+
     /**
      * Return a Cursor over the list of all routines in the database
      *

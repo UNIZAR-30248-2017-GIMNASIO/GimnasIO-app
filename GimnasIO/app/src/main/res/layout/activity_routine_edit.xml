@@ -17,4 +17,105 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_dialog_email" />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="510dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textNombreRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nombre de la rutina:" />
+
+            <EditText
+                android:id="@+id/nombreRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName" />
+
+            <TextView
+                android:id="@+id/textGimnasioRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gimnasio:" />
+
+            <EditText
+                android:id="@+id/gimnasioRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName" />
+
+            <TextView
+                android:id="@+id/textObjetivoRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Objetivo:" />
+
+            <EditText
+                android:id="@+id/objetivoRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textMultiLine" />
+
+            <TextView
+                android:id="@+id/textSeriesRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Series:" />
+
+            <EditText
+                android:id="@+id/seriesRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number" />
+
+            <TextView
+                android:id="@+id/textRepeticionesRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Repeticiones:" />
+
+            <EditText
+                android:id="@+id/repeticionesRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number" />
+
+            <TextView
+                android:id="@+id/textTiempoRelaxRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tiempo de descanso (segundos):" />
+
+            <EditText
+                android:id="@+id/tiempoRelaxRutina"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal" />
+
+            <TextView
+                android:id="@+id/textEjercicios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ejercicios:" />
+
+            <ListView
+                android:id="@+id/routineEditList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+    </ScrollView>
+
 </android.support.design.widget.CoordinatorLayout>

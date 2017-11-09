@@ -1,5 +1,6 @@
 package com.patan.gimnasio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -9,9 +10,9 @@ public class Exercise {
     private String muscle;
     private String description;
     private String image;
-    private List<String> tags;
+    private ArrayList<String> tags;
 
-    public Exercise(String name,String muscle,String description,String image,List<String> tags){
+    public Exercise(String name,String muscle,String description,String image,ArrayList<String> tags){
         this.name=name;
         this.muscle=muscle;
         this.description=description;
@@ -35,7 +36,7 @@ public class Exercise {
         this.image = image;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
 
