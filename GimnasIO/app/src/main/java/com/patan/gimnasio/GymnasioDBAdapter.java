@@ -21,7 +21,7 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
@@ -67,7 +67,7 @@ public class GymnasioDBAdapter {
             String crearEjercicio = "CREATE TABLE IF NOT EXISTS " + Table_Exercise +
                     " (" + KEY_EX_ID + " integer primary key autoincrement," + KEY_EX_NAME + " VARCHAR(20) not null," +
                     KEY_EX_DESC + " not null," + KEY_EX_MUSCLE + " VARCHAR(20) not null, " + KEY_EX_IMG +
-                    " varchar(20) not null, tags varchar(100))";
+                    " varchar(20) not null, "+ KEY_EX_TAG +" varchar(100))";
             lista.add(crearEjercicio);
             String crearEjxRutina = "CREATE TABLE IF NOT EXISTS " + Table_ExOfRoutine
                     + " (idRut INTEGER,idEj INTEGER, FOREIGN KEY(idRut) REFERENCES "
