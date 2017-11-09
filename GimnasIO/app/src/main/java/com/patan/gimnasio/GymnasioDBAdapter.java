@@ -21,13 +21,11 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
     private static final String Table_ExOfRoutine = "ExOfRoutine";
-    private static final String Table_Tag = "Tags";
-    private static final String Table_TagXEx = "TagxEx";
 
     public static final String KEY_EX_NAME = "name";
     public static final String KEY_EX_MUSCLE = "muscle";
@@ -145,13 +143,10 @@ public class GymnasioDBAdapter {
         v.put(KEY_EX_MUSCLE, e.getMuscle());
         v.put(KEY_EX_DESC, e.getDescription());
         v.put(KEY_EX_IMG, e.getImage());
-        JSONObject  json = new JSONObject();
-        try {
-            json.put("tags", new JSONArray(e.getTags()));
-        } catch (JSONException e1) {
-            e1.printStackTrace();
+        String tags="";
+        for (String s: e.getTags()) {
+            tags += "#"+s+",";
         }
-        String tags = json.toString();
         v.put(KEY_EX_TAG, tags);
         Log.w("DBInsertion", "Inserting exercise to database");
         return Db.insert(Table_Exercise, null, v);
@@ -194,12 +189,11 @@ public class GymnasioDBAdapter {
      * @throws SQLException if exercise could not be found/retrieved
      */
     public Cursor getExerciseByName(String name) throws SQLException {
-
-        Cursor mCursor =
-
-                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
-                                KEY_EX_IMG, KEY_EX_TAG}, KEY_EX_NAME + "=" + name, null,
-                        null, null, null, null);
+        String[] consulta = {name};
+        Cursor mCursor;
+        mCursor = Db.query( Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
+                        KEY_EX_IMG, KEY_EX_TAG}, KEY_EX_NAME+"='"+name+"'", null,
+                null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -218,7 +212,7 @@ public class GymnasioDBAdapter {
         Cursor mCursor =
 
                 Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
-                                KEY_EX_IMG,  KEY_EX_TAG}, KEY_EX_MUSCLE + "=" + muscle, null,
+                                KEY_EX_IMG,  KEY_EX_TAG}, KEY_EX_MUSCLE + "='" + muscle+"'", null,
                         null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
@@ -236,7 +230,7 @@ public class GymnasioDBAdapter {
     public Cursor getExercisesByTag(String tag) throws SQLException {
         //THIS WILL DO SOMETHING WHEN I KNOW HOW TO DO IT.
         Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_TAG
-                + "LIKE '%," + tag + ",%';", null);
+                + "LIKE '%#" + tag + ",%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
