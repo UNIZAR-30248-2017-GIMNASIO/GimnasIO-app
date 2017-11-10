@@ -8,12 +8,26 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GymnasioDBAdapter {
 
@@ -21,11 +35,12 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
     private static final String Table_ExOfRoutine = "ExOfRoutine";
+    private static final String Table_Updates = "Updates";
 
     public static final String KEY_EX_NAME = "name";
     public static final String KEY_EX_MUSCLE = "muscle";
@@ -71,12 +86,22 @@ public class GymnasioDBAdapter {
                     + " (idRut INTEGER,idEj INTEGER, FOREIGN KEY(idRut) REFERENCES "
                     + Table_Routine + "(id),FOREIGN KEY (idEj) REFERENCES " + Table_Exercise + "(id))";
             //lista.add(crearEjxRutina);
+            String crearUpdates = "CREATE TABLE IF NOT EXISTS " + Table_Updates +
+                    "( _id integer primary key autoincrement , lastUpdate VARCHAR(20) not null, firstInstalation int not null);";
+            lista.add(crearUpdates);
             for (String query : lista) db.execSQL(query);
+            ContentValues v = new ContentValues();
+            Date currentTime = Calendar.getInstance().getTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+            String currentDateandTime = sdf.format(currentTime);
+            v.put("lastUpdate",currentDateandTime);
+            v.put("firstInstalation",1);
+            db.insert(Table_Updates,null,v);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
+            Log.d(TAG, "Upgrading database from version " + oldVersion + " to "
                     + newVersion + ", which will destroy all old data");
             db.execSQL("DROP TABLE IF EXISTS " + Table_Exercise);
             db.execSQL("DROP TABLE IF EXISTS " + Table_Routine);
@@ -114,6 +139,27 @@ public class GymnasioDBAdapter {
         DbHelper.close();
     }
 
+
+    public Cursor checkForUpdates() {
+        return Db.query(Table_Updates, new String[]{"_id","lastUpdate","firstInstalation"},
+                null,null,null,null,null);
+    }
+    /**
+     * Updates de lastUpdates date when the app updates itself.
+     *
+     * @param id the id of the row
+     * @return exId or -1 if failed
+     */
+    public long updateLastUpdate(int id) {
+        ContentValues v = new ContentValues();
+        Date currentTime = Calendar.getInstance().getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String currentDateandTime = sdf.format(currentTime);
+        v.put("lastUpdate",currentDateandTime);
+        v.put("firstInstalation",0);
+        Log.d("DBUpdate", "Updating the last update date on database with value: "+currentDateandTime);
+        return Db.update(Table_Updates,v,"_id ="+id,null);
+    }
     /**
      * Return a Cursor over the list of all exercises in the database
      *
@@ -122,12 +168,6 @@ public class GymnasioDBAdapter {
     public Cursor fetchExercises() {
         return Db.query(Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC, KEY_EX_IMG, KEY_EX_TAG}
                 , null, null, null, null, null);
-    }
-    /**
-     * Populate the database using the remote database.
-     */
-    public void populateFields() {
-        //THIS WILL DO SOME SHIT WHEN I KNOW HOW.
     }
     /**
      * Create a new Exercise using the object provided. If the exercise is
@@ -148,7 +188,7 @@ public class GymnasioDBAdapter {
             tags += "#"+s+",";
         }
         v.put(KEY_EX_TAG, tags);
-        Log.w("DBInsertion", "Inserting exercise to database");
+        Log.d("DBInsertion", "Inserting exercise to database");
         return Db.insert(Table_Exercise, null, v);
     }
     /**
@@ -253,7 +293,7 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_R, r.getRep());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
-        Log.w("DBInsertion", "Inserting freemium routine to database");
+        Log.d("DBInsertion", "Inserting freemium routine to database");
         return Db.insert(Table_Routine, null, v);
     }
     /**
@@ -273,7 +313,7 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_R, r.getRep());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, true);
-        Log.w("DBInsertion", "Inserting Premium routine to database");
+        Log.d("DBInsertion", "Inserting Premium routine to database");
         return Db.insert(Table_Routine, null, v);
     }
 
