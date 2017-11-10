@@ -51,15 +51,12 @@ public class MainActivity extends AppCompatActivity {
                                 lUR = lUR.replace('T','_');
                                 lUR = lUR.substring(0,19);
                                 //Launch update
-                                //IF FECHAANDROID < FECHASERVER OR FIRSTINSTALATION = 1
                                 if (!lUR.equals(lUL) || fI==1) {
                                     Log.d("INFO", "Update needed because new " +
                                             "installation or new remote db");
                                     goToLoadingActivity();
-                                    db.updateLastUpdate(id);
+                                    db.updateLastUpdate(id, lUR);
                                 }
-
-
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -77,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String, String> params = new HashMap<String, String>();
-                    params.put("u", "adminGPS");
-                    params.put("p", "gimnasIOapp");
+                    params.put("user", "adminGPS");
+                    params.put("pwd", "gimnasIOapp");
                     return params;
                 }
 
@@ -96,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
     public void goToLoadingActivity() {
-        //Intent intent = new Intent(this, LoadingActivity.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, LoadingActivity.class);
+        startActivity(intent);
         Log.d("Update", "Succesfully Updated");
     }
 

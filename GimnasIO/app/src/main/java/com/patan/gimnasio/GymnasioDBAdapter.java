@@ -150,14 +150,11 @@ public class GymnasioDBAdapter {
      * @param id the id of the row
      * @return exId or -1 if failed
      */
-    public long updateLastUpdate(int id) {
+    public long updateLastUpdate(int id, String lU) {
         ContentValues v = new ContentValues();
-        Date currentTime = Calendar.getInstance().getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String currentDateandTime = sdf.format(currentTime);
-        v.put("lastUpdate",currentDateandTime);
+        v.put("lastUpdate",lU);
         v.put("firstInstalation",0);
-        Log.d("DBUpdate", "Updating the last update date on database with value: "+currentDateandTime);
+        Log.d("DBUpdate", "Updating the last update date on database with value: "+lU);
         return Db.update(Table_Updates,v,"_id ="+id,null);
     }
     /**
@@ -167,7 +164,7 @@ public class GymnasioDBAdapter {
      */
     public Cursor fetchExercises() {
         return Db.query(Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC, KEY_EX_IMG, KEY_EX_TAG}
-                , null, null, null, null, null);
+                , null, null, null, null, KEY_EX_NAME);
     }
     /**
      * Create a new Exercise using the object provided. If the exercise is

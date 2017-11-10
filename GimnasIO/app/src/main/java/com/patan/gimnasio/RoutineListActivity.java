@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class RoutineListActivity extends AppCompatActivity {
         db = new GymnasioDBAdapter(this);
         db.open();
 
-        List<String> list = new ArrayList<>();
+        ArrayList<String> list = new ArrayList<>();
         list.add("hola");
         list.add("test");
         Exercise e = new Exercise("Ej1","pecho","nada","nulete",list);
