@@ -33,6 +33,10 @@ public class RoutineListActivity extends AppCompatActivity {
 
     private static final int DELETE_ID = 1;
 
+    public GymnasioDBAdapter getGymnasioDBAdapter(){
+        return db;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +67,7 @@ public class RoutineListActivity extends AppCompatActivity {
         // Rellenamos la lista
         fillData();
     }
+
 
     private void fillData() {
         // Get all of the routines from the database and create the item list
