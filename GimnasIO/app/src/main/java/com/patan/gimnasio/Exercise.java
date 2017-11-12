@@ -44,7 +44,7 @@ public class Exercise {
         return muscle;
     }
 
-    public List<String> getTags() {
+    public ArrayList<String> getTags() {
         return tags;
     }
 

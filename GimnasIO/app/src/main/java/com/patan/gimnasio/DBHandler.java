@@ -73,47 +73,6 @@ public class DBHandler {
             }
         }
     }*
-
-    /**
-     * Return exercise by tag.
-     *
-    public List<Exercise> getExercisesByTag(String tag){
-        //SQLiteDatabase db = this.getReadableDatabase();
-        Cursor m = mDb.rawQuery("Select * from " +  Table_Tag + " e  WHERE  e.nombre='"+tag+"'", null);
-        int idT = m.getInt(0); // id del tag que estamos buscando
-        Cursor cursor= mDb.rawQuery("Select e.* from " + Table_Exercise + " e," + Table_Tag + " t, " + Table_TagXEx + " txe WHERE  t.id='"+idT+"' and e.id=txe.idEj and t.id=txe.idTag", null);
-        //Este cursor tiene los ejercicios donde se usa el tag buscado
-        int count = cursor.getCount();
-        cursor.moveToFirst();
-        List<Exercise> result = new ArrayList<>();
-        //Código muy parecido a fetchAllExercises, donde se sacan todos los ejercicios,músculos y tags
-        for ( int i=0;i < count;i++){
-            List<String> muscles = new ArrayList<String>();
-            List<String> tags = new ArrayList<String>();
-            int id = cursor.getInt(0);
-            String name = cursor.getString(1);
-            String desc = cursor.getString(2);
-            String image = cursor.getString(3);
-            Cursor cursorMuscles = mDb.rawQuery("SELECT m.nombre FROM " + Table_MuscleXEx + " mxe ," + Table_Exercise + " e ," + Table_Muscles + " m WHERE e.id = " + id + " and m.id = mxe.idMusculo AND e.id=mxe.idEj", null);
-            int countMuscles = cursorMuscles.getCount();
-            cursorMuscles.moveToFirst();
-            for( int j = 0;j < countMuscles;j++){
-                muscles.add(cursorMuscles.getString(0));
-                cursorMuscles.moveToNext();
-            }
-            Cursor cursorTags = mDb.rawQuery("SELECT t.nombre FROM " + Table_TagXEx + " txe, " + Table_Exercise + " e, " + Table_Tag + " t WHERE e.id= " + id + " and t.id = txe.idTag AND e.id=txe.idEj", null);
-            int countTags = cursorTags.getCount();
-            cursorTags.moveToFirst();
-            for( int k = 0;k < countTags;k++){
-                tags.add(cursorTags.getString(0));
-                cursorTags.moveToNext();
-            }
-            cursor.moveToNext();
-            result.add(new Exercise(name, muscles, desc, image, tags));
-        }
-
-        return result;
-    }*/
     /**
      * Return routine by id.
      *
