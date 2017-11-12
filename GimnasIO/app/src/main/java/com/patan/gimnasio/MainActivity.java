@@ -1,7 +1,12 @@
 package com.patan.gimnasio;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +29,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    /**
+     * Id to identify a contacts permission request.
+     */
+    private static final int REQUEST_RW = 0;
+
+    /**
+     * Permissions required to read and write contacts. Used by the {@link ContactsFragment}.
+     */
+    private static String[] EXTERNAL_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private View mLayout;
+
     private GymnasioDBAdapter db;
     private String url = "http://10.0.2.2:32001/update/";
 
@@ -93,8 +111,24 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
     public void goToLoadingActivity() {
-        Intent intent = new Intent(this, LoadingActivity.class);
-        startActivity(intent);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Contacts permissions have not been granted.
+            Log.i("TAG", "Contact permissions has NOT been granted. Requesting permissions.");
+            requestRWPermission();
+        } else {
+
+            // Contact permissions have been granted. Show the contacts fragment.
+            Log.i("TAG",
+                    "Contact permissions have already been granted. Displaying contact details.");
+
+            Intent intent = new Intent(this, LoadingActivity.class);
+            startActivity(intent);
+        }
+
+
         Log.d("Update", "Succesfully Updated");
     }
 
@@ -113,4 +147,74 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PremiumLoginActivity.class);
         startActivity(intent);
     }
+    /**
+     * Requests the ReadWrite permission.
+     */
+    private void requestRWPermission() {
+        Log.i("TAG", "READWRITE permission has NOT been granted. Requesting permission.");
+
+        // BEGIN_INCLUDE(contacts_permission_request)
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+            // Provide an additional rationale to the user if the permission was not granted
+            // and the user would benefit from additional context for the use of the permission.
+            // For example, if the request has been denied previously.
+            Log.i("TAG",
+                    "Displaying readwrite permission rationale to provide additional context.");
+
+            // Display a SnackBar with an explanation and a button to trigger the request.
+            Snackbar.make(mLayout, R.string.permission_rw_rationale,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ActivityCompat
+                                    .requestPermissions(MainActivity.this, EXTERNAL_STORAGE,
+                                            REQUEST_RW);
+                        }
+                    })
+                    .show();
+        } else {
+            // Contact permissions have not been granted yet. Request them directly.
+            Log.w("TAG", "YEEEEEEP");
+            ActivityCompat.requestPermissions(this, EXTERNAL_STORAGE, REQUEST_RW);
+        }
+        // END_INCLUDE(contacts_permission_request)
+    }
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        if (requestCode == REQUEST_RW) {
+            // BEGIN_INCLUDE(permission_result)
+            // Received permission result for camera permission.
+            Log.i("TAG", "Received response for readwrite permission request.");
+
+            // Check if the only required permission has been granted
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Camera permission has been granted, preview can be displayed
+                Log.i("TAG", "ReadWrite permission has now been granted. Showing preview.");
+                Intent intent = new Intent(this, LoadingActivity.class);
+                startActivity(intent);
+                //Snackbar.make(mLayout, R.string.permision_available_rw,
+                        //Snackbar.LENGTH_INDEFINITE).show();
+            } else {
+                Log.i("TAG", "ReadWrite permission was NOT granted.");
+                //Snackbar.make(mLayout, R.string.permissions_not_granted,
+                        //Snackbar.LENGTH_INDEFINITE).show();
+
+            }
+            // END_INCLUDE(permission_result)
+
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
 }
