@@ -369,7 +369,4 @@ public class GymnasioDBAdapter {
         return mCursor;
 
     }
-
-
-
 }

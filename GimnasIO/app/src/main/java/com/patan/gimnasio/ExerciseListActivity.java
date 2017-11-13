@@ -25,6 +25,10 @@ public class ExerciseListActivity extends AppCompatActivity {
     private ListView l;
     private GymnasioDBAdapter db;
 
+    public GymnasioDBAdapter getGymnasioDbAdapter() {
+        return db;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
