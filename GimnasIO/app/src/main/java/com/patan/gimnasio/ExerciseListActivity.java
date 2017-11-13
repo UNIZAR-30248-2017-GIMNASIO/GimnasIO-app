@@ -36,8 +36,6 @@ public class ExerciseListActivity extends AppCompatActivity {
         db = new GymnasioDBAdapter(this);
         db.open();
         l = (ListView)findViewById(R.id.dbExercisesList);
-        Exercise e = test();
-        db.createExercise(e);
         fillData();
         registerForContextMenu(l);
     }
@@ -54,11 +52,5 @@ public class ExerciseListActivity extends AppCompatActivity {
         SimpleCursorAdapter notes =
                 new SimpleCursorAdapter(this, R.layout.exercises_row, exercises, from, to,0);
         l.setAdapter(notes);
-    }
-    private Exercise test() {
-        ArrayList<String> al = new ArrayList<String>();
-        al.add("BicepsCO");
-        Exercise e = new Exercise("Nombre","Biceps","Cosa para hacer biceps","/ruta/",al);
-        return e;
     }
 }
