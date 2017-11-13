@@ -196,7 +196,7 @@ public class GymnasioDBAdapter {
 
         Cursor mCursor =
 
-                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
+                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
                                 KEY_EX_IMG, KEY_EX_TAG}, KEY_EX_ID + "=" + rowId, null,
                         null, null, null, null);
         if (mCursor != null) {
