@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
      * Id to identify a contacts permission request.
      */
     private static final int REQUEST_RW = 0;
-
     /**
      * Permissions required to read and write contacts. Used by the {@link ContactsFragment}.
      */
@@ -202,13 +201,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("TAG", "ReadWrite permission has now been granted. Showing preview.");
                 Intent intent = new Intent(this, LoadingActivity.class);
                 startActivity(intent);
-                //Snackbar.make(mLayout, R.string.permision_available_rw,
-                        //Snackbar.LENGTH_INDEFINITE).show();
             } else {
                 Log.i("TAG", "ReadWrite permission was NOT granted.");
-                //Snackbar.make(mLayout, R.string.permissions_not_granted,
-                        //Snackbar.LENGTH_INDEFINITE).show();
-
             }
             // END_INCLUDE(permission_result)
 
