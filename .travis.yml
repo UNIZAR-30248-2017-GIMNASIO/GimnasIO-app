@@ -32,20 +32,20 @@ android:
     - sys-img-armeabi-v7a-android-26
     - sys-img-armeabi-v7a-android-25
     - sys-img-armeabi-v7a-android-22
-# env:
-#   global:
-#     - API=25 # Android API level 25 by default
-#     - TAG=google_apis # Google APIs by default, alternatively use default
-#     - ABI=armeabi-v7a # ARM ABI v7a by default
-#     - QEMU_AUDIO_DRV=none # Disable emulator audio to avoid warning
-#     #- ANDROID_HOME=/usr/local/android-sdk-26.1.1 # Depends on the cookbooks version used in the VM
-#     - TOOLS=${ANDROID_HOME}/tools # PATH order matters, exists more than one emulator script
-#     - PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
-#     - ADB_INSTALL_TIMEOUT=20 # minutes (2 minutes by default)
+env:
+  global:
+    - API=25 # Android API level 25 by default
+    - TAG=google_apis # Google APIs by default, alternatively use default
+    - ABI=armeabi-v7a # ARM ABI v7a by default
+    - QEMU_AUDIO_DRV=none # Disable emulator audio to avoid warning
+    #- ANDROID_HOME=/usr/local/android-sdk-26.1.1 # Depends on the cookbooks version used in the VM
+    - TOOLS=${ANDROID_HOME}/tools # PATH order matters, exists more than one emulator script
+    - PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
+    - ADB_INSTALL_TIMEOUT=20 # minutes (2 minutes by default)
 
 before_install:
-  # - export EMULATOR="system-images;android-${API};${TAG};${ABI}" # Used to install/create emulator
-  # - echo 'count=0' > /home/travis/.android/repositories.cfg # Avoid warning
+  - export EMULATOR="system-images;android-${API};${TAG};${ABI}" # Used to install/create emulator
+  - echo 'count=0' > /home/travis/.android/repositories.cfg # Avoid warning
   - cd ./GimnasIO
   - chmod +x gradlew
 
@@ -59,12 +59,12 @@ install:
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
   - echo yes | sdkmanager "$EMULATOR" # Install emulator system image
 #   # Create and start emulator
-#   - echo no | avdmanager create avd -n acib -k "$EMULATOR" -f --abi "$ABI" --tag "$TAG"
-#   - emulator -avd acib -engine classic -no-window -verbose -qemu -m 512 &
+  - echo no | avdmanager create avd -n acib -k "$EMULATOR" -f --abi "$ABI" --tag "$TAG"
+  - emulator -avd acib -engine classic -no-window -verbose -qemu -m 512 &
 
 before_script:
-  - echo no | avdmanager create avd -n test -k "$EMULATOR" -f --abi armeabi-v7a --tag google-apis
-  - emulator -avd test -engine classic -no-audio -no-window &
+  # echo no | avdmanager create avd -n test -k "$EMULATOR" -f --abi armeabi-v7a --tag google-apis
+  #- emulator -avd test -engine classic -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
   - yes | sdkmanager --licenses 
