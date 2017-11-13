@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,10 @@ public class RoutineListActivity extends AppCompatActivity {
 
     private static final int DELETE_ID = 1;
 
+    public GymnasioDBAdapter getGymnasioDBAdapter(){
+        return db;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,17 +45,12 @@ public class RoutineListActivity extends AppCompatActivity {
         db = new GymnasioDBAdapter(this);
         db.open();
 
-        List<String> list = new ArrayList<>();
+        ArrayList<String> list = new ArrayList<>();
         list.add("hola");
         list.add("test");
         Exercise e = new Exercise("Ej1","pecho","nada","nulete",list);
-        List<Exercise> liste = new ArrayList<>();
+        ArrayList<Exercise> liste = new ArrayList<>();
         liste.add(e);
-
-        // BORRAR CUANDO SE PUEDAN CREAR NOTAS
-        Routine r = new Routine("Gym1","rutina1","pechaco",3,4,20,liste);
-        long id = db.createFreemiumRoutine(r);
-        // BORRAR CUANDO SE PUEDAN CREAR NOTAS
 
         l = (ListView)findViewById(R.id.dbRoutinesList);
 
@@ -67,6 +67,7 @@ public class RoutineListActivity extends AppCompatActivity {
         // Rellenamos la lista
         fillData();
     }
+
 
     private void fillData() {
         // Get all of the routines from the database and create the item list
@@ -110,6 +111,12 @@ public class RoutineListActivity extends AppCompatActivity {
         } else {
             return false;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fillData();
     }
 
 
