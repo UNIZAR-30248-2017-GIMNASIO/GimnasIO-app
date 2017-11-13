@@ -36,4 +36,8 @@
 
     <string name="update">Update</string>
     <string name="menu_delete">Eliminar</string>
+    <string name="ok">OK</string>
+    <string name="permission_rw_rationale">Read-Write permissions are needed for this app to work.</string>
+    <string name="permision_available_rw">ReadWrite Permission has been granted. Preview can now be opened.</string>
+    <string name="permissions_not_granted">Permissions were not granted.</string>
 </resources>
