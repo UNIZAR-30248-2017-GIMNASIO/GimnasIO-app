@@ -55,24 +55,6 @@ public class ExerciseListTest extends ActivityInstrumentationTestCase2<ExerciseL
         assertEquals(nExercisesPre+3,nExercisesPost);
     }
 
-    @Test
-    public void eliminateExerciseTest_exists() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e4 = new Exercise("Nombre4","Musculo4","El ejercicio 4","/ruta3",tags);
-        long id4 = db.createExercise(e4);
-        assertEquals(true, db.deleteExercise(id4));
-    }
-
-    @Test
-    public void eliminateExerciseTest_zero() throws Exception {
-        assertEquals(false,db.deleteExercise(0));
-    }
-    @Test
-    public void eliminateExerciseTest_negative() throws Exception {
-        assertEquals(false,db.deleteExercise(-1));
-    }
     @After
     public void tearDown() throws Exception {
         db.deleteExercise(id1);
