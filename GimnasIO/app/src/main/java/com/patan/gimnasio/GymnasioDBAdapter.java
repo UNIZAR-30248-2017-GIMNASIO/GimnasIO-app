@@ -315,6 +315,29 @@ public class GymnasioDBAdapter {
     }
 
     /**
+     * Update a new Freemium Routine using the object provided. If the routine is
+     * successfully created return the new roId for that routine, otherwise return
+     * a -1 to indicate failure.
+     *
+     * @param r the object which contains the routine
+     * @param id id of the routine to be updated
+     * @return true if success or false if failure
+     */
+    public boolean updateFreemiumRoutine(long id, Routine r) {
+        ContentValues v = new ContentValues();
+        v.put(KEY_RO_NAME, r.getName());
+        v.put(KEY_RO_GYM, r.getNameGym());
+        v.put(KEY_RO_S, r.getSeries());
+        v.put(KEY_RO_RT, r.getRelxTime());
+        v.put(KEY_RO_R, r.getRep());
+        v.put(KEY_RO_OBJ, r.getObjective());
+        v.put(KEY_RO_PREMIUM, false);
+        return Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+    }
+
+
+
+    /**
      * Return a Cursor over the list of all routines in the database
      *
      * @return Cursor over all routines.
@@ -324,6 +347,23 @@ public class GymnasioDBAdapter {
                         KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,KEY_RO_GYM}, null,
                         null, null, null, null);
     }
+
+    /**
+     * Returns the number of routines that exist in the database
+     *
+     * @return Number of routines.
+     */
+    public int getNumberOfRoutines() {
+         Cursor c =
+                 Db.query(Table_Routine, new String[]{KEY_RO_ID, KEY_RO_S, KEY_RO_RT, KEY_RO_R,
+                                 KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,KEY_RO_GYM}, null,
+                         null, null, null, null);
+        if (c != null) {
+            c.moveToFirst();
+        }
+        return c.getCount();
+    }
+
     /**
      * Return a Cursor positioned at the routine that matches the given rowId
      *
