@@ -49,24 +49,22 @@ before_install:
   - cd ./GimnasIO
   - chmod +x gradlew
 
-# install:
-#   - echo yes | sdkmanager "tools"
-#   - echo yes | sdkmanager "platforms;android-25" # Latest platform required by SDK tools
-#   - echo yes | sdkmanager "platforms;android-${API}" # Android platform required by emulator
-#   - echo yes | sdkmanager "extras;android;m2repository"
-#   - echo yes | sdkmanager "extras;google;m2repository"
-#   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
-#   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
-#   - echo yes | sdkmanager "$EMULATOR" # Install emulator system image
+ install:
+   - echo yes | sdkmanager "tools"
+   - echo yes | sdkmanager "platforms;android-25" # Latest platform required by SDK tools
+   - echo yes | sdkmanager "platforms;android-${API}" # Android platform required by emulator
+   - echo yes | sdkmanager "extras;android;m2repository"
+   - echo yes | sdkmanager "extras;google;m2repository"
+   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
+   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
+   - echo yes | sdkmanager "$EMULATOR" # Install emulator system image
 #   # Create and start emulator
 #   - echo no | avdmanager create avd -n acib -k "$EMULATOR" -f --abi "$ABI" --tag "$TAG"
 #   - emulator -avd acib -engine classic -no-window -verbose -qemu -m 512 &
 
 before_script:
-  - /opt/tools/android-accept-licenses.sh "android-sdk-linux/tools/android update sdk --all --no-ui --filter platform-tools,tools" && \
-  - /opt/tools/android-accept-licenses.sh "android-sdk-linux/tools/android update sdk --all --force --no-ui --filter platform-tools,tools,build-tools-21.0.0,build-tools-21.0.1,build-tools-22.0.0,build-tools-22.0.2,build-tools-25.1.1,build-tools-25.0.0,build-tools-26.0.2,build-tools-26.0.1,android-26,android-25,android-22,addon-google_apis_x86-google-25,extra-android-support,extra-android-m2repository,extra-google-m2repository,extra-google-google_play_services,sys-img-armeabi-v7a-android-22,sys-img-armeabi-v7a-android-25,sys-img-armeabi-v7a-android-26"
-  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
-  - emulator -avd test -no-audio -no-window &
+  - echo no | avdmanager create avd -n test -k "$EMULATOR" -f --abi armeabi-v7a --tag google-apis
+  - emulator -avd test -engine classic -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
   - yes | sdkmanager --licenses 
