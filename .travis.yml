@@ -61,7 +61,7 @@ install:
 #   # Create and start emulator
   - echo no | avdmanager create avd -n acib -k "$EMULATOR" -f --abi "$ABI" --tag "$TAG"
   - emulator -avd acib -engine classic -no-window -verbose -qemu -m 512 &
-  - android-wait-for-emulator
+  - travis_wait 25 android-wait-for-emulator
 
 before_script:
   # echo no | avdmanager create avd -n test -k "$EMULATOR" -f --abi armeabi-v7a --tag google-apis
