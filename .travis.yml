@@ -63,7 +63,9 @@ before_install:
 #   - emulator -avd acib -engine classic -no-window -verbose -qemu -m 512 &
 
 before_script:
-  - echo no | android create avd --force -n test -t android-25 --abi armeabi-v7a
+  - /opt/tools/android-accept-licenses.sh "android-sdk-linux/tools/android update sdk --all --no-ui --filter platform-tools,tools" && \
+  - /opt/tools/android-accept-licenses.sh "android-sdk-linux/tools/android update sdk --all --force --no-ui --filter platform-tools,tools,build-tools-21.0.0,build-tools-21.0.1,build-tools-22.0.0,build-tools-22.0.2,build-tools-25.1.1,build-tools-25.0.0,build-tools-26.0.2,build-tools-26.0.1,android-26,android-25,android-22,addon-google_apis_x86-google-25,extra-android-support,extra-android-m2repository,extra-google-m2repository,extra-google-google_play_services,sys-img-armeabi-v7a-android-22,sys-img-armeabi-v7a-android-25,sys-img-armeabi-v7a-android-26"
+  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
   - emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
@@ -85,3 +87,4 @@ licenses:
   - 'android-sdk-license-.+'
   - 'google-gdk-license-.+'
   - 'android-*'
+os: linux
