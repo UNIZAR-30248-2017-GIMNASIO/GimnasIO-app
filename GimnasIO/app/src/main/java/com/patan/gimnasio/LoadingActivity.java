@@ -1,15 +1,9 @@
 package com.patan.gimnasio;
 
 import android.Manifest;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,6 +43,12 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
      * Root of the layout of this Activity.
      */
     private View mLayout;
+
+    private String ruta = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/GymnasIOapp";
+
+    public GymnasioDBAdapter getGymnasioDbAdapter() {
+        return db;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,19 +100,24 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
             for (String s: parts) {
                 tags.add(s);
             }
+            //String ruta = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+            String rutaEj = ruta +"/"+ ejercicio.getString("name") + ".jpg";
             Exercise e = new Exercise(ejercicio.getString("name"),
                     ejercicio.getString("muscle"),
                     ejercicio.getString("description"),
-                    ejercicio.getString("name"),
+                            rutaEj,
                     tags);
-            getImage(e.getName());
+            boolean ok = getImage(e.getName());
+            if (!ok) break;
             db.createExercise(e);
         }
         Log.d("Update","Database updated");
+
         this.finish();
     }
-    private void getImage(String s) {
+    private boolean getImage(String s) {
         final String image = s;
+        final boolean error = false;
         String url = "http://10.0.2.2:32001/exercises/download";
         Log.w("ImgDwn","Trying to download "+image);
         RequestQueue mQueue = Volley.newRequestQueue(this);
@@ -127,7 +132,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                 new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.e("TAG", "http Volley request failed!", volleyError);
+                Log.e("ERROR from" + image, "http Volley request failed!", volleyError);
             }
         }) {
 
@@ -139,15 +144,12 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
             }
         };
         mQueue.add(r);
+        return true;
     }
 
     private void SaveImage(Bitmap finalBitmap, String s) {
-        Log.i("TAG", "Saving images. Checking permissions.");
-            Log.i("TAG",
-                    "RW permissions have already been granted. Displaying contact details.");
-            String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
-            File myDir = new File(root + "/GymnasIOapp");
-            Log.w("ImgSave",root);
+            File myDir = new File(ruta);
+            Log.w("ImgSave",ruta);
             myDir.mkdirs();
             String fname = s+".jpg";
             File file = new File (myDir, fname);
@@ -161,5 +163,6 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            Log.d("SAVED","Image with name "+s+" saved on filesystem");
     }
 }

@@ -45,13 +45,6 @@ public class RoutineListActivity extends AppCompatActivity {
         db = new GymnasioDBAdapter(this);
         db.open();
 
-        ArrayList<String> list = new ArrayList<>();
-        list.add("hola");
-        list.add("test");
-        Exercise e = new Exercise("Ej1","pecho","nada","nulete",list);
-        ArrayList<Exercise> liste = new ArrayList<>();
-        liste.add(e);
-
         l = (ListView)findViewById(R.id.dbRoutinesList);
 
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -65,6 +58,7 @@ public class RoutineListActivity extends AppCompatActivity {
         });
 
         // Rellenamos la lista
+        testRutina();
         fillData();
     }
 
@@ -117,6 +111,21 @@ public class RoutineListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         fillData();
+    }
+
+    private void testRutina(){
+        Routine r = new Routine("LA CALLE","MACHACA","MAZAMIENTO",4,90,15,null);
+        Cursor c = db.getExerciseByName("Aperturas con mancuerna en banco inclinado");
+        String name ="name";
+        String muscle = "muscle";
+        String desc = "desc";
+        String img= "/ruta";
+        Exercise e = new Exercise(name,muscle,desc,img,null);
+        long id = db.createExercise(e);
+        ArrayList<Long> exs = new ArrayList<>();
+        exs.add(id);
+        r.setExcercises(exs);
+        db.createFreemiumRoutine(r);
     }
 
 
