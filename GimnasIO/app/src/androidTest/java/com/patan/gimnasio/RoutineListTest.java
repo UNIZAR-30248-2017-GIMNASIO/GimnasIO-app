@@ -18,7 +18,7 @@ public class RoutineListTest extends ActivityInstrumentationTestCase2<RoutineLis
     private RoutineListActivity routineList;
     private GymnasioDBAdapter db;
     private long id1, id2, id3;
-    ArrayList<Integer> ex = new ArrayList<>();
+    ArrayList<Long> ex = new ArrayList<>();
 
     public RoutineListTest() {
         super(RoutineListActivity.class);
@@ -30,8 +30,8 @@ public class RoutineListTest extends ActivityInstrumentationTestCase2<RoutineLis
         injectInstrumentation(InstrumentationRegistry.getInstrumentation());
         routineList = getActivity();
         db = routineList.getGymnasioDBAdapter();
-        ex.add(1);  // Se añaden dos ID cualesquiera para simular IDs de ejercicios
-        ex.add(2);
+        ex.add((long)1);  // Se añaden dos ID cualesquiera para simular IDs de ejercicios
+        ex.add((long)2);
     }
 
     // Test que comprueba que la actividad lista todas las rutinas existentes
