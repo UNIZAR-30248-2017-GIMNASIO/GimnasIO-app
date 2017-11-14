@@ -35,9 +35,25 @@ public class ExerciseListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_exercises_list);
         db = new GymnasioDBAdapter(this);
         db.open();
+
+
         l = (ListView)findViewById(R.id.dbExercisesList);
+
+        l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                Intent intent = new Intent(v.getContext(), ExerciseViewActivity.class);
+                intent.putExtra("ID",id);
+                startActivity(intent);
+            }
+        });
+
+
+
         fillData();
         registerForContextMenu(l);
+
+
     }
 
     private void fillData() {
@@ -53,4 +69,5 @@ public class ExerciseListActivity extends AppCompatActivity {
                 new SimpleCursorAdapter(this, R.layout.exercises_row, exercises, from, to,0);
         l.setAdapter(notes);
     }
+
 }
