@@ -12,9 +12,9 @@ public class Routine{
     private int series;
     private int rep;
     private double relxTime;
-    private ArrayList<Integer> excercises;
+    private ArrayList<Long> excercises;
 
-    public Routine(String nameGym,String name,String objective,int series,double relxTime,int rep, ArrayList<Integer> exercises){
+    public Routine(String nameGym,String name,String objective,int series,double relxTime,int rep, ArrayList<Long> exercises){
         this.nameGym = nameGym;
         this.name = name;
         this.objective = objective;
@@ -28,7 +28,7 @@ public class Routine{
         this.relxTime = relxTime;
     }
 
-    public void setExcercises(ArrayList<Integer> excercises) {
+    public void setExcercises(ArrayList<Long> excercises) {
         this.excercises = excercises;
     }
 
@@ -68,7 +68,7 @@ public class Routine{
         return series;
     }
 
-    public ArrayList<Integer> getExcercises() {
+    public ArrayList<Long> getExercises() {
         return excercises;
     }
 
