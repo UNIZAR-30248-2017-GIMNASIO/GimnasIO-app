@@ -21,7 +21,6 @@ public class RoutineEditActivity extends AppCompatActivity {
 
     private String mode_in;
     private long id_in;
-
     private ListView l;
     private EditText textName;
     private EditText textGym;
@@ -29,6 +28,7 @@ public class RoutineEditActivity extends AppCompatActivity {
     private EditText textRep;
     private EditText textRelax;
     private EditText textObjetivo;
+    private ArrayList<Exercise> ex;
 
     private GymnasioDBAdapter db;
 
@@ -48,8 +48,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                Intent intent = new Intent(v.getContext(), ExerciseListActivity.class);
-                intent.putExtra("MODE","edit");
+                Intent intent = new Intent(v.getContext(), ExerciseViewActivity.class);
                 startActivity(intent);
             }
         });
@@ -82,6 +81,23 @@ public class RoutineEditActivity extends AppCompatActivity {
         saveState();
     }
 
+    public void goToListOfExercises(View v) {
+        Intent intent = new Intent(v.getContext(), ExerciseListActivity.class);
+        intent.putExtra("MODE","routine");
+        startActivityForResult(intent,1);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                long id = data.getLongExtra("ID",0);  // Cogemos el ID del ejercicio añadido
+                Cursor cursor = db.fetchExercise(id);
+                // TODO: Añadir el ejercicio obtenido al listView
+            }
+        }
+    }
+
     public void saveState() {
         String nameGym = textGym.getText().toString();
         String name;
@@ -107,6 +123,7 @@ public class RoutineEditActivity extends AppCompatActivity {
 
         if (mode_in.equals("new")) {
             db.createFreemiumRoutine(r);
+            mode_in = "edit";   // Cambiamos a modo edit para que no se cree la rutina multiples veces
 
         } else if (mode_in.equals("edit")) {
             db.updateFreemiumRoutine(id_in,r);
@@ -149,7 +166,9 @@ public class RoutineEditActivity extends AppCompatActivity {
         } else textObjetivo.setText("");
 
 
-        // Faltara llenar el ArrayList de ejercicios
+        // Faltara llenar el ArrayList de ejercicios, obtenemos la lista de ejrecicios y hacemos
+        // consultas para ir buscando esos ejercicios y los vamos añadiendo a la listView
+        // TODO: obtener la lista de ejercicios y mostrarlos
     }
 
 
