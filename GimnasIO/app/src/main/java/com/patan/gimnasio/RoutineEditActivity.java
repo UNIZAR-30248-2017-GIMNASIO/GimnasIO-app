@@ -117,7 +117,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (!textRelax.getText().toString().equals("")) {
             relxTime = Double.parseDouble(textRelax.getText().toString());
         }
-        ArrayList<Integer> exercises = new ArrayList<>();
+        ArrayList<Long> exercises = new ArrayList<>();
 
         Routine r = new Routine(nameGym, name, objective, series, relxTime, rep, exercises);
 
