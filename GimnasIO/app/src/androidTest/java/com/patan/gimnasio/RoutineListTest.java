@@ -18,6 +18,7 @@ public class RoutineListTest extends ActivityInstrumentationTestCase2<RoutineLis
     private RoutineListActivity routineList;
     private GymnasioDBAdapter db;
     private long id1, id2, id3;
+    private String url ="http://10.0.2.2:32001/exercises/";
     ArrayList<Long> ex = new ArrayList<>();
 
     public RoutineListTest() {
@@ -30,14 +31,16 @@ public class RoutineListTest extends ActivityInstrumentationTestCase2<RoutineLis
         injectInstrumentation(InstrumentationRegistry.getInstrumentation());
         routineList = getActivity();
         db = routineList.getGymnasioDBAdapter();
-        ex.add((long)1);  // Se añaden dos ID cualesquiera para simular IDs de ejercicios
-        ex.add((long)2);
+        long i = 1;
+        long i2 = 2;
+        ex.add(i);  // Se añaden dos ID cualesquiera para simular IDs de ejercicios
+        ex.add(i2);
     }
 
     // Test que comprueba que la actividad lista todas las rutinas existentes
     @Test
     public void listarRutinasTest() throws Exception{
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1,ex);
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, ex);
         Routine r2 = new Routine("Gym2","Rutina2","Objetivo2",2,2.0,2,ex);
         Routine r3 = new Routine("Gym3","Rutina3","Objetivo3",3,3.0,3,ex);
 

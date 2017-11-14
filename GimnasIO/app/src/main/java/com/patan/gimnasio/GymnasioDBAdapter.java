@@ -20,7 +20,7 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
