@@ -169,10 +169,12 @@ public class GymnasioDBAdapter {
         v.put(KEY_EX_DESC, e.getDescription());
         v.put(KEY_EX_IMG, e.getImage());
         String tags="";
-        for (String s: e.getTags()) {
-            tags += "#"+s+",";
+        if (e.getTags()!=null){
+            for (String s: e.getTags()) {
+                tags += "#"+s+",";
+            }
+            v.put(KEY_EX_TAG, tags);
         }
-        v.put(KEY_EX_TAG, tags);
         Log.d("DBInsertion", "Inserting exercise to database");
         return Db.insert(Table_Exercise, null, v);
     }
@@ -333,7 +335,39 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_R, r.getRep());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
-        return Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+        ArrayList<Long> ex = r.getExercises();
+        boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+        Db.delete(Table_ExOfRoutine,"idRut="+id,null);
+        for (long ejId: ex) {
+            Db.execSQL("INSERT INTO " +Table_ExOfRoutine + " VALUES (" + id +  "," + ejId + ")");
+        }
+        return updateRo;
+    }
+    /**
+     * Update a new Freemium Routine using the object provided. If the routine is
+     * successfully created return the new roId for that routine, otherwise return
+     * a -1 to indicate failure.
+     *
+     * @param r the object which contains the routine
+     * @param id id of the routine to be updated
+     * @return true if success or false if failure
+     */
+    public boolean updatePremiumRoutine(long id, Routine r) {
+        ContentValues v = new ContentValues();
+        v.put(KEY_RO_NAME, r.getName());
+        v.put(KEY_RO_GYM, r.getNameGym());
+        v.put(KEY_RO_S, r.getSeries());
+        v.put(KEY_RO_RT, r.getRelxTime());
+        v.put(KEY_RO_R, r.getRep());
+        v.put(KEY_RO_OBJ, r.getObjective());
+        v.put(KEY_RO_PREMIUM, true);
+        ArrayList<Long> ex = r.getExercises();
+        boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+        Db.delete(Table_ExOfRoutine,"idRut="+id,null);
+        for (long ejId: ex) {
+            Db.execSQL("INSERT INTO " +Table_ExOfRoutine + " VALUES (" + id +  "," + ejId + ")");
+        }
+        return updateRo;
     }
 
 
