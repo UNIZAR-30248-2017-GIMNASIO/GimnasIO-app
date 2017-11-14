@@ -2,11 +2,15 @@ package com.patan.gimnasio;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -29,6 +33,7 @@ public class RoutineEditActivity extends AppCompatActivity {
     private EditText textRelax;
     private EditText textObjetivo;
     private ArrayList<Exercise> ex;
+    private Menu optionsMenu;
 
     private GymnasioDBAdapter db;
 
@@ -66,6 +71,86 @@ public class RoutineEditActivity extends AppCompatActivity {
             id_in = intent.getLongExtra("ID", 0);
             populateFields();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.routine_edit_menu_1, menu);
+        optionsMenu = menu;
+        return true;
+    }
+
+    // Para cambiar del menu de ver al de editar
+    public boolean changeMenuToView() {
+        optionsMenu.clear();
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.routine_edit_menu_1, optionsMenu);
+        return true;
+    }
+
+    // Para cambiar del menu de editar al de ver
+    public boolean changeMenuToEdit() {
+        optionsMenu.clear();
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.routine_edit_menu_2, optionsMenu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId())
+        {
+            case R.id.action_edit_1:
+                goToEditMode();
+                changeMenuToEdit();
+                break;
+            case R.id.action_edit_2:
+                updateRoutine();
+                changeMenuToView();
+                break;
+        }
+        return true;
+    }
+
+
+    public void updateRoutine() {
+        // TODO: Hacemos un update de la rutina y volvemos a modo edit
+    }
+
+    // TODO: poner icono de editar, cuando estes en modo edit poner icono de guardar y volver al modo view
+
+    public void goToEditMode() {
+
+        textName.setFocusable(true);
+        textName.setEnabled(true);
+        textName.setFocusableInTouchMode(true);
+        textName.setClickable(true);
+
+        textGym.setFocusable(true);
+        textGym.setEnabled(true);
+        textGym.setFocusableInTouchMode(true);
+        textGym.setClickable(true);
+
+        textSeries.setFocusable(true);
+        textSeries.setEnabled(true);
+        textSeries.setFocusableInTouchMode(true);
+        textSeries.setClickable(true);
+
+        textRep.setFocusable(true);
+        textRep.setEnabled(true);
+        textRep.setFocusableInTouchMode(true);
+        textRep.setClickable(true);
+
+        textRelax.setFocusable(true);
+        textRelax.setEnabled(true);
+        textRelax.setFocusableInTouchMode(true);
+        textRelax.setClickable(true);
+
+        textObjetivo.setFocusable(true);
+        textObjetivo.setEnabled(true);
+        textObjetivo.setFocusableInTouchMode(true);
+        textObjetivo.setClickable(true);
     }
 
     @Override
@@ -144,26 +229,45 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)) != null) {
             textName.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)));
         } else textName.setText("");
+        textName.setFocusable(false);
+        textName.setEnabled(false);
+        textName.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)) != null) {
             textGym.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)));
         } else textGym.setText("");
+        textGym.setFocusable(false);
+        textGym.setEnabled(false);
+        textGym.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_S)) != null) {
             textSeries.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_S)));
         } else textSeries.setText("");
+        textSeries.setFocusable(false);
+        textSeries.setEnabled(false);
+        textSeries.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_R)) != null) {
             textRep.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_R)));
         } else textRep.setText("");
+        textRep.setFocusable(false);
+        textRep.setEnabled(false);
+        textRep.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_RT)) != null) {
             textRelax.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_RT)));
         } else textRelax.setText("");
+        textRelax.setFocusable(false);
+        textRelax.setEnabled(false);
+        textRelax.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)) != null) {
             textObjetivo.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)));
         } else textObjetivo.setText("");
+        textObjetivo.setFocusable(false);
+        textObjetivo.setEnabled(false);
+        textObjetivo.setTextColor(getResources().getColor(R.color.labelColor));
+
 
 
         // Faltara llenar el ArrayList de ejercicios, obtenemos la lista de ejrecicios y hacemos
