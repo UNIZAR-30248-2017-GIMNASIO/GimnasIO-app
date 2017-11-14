@@ -44,6 +44,12 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
      */
     private View mLayout;
 
+    private String ruta = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/GymnasIOapp";
+
+    public GymnasioDBAdapter getGymnasioDbAdapter() {
+        return db;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,10 +100,12 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
             for (String s: parts) {
                 tags.add(s);
             }
+            //String ruta = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+            String rutaEj = ruta +"/"+ ejercicio.getString("name") + ".jpg";
             Exercise e = new Exercise(ejercicio.getString("name"),
                     ejercicio.getString("muscle"),
                     ejercicio.getString("description"),
-                    ejercicio.getString("name"),
+                            rutaEj,
                     tags);
             boolean ok = getImage(e.getName());
             if (!ok) break;
@@ -140,9 +148,8 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     }
 
     private void SaveImage(Bitmap finalBitmap, String s) {
-            String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
-            File myDir = new File(root + "/GymnasIOapp");
-            Log.w("ImgSave",root);
+            File myDir = new File(ruta);
+            Log.w("ImgSave",ruta);
             myDir.mkdirs();
             String fname = s+".jpg";
             File file = new File (myDir, fname);
