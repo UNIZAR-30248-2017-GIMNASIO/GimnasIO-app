@@ -218,7 +218,7 @@ public class GymnasioDBAdapter {
     public Cursor getExerciseByName(String name) throws SQLException {
         String[] consulta = {name};
         Cursor mCursor;
-        mCursor = Db.query( Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
+        mCursor = Db.query( Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
                         KEY_EX_IMG, KEY_EX_TAG}, KEY_EX_NAME+"='"+name+"'", null,
                 null, null, null, null);
         if (mCursor != null) {
@@ -238,7 +238,7 @@ public class GymnasioDBAdapter {
 
         Cursor mCursor =
 
-                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
+                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
                                 KEY_EX_IMG,  KEY_EX_TAG}, KEY_EX_MUSCLE + "='" + muscle+"'", null,
                         null, null, null, null);
         if (mCursor != null) {
@@ -257,7 +257,7 @@ public class GymnasioDBAdapter {
     public Cursor getExercisesByTag(String tag) throws SQLException {
         //THIS WILL DO SOMETHING WHEN I KNOW HOW TO DO IT.
         Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_TAG
-                + "LIKE '%#" + tag + ",%';", null);
+                + " LIKE '%#" + tag + ",%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -453,7 +453,7 @@ public class GymnasioDBAdapter {
             c.moveToFirst();
         }
         //Ahora hay que sacar la lista de ejercicios
-        Cursor cursorej = Db.rawQuery("SELECT e.nombre FROM " + Table_ExOfRoutine + " edr ," + Table_Exercise + " e ," + Table_Routine + " r WHERE r.id = " + id + " and e.id = edr.idEj AND r.id=edr.idRut", null);
+        Cursor cursorej = Db.rawQuery("SELECT e.* FROM " + Table_ExOfRoutine + " edr ," + Table_Exercise + " e ," + Table_Routine + " r WHERE r.id = " + id + " and e.id = edr.idEj AND r.id=edr.idRut", null);
         return cursorej;
     }
 }
