@@ -2,7 +2,9 @@ package com.patan.gimnasio;
 
 import android.Manifest;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +25,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,64 +93,30 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     }
 
     private void updateDatabase(JSONObject list) throws JSONException {
-        db= new GymnasioDBAdapter(this);
+        db = new GymnasioDBAdapter(this);
         db.open();
-        for (int i = 0;i<list.length() ; i++) {
-            JSONObject ejercicio = list.getJSONObject(i+"");
-            Log.w("ELEMENTO"+i,ejercicio.toString());
+        for (int i = 0; i < list.length(); i++) {
+            JSONObject ejercicio = list.getJSONObject(i + "");
+            Log.d("" + i, ejercicio.toString());
             ArrayList<String> tags = new ArrayList<String>();
             String tag = ejercicio.getString("tag");
             String[] parts = tag.split(",");
-            for (String s: parts) {
+            for (String s : parts) {
                 tags.add(s);
             }
-            //String ruta = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
-            String rutaEj = ruta +"/"+ ejercicio.getString("name") + ".jpg";
-            Exercise e = new Exercise(ejercicio.getString("name"),
+            String rutaEj = ruta + "/" + ejercicio.getString("name").replaceAll("\\s+", "") + ".jpg";
+            final Exercise e = new Exercise(ejercicio.getString("name"),
                     ejercicio.getString("muscle"),
                     ejercicio.getString("description"),
-                            rutaEj,
+                    rutaEj,
                     tags);
-            boolean ok = getImage(e.getName());
-            if (!ok) break;
+            new MyTask().execute(ejercicio.getString("name"));
             db.createExercise(e);
         }
-        Log.d("Update","Database updated");
+        Log.d("Update", "Database updated");
 
-        this.finish();
+        //this.finish();
     }
-    private boolean getImage(String s) {
-        final String image = s;
-        final boolean error = false;
-        String url = "http://10.0.2.2:32001/exercises/download";
-        Log.w("ImgDwn","Trying to download "+image);
-        RequestQueue mQueue = Volley.newRequestQueue(this);
-        //Retrieves an image specified by the URL, displays it in the UI.
-        ImageRequest r = new ImageRequest(url, new Response.Listener<Bitmap>() {
-            @Override
-            public void onResponse(Bitmap bitmap) {
-                Log.w("ImgDwn","Image from "+image+" downloaded");
-                SaveImage(bitmap, image);
-            }
-        }, 1028,1028,Bitmap.Config.ARGB_8888,
-                new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                Log.e("ERROR from" + image, "http Volley request failed!", volleyError);
-            }
-        }) {
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("image", image+".jpg");
-                return params;
-            }
-        };
-        mQueue.add(r);
-        return true;
-    }
-
     private void SaveImage(Bitmap finalBitmap, String s) {
             File myDir = new File(ruta);
             Log.w("ImgSave",ruta);
@@ -159,10 +129,71 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                 finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
                 out.flush();
                 out.close();
-
+                Log.d("SAVED","Image with name "+s+" saved on filesystem");
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Log.d("SAVED","Image with name "+s+" saved on filesystem");
+
     }
+
+    private class MyTask extends AsyncTask<String, Integer, String> {
+        private String result = "";
+        // Runs in UI before background thread is called
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            // Do something like display a progress bar
+        }
+
+        // This is run in a background thread
+        @Override
+        protected String doInBackground(String... params) {
+            final String image = params[0].replaceAll("\\s+","");
+            String url = "http://10.0.2.2:32001/exercises/download";
+            Log.d("ImgDwn","Trying to download "+image);
+            RequestQueue mQueue = Volley.newRequestQueue(LoadingActivity.this);
+            //Retrieves an image specified by the URL, displays it in the UI.
+            ImageRequest r = new ImageRequest(url, new Response.Listener<Bitmap>() {
+                @Override
+                public void onResponse(Bitmap bitmap) {
+                    Log.d("ImgDwn","Image from "+image+" downloaded");
+                    SaveImage(bitmap, image);
+                }
+            }, 1028,1028,Bitmap.Config.ARGB_8888,
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            Log.e("ERROR from " + image, "http Volley request failed!", volleyError);
+                        }
+                    }) {
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("image", image+".jpg");
+                    return params;
+                }
+            };
+            mQueue.add(r);
+            return "DONE";
+        }
+
+        // This is called from background thread but runs in UI
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+
+            // Do things like update the progress bar
+        }
+
+        // This runs in UI when background thread finishes
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            // Do things like hide the progress bar or change a TextView
+        }
+    }
+
 }

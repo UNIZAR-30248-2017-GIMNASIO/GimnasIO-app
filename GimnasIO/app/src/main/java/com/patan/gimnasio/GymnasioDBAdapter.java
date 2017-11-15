@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
@@ -43,8 +44,31 @@ public class GymnasioDBAdapter {
     public static final String KEY_RO_GYM = "gym";
     public static final String KEY_RO_OBJ = "objective";
 
+    public static final String KEY_EXRO_ID = "_id";
+    public static final String KEY_EXRO_IDR = KEY_RO_ID+"R";
+    public static final String KEY_EXRO_IDE = KEY_EX_ID+"E";
+
+    private static final String CREATE_TABLE_ROUTINES = "CREATE TABLE IF NOT EXISTS " + Table_Routine +
+            " ("+ KEY_RO_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ KEY_RO_S
+            + " INTEGER not null ,"+ KEY_RO_RT +" double not null,"+ KEY_RO_R
+            + " INTEGER not null,"+ KEY_RO_OBJ +" VARCHAR(20)"
+            + " not null,"+ KEY_RO_NAME +" VARCHAR(20) not null,"+KEY_RO_PREMIUM
+            + " INT not null,"+ KEY_RO_GYM +" gym varchar(20))";
+    private static final String CREATE_TABLE_EXERCISES="CREATE TABLE IF NOT EXISTS " + Table_Exercise +
+            " (" + KEY_EX_ID + " integer primary key autoincrement," + KEY_EX_NAME + " VARCHAR(20) not null," +
+    KEY_EX_DESC + " not null," + KEY_EX_MUSCLE + " VARCHAR(20) not null, " + KEY_EX_IMG +
+            " varchar(20) not null, "+ KEY_EX_TAG +" varchar(100))";
+    private static final String CREATE_TABLE_RELATION = "CREATE TABLE IF NOT EXISTS "
+            + Table_ExOfRoutine + "("+KEY_EXRO_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_EXRO_IDR + " INTEGER," + KEY_EXRO_IDE + " INTEGER)";
+    private static final String CREATE__TABLE_UPDATES="CREATE TABLE IF NOT EXISTS " + Table_Updates +
+            "( _id integer primary key autoincrement , lastUpdate VARCHAR(20) not null, firstInstalation int not null);";
+
+
     private static final String[] RO_ROWS={KEY_RO_ID, KEY_RO_S, KEY_RO_RT, KEY_RO_R,
             KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,KEY_RO_GYM};
+    private static final String[] EX_ROWS=new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
+            KEY_EX_MUSCLE, KEY_EX_IMG, KEY_EX_TAG};
 
 
     private final Context mCtx;
@@ -57,27 +81,14 @@ public class GymnasioDBAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            List<String> lista = new ArrayList<String>();
-            String crearRutina = "CREATE TABLE IF NOT EXISTS " + Table_Routine +
-                    " ("+ KEY_RO_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ KEY_RO_S
-                    + " INTEGER not null ,"+ KEY_RO_RT +" double not null,"+ KEY_RO_R
-                    + " INTEGER not null,"+ KEY_RO_OBJ +" VARCHAR(20)"
-                    + " not null,"+ KEY_RO_NAME +" VARCHAR(20) not null,"+KEY_RO_PREMIUM
-                    + " INT not null,"+ KEY_RO_GYM +" gym varchar(20))";
-            lista.add(crearRutina);
-            String crearEjercicio = "CREATE TABLE IF NOT EXISTS " + Table_Exercise +
-                    " (" + KEY_EX_ID + " integer primary key autoincrement," + KEY_EX_NAME + " VARCHAR(20) not null," +
-                    KEY_EX_DESC + " not null," + KEY_EX_MUSCLE + " VARCHAR(20) not null, " + KEY_EX_IMG +
-                    " varchar(20) not null, "+ KEY_EX_TAG +" varchar(100))";
-            lista.add(crearEjercicio);
-            String crearEjxRutina = "CREATE TABLE IF NOT EXISTS " + Table_ExOfRoutine
-                    + " (idRut INTEGER,idEj INTEGER, FOREIGN KEY(idRut) REFERENCES "
-                    + Table_Routine + "(_id),FOREIGN KEY (idEj) REFERENCES " + Table_Exercise + "(_id))";
-            lista.add(crearEjxRutina);
-            String crearUpdates = "CREATE TABLE IF NOT EXISTS " + Table_Updates +
-                    "( _id integer primary key autoincrement , lastUpdate VARCHAR(20) not null, firstInstalation int not null);";
-            lista.add(crearUpdates);
-            for (String query : lista) db.execSQL(query);
+            db.execSQL(CREATE_TABLE_ROUTINES);
+            db.execSQL(CREATE_TABLE_EXERCISES);
+            // todo_tag table create statement
+            //String crearEjxRutina = "CREATE TABLE IF NOT EXISTS " + Table_ExOfRoutine
+            //        + " (idRut INTEGER,idEj INTEGER, FOREIGN KEY(idRut) REFERENCES "
+            //        + Table_Routine + "(_id),FOREIGN KEY (idEj) REFERENCES " + Table_Exercise + "(_id))";
+            db.execSQL(CREATE_TABLE_RELATION);
+            db.execSQL(CREATE__TABLE_UPDATES);
             ContentValues v = new ContentValues();
             Date currentTime = Calendar.getInstance().getTime();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
@@ -151,7 +162,7 @@ public class GymnasioDBAdapter {
      * @return Cursor over all exercises.
      */
     public Cursor fetchExercises() {
-        return Db.query(Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC, KEY_EX_IMG, KEY_EX_TAG}
+        return Db.query(Table_Exercise, EX_ROWS
                 , null, null, null, null, KEY_EX_NAME);
     }
     /**
@@ -284,7 +295,10 @@ public class GymnasioDBAdapter {
         long id = Db.insert(Table_Routine,null,v);
         //Añadimos los ejercicios de la rutina
         for (long ejId : ex) {
-            Db.execSQL("INSERT INTO " + Table_ExOfRoutine + " VALUES (" + id +  "," + ejId + ")");
+            ContentValues v2 = new ContentValues();
+            v2.put(KEY_EXRO_IDR,id);
+            v2.put(KEY_EXRO_IDE,ejId);
+            Db.insert(Table_ExOfRoutine,null,v2);
         }
         Log.d("DBInsertion", "Inserting Freemium routine to database");
         return id;
@@ -337,9 +351,14 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_PREMIUM, false);
         ArrayList<Long> ex = r.getExercises();
         boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
-        Db.delete(Table_ExOfRoutine,"idRut="+id,null);
-        for (long ejId: ex) {
-            Db.execSQL("INSERT INTO " +Table_ExOfRoutine + " VALUES (" + id +  "," + ejId + ")");
+        Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"="+id,null);
+        if (ex != null) {
+            for (long ejId : ex) {
+                ContentValues v2 = new ContentValues();
+                v2.put(KEY_EXRO_IDR,id);
+                v2.put(KEY_EXRO_IDE,ejId);
+                Db.insert(Table_ExOfRoutine,null,v2);
+            }
         }
         return updateRo;
     }
@@ -378,8 +397,7 @@ public class GymnasioDBAdapter {
      * @return Cursor over all routines.
      */
     public Cursor fetchRoutines() {
-        return Db.query(Table_Routine, new String[]{KEY_RO_ID, KEY_RO_S, KEY_RO_RT, KEY_RO_R,
-                        KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,KEY_RO_GYM}, null,
+        return Db.query(Table_Routine, RO_ROWS, null,
                         null, null, null, null);
     }
 
@@ -448,12 +466,16 @@ public class GymnasioDBAdapter {
         return Db.delete(Table_Exercise,KEY_EX_ID+"="+id,null)>0;
     }
     public Cursor getExercisesFromRoutine(long id) {
-        Cursor c = Db.query(Table_Routine,RO_ROWS,KEY_RO_ID+"="+id,null,null,null,null);
-        if(c!=null){
-            c.moveToFirst();
+        String selectQuery = "SELECT * FROM "+ Table_Exercise+" ex, "+Table_Routine+" ro, "+
+                Table_ExOfRoutine+" exro WHERE ro."+KEY_RO_ID+"="+id+" AND exro."+KEY_RO_ID+" AND ex."
+                + KEY_EX_ID + "= exro."+KEY_EX_ID;
+        Log.w("TAG",selectQuery);
+        Cursor c = Db.rawQuery(selectQuery,null);
+        // looping through all rows and adding to list
+        if (c.moveToFirst()) {
+            return c;
+        } else {
+            return null;
         }
-        //Ahora hay que sacar la lista de ejercicios
-        Cursor cursorej = Db.rawQuery("SELECT e.* FROM " + Table_ExOfRoutine + " edr ," + Table_Exercise + " e ," + Table_Routine + " r WHERE r.id = " + id + " and e.id = edr.idEj AND r.id=edr.idRut", null);
-        return cursorej;
     }
 }
