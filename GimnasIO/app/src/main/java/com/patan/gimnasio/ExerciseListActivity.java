@@ -34,7 +34,6 @@ public class ExerciseListActivity extends AppCompatActivity {
         db = new GymnasioDBAdapter(this);
         db.open();
 
-
         l = (ListView)findViewById(R.id.dbExercisesList);
 
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){

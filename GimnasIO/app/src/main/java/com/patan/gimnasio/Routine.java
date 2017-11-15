@@ -68,7 +68,7 @@ public class Routine{
         return series;
     }
 
-    public ArrayList<Long> getExcercises() {
+    public ArrayList<Long> getExercises() {
 
         return excercises;
     }

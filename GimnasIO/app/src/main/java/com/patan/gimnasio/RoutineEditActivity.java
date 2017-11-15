@@ -6,8 +6,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -32,8 +34,11 @@ public class RoutineEditActivity extends AppCompatActivity {
     private EditText textRep;
     private EditText textRelax;
     private EditText textObjetivo;
+    private FloatingActionButton fab;
     private ArrayList<Exercise> ex;
     private Menu optionsMenu;
+
+    private final int DELETE_EX = 1;
 
     private GymnasioDBAdapter db;
 
@@ -49,6 +54,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         textRep = (EditText) findViewById(R.id.repeticionesRutina);
         textRelax = (EditText) findViewById(R.id.tiempoRelaxRutina);
         textObjetivo = (EditText) findViewById(R.id.objetivoRutina);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -66,10 +72,28 @@ public class RoutineEditActivity extends AppCompatActivity {
 
         if (mode_in.equals("new")) {
             // No hacemos nada, los campos se muestran vacios
-        } else if (mode_in.equals("edit")) {
+        } else if (mode_in.equals("view")) {
             // Abrimos en modo editar
             id_in = intent.getLongExtra("ID", 0);
             populateFields();
+            goToViewMode();
+        }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu,v,menuInfo);
+        menu.add(Menu.NONE, DELETE_EX, Menu.NONE, R.string.menu_delete);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if (item.getItemId() == DELETE_EX) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            db.deleteRoutine(info.id);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -108,20 +132,20 @@ public class RoutineEditActivity extends AppCompatActivity {
             case R.id.action_edit_2:
                 updateRoutine();
                 changeMenuToView();
+                goToViewMode();
                 break;
         }
         return true;
     }
 
-
+    // Metodo que actualiza la rutina abierta con los datos actuales de la actividad
     public void updateRoutine() {
-        // TODO: Hacemos un update de la rutina y volvemos a modo edit
+        Routine r = getRoutineFields();
+        db.updateFreemiumRoutine(id_in,r);
     }
 
-    // TODO: poner icono de editar, cuando estes en modo edit poner icono de guardar y volver al modo view
-
+    // Metodo para cambiar las propiedades de los campos EditText al modo Editar
     public void goToEditMode() {
-
         textName.setFocusable(true);
         textName.setEnabled(true);
         textName.setFocusableInTouchMode(true);
@@ -151,6 +175,39 @@ public class RoutineEditActivity extends AppCompatActivity {
         textObjetivo.setEnabled(true);
         textObjetivo.setFocusableInTouchMode(true);
         textObjetivo.setClickable(true);
+
+        fab.show();
+        getSupportActionBar().setTitle("Rutina (Editar)");
+    }
+
+    // Metodo para cambiar las propiedades de los campos EditText al modo Ver
+    public void goToViewMode() {
+        textName.setFocusable(false);
+        textName.setEnabled(false);
+        textName.setTextColor(getResources().getColor(R.color.labelColor));
+
+        textGym.setFocusable(false);
+        textGym.setEnabled(false);
+        textGym.setTextColor(getResources().getColor(R.color.labelColor));
+
+        textSeries.setFocusable(false);
+        textSeries.setEnabled(false);
+        textSeries.setTextColor(getResources().getColor(R.color.labelColor));
+
+        textRep.setFocusable(false);
+        textRep.setEnabled(false);
+        textRep.setTextColor(getResources().getColor(R.color.labelColor));
+
+        textRelax.setFocusable(false);
+        textRelax.setEnabled(false);
+        textRelax.setTextColor(getResources().getColor(R.color.labelColor));
+
+        textObjetivo.setFocusable(false);
+        textObjetivo.setEnabled(false);
+        textObjetivo.setTextColor(getResources().getColor(R.color.labelColor));
+
+        fab.hide();
+        getSupportActionBar().setTitle("Rutina");
     }
 
     @Override
@@ -166,6 +223,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         saveState();
     }
 
+    // Metodo que cambia a la actividad de ExercisesListActivity en modo routine par aañadir ejercicios
     public void goToListOfExercises(View v) {
         Intent intent = new Intent(v.getContext(), ExerciseListActivity.class);
         intent.putExtra("MODE","routine");
@@ -179,11 +237,20 @@ public class RoutineEditActivity extends AppCompatActivity {
                 long id = data.getLongExtra("ID",0);  // Cogemos el ID del ejercicio añadido
                 Cursor cursor = db.fetchExercise(id);
                 // TODO: Añadir el ejercicio obtenido al listView
+                cursor.moveToFirst();
+                Routine r = getRoutineFields();
+                ArrayList<Long> r_ex = r.getExercises();
+                long id_ex = cursor.getLong(R.id.ex_row);
+                r_ex.add(id_ex);
+                r.setExcercises(r_ex);
+                db.updateFreemiumRoutine(id_in,r);
+                populateExerciseList();
             }
         }
     }
 
-    public void saveState() {
+    // Metodo que genera un objeto rutina a partir del contenido de los campos de la actividad
+    public Routine getRoutineFields() {
         String nameGym = textGym.getText().toString();
         String name;
         if (textName.getText().toString().equals("")) {
@@ -205,12 +272,17 @@ public class RoutineEditActivity extends AppCompatActivity {
         ArrayList<Long> exercises = new ArrayList<>();
 
         Routine r = new Routine(nameGym, name, objective, series, relxTime, rep, exercises);
+        return r;
+    }
+
+    public void saveState() {
+        Routine r = getRoutineFields();
 
         if (mode_in.equals("new")) {
             db.createFreemiumRoutine(r);
-            mode_in = "edit";   // Cambiamos a modo edit para que no se cree la rutina multiples veces
+            mode_in = "view";   // Cambiamos a modo view para que no se cree la rutina multiples veces
 
-        } else if (mode_in.equals("edit")) {
+        } else {
             db.updateFreemiumRoutine(id_in,r);
         }
     }
@@ -229,51 +301,44 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)) != null) {
             textName.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)));
         } else textName.setText("");
-        textName.setFocusable(false);
-        textName.setEnabled(false);
-        textName.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)) != null) {
             textGym.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)));
         } else textGym.setText("");
-        textGym.setFocusable(false);
-        textGym.setEnabled(false);
-        textGym.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_S)) != null) {
             textSeries.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_S)));
         } else textSeries.setText("");
-        textSeries.setFocusable(false);
-        textSeries.setEnabled(false);
-        textSeries.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_R)) != null) {
             textRep.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_R)));
         } else textRep.setText("");
-        textRep.setFocusable(false);
-        textRep.setEnabled(false);
-        textRep.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_RT)) != null) {
             textRelax.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_RT)));
         } else textRelax.setText("");
-        textRelax.setFocusable(false);
-        textRelax.setEnabled(false);
-        textRelax.setTextColor(getResources().getColor(R.color.labelColor));
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)) != null) {
             textObjetivo.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)));
         } else textObjetivo.setText("");
-        textObjetivo.setFocusable(false);
-        textObjetivo.setEnabled(false);
-        textObjetivo.setTextColor(getResources().getColor(R.color.labelColor));
 
-
-
-        // Faltara llenar el ArrayList de ejercicios, obtenemos la lista de ejrecicios y hacemos
-        // consultas para ir buscando esos ejercicios y los vamos añadiendo a la listView
-        // TODO: obtener la lista de ejercicios y mostrarlos
+        populateExerciseList();
     }
 
+    // Metodo que rellena la lista de ejercicios
+    public void populateExerciseList() {
+        Cursor ejercicios = db.getExercisesFromRoutine(id_in);
+        if (ejercicios != null) {
+            startManagingCursor(ejercicios);
 
+            String[] from = new String[] {GymnasioDBAdapter.KEY_EX_NAME};
+            // and an array of the fields we want to bind those fields to (in this case just text1)
+            int[] to = new int[] { R.id.ex_row };
+            // Now create an array adapter and set it to display using our row
+            SimpleCursorAdapter notes =
+                    new SimpleCursorAdapter(this, R.layout.routines_row, ejercicios, from, to,0);
+            l.setAdapter(notes);
+            registerForContextMenu(l);
+        }
+    }
 }
