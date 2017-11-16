@@ -335,8 +335,8 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_R, r.getRep());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
-        ArrayList<Long> ex = r.getExercises();
         boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+        ArrayList<Long> ex = r.getExercises();
         Db.delete(Table_ExOfRoutine,"idRut="+id,null);
         for (long ejId: ex) {
             Db.execSQL("INSERT INTO " +Table_ExOfRoutine + " VALUES (" + id +  "," + ejId + ")");
@@ -444,9 +444,11 @@ public class GymnasioDBAdapter {
         return mCursor;
 
     }
+
     public boolean deleteExercise (long id) {
         return Db.delete(Table_Exercise,KEY_EX_ID+"="+id,null)>0;
     }
+
     public Cursor getExercisesFromRoutine(long id) {
         Cursor c = Db.query(Table_Routine,RO_ROWS,KEY_RO_ID+"="+id,null,null,null,null);
         if(c!=null){
