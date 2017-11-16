@@ -38,7 +38,7 @@ public class ExerciseViewActivity extends AppCompatActivity {
         db = new GymnasioDBAdapter(this);
         db.open();
 
-        /*name = (TextView) findViewById(R.id.name);
+        name = (TextView) findViewById(R.id.name);
         muscle = (TextView) findViewById(R.id.muscle);
         image = (ImageView) findViewById(R.id.image);
         tags = (TextView) findViewById(R.id.tags);
@@ -61,7 +61,7 @@ public class ExerciseViewActivity extends AppCompatActivity {
 
         String[] tagsplit = c.getString(5).split(",");
 
-        for(String s : tagsplit) tags.append(" " + s);*/
+        for(String s : tagsplit) tags.append(" " + s);
 
 
 
