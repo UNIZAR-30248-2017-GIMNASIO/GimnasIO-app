@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private View dLayout;
 
     private GymnasioDBAdapter db;
-    private String url = "http://10.0.2.2:32001/update/";
+    private String url = "http://10.0.2.2:32001/dbdata/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onResponse(JSONObject response) {
                             String lUR = null;
                             try {
+                                Log.w("TAG",response.toString());
                                 lUR = response.getString("lastUpdate");
                                 lUR = lUR.replace('T','_');
                                 lUR = lUR.substring(0,19);
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (!lUR.equals(lUL) || fI==1) {
                                     Log.d("INFO", "Update needed because new " +
                                             "installation or new remote db");
-                                    checkIfUserWantsDownload(id, lUR);
+                                    checkIfUserWantsDownload(id, lUR,response.getString("totalSize"));
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -117,13 +118,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LoadingActivity.class);
         startActivity(intent);
     }
-    private void checkIfUserWantsDownload(int id, String lUR){
+    private void checkIfUserWantsDownload(int id, String lUR, String size){
         final int rowId = id;
         final String lu = lUR;
         CharSequence options[] = new CharSequence[] {"De acuerdo", "En otro momento"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.updateneeded);
+        builder.setTitle("La aplicación necesita descargar " + size +"MB ¿De acuerdo?");
         builder.setItems(options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

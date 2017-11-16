@@ -1,6 +1,7 @@
 package com.patan.gimnasio;
 
 import android.Manifest;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -53,6 +54,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     public GymnasioDBAdapter getGymnasioDbAdapter() {
         return db;
     }
+    public Context getContext() {return this;}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
