@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void goToExercise(View v) {
         Intent intent = new Intent(this, ExerciseListActivity.class);
+        intent.putExtra("MODE","view");
         startActivity(intent);
     }
 

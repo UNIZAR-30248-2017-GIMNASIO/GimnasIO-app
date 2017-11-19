@@ -1,19 +1,16 @@
 package com.patan.gimnasio;
 
-import android.app.LoaderManager;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -24,6 +21,8 @@ public class ExerciseListActivity extends AppCompatActivity {
 
     private ListView l;
     private GymnasioDBAdapter db;
+    private static final int ADD_ID = 1;
+    private String mode_in;
 
     public GymnasioDBAdapter getGymnasioDbAdapter() {
         return db;
@@ -47,12 +46,32 @@ public class ExerciseListActivity extends AppCompatActivity {
             }
         });
 
-
-
         fillData();
         registerForContextMenu(l);
+        Intent intent = getIntent();
+        mode_in = intent.getStringExtra("MODE");
+    }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (mode_in.equals("routine")) {
+            super.onCreateContextMenu(menu,v,menuInfo);
+            menu.add(Menu.NONE, ADD_ID, Menu.NONE, R.string.menu_add);
+        }
+    }
 
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if (item.getItemId() == ADD_ID) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            Intent i = new Intent();
+            i.putExtra("ID", info.id);
+            setResult(RESULT_OK,i);
+            finish();   // Forzamos volver a la actividad anterior
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void fillData() {

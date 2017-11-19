@@ -51,16 +51,13 @@ public class RoutineListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 Intent intent = new Intent(v.getContext(), RoutineEditActivity.class);
-                intent.putExtra("MODE","edit");
+                intent.putExtra("MODE","view");
                 intent.putExtra("ID",id);
                 startActivity(intent);
             }
         });
 
         // Rellenamos la lista
-        testRutina();
-        updateRutina();
-        verRutinica();
         fillData();
     }
 
@@ -114,48 +111,4 @@ public class RoutineListActivity extends AppCompatActivity {
         super.onResume();
         fillData();
     }
-
-    private void testRutina(){
-        Routine r = new Routine("LA CALLE","MACHACA","MAZAMIENTO",4,90,15,null);
-        Cursor c = db.getExerciseByName("Aperturas con mancuerna en banco inclinado");
-        String name ="name";
-        String muscle = "muscle";
-        String desc = "desc";
-        String img= "/ruta";
-        Exercise e = new Exercise(name,muscle,desc,img,null);
-        long id = db.createExercise(e);
-        ArrayList<Long> exs = new ArrayList<>();
-        exs.add(id);
-        r.setExcercises(exs);
-        db.createFreemiumRoutine(r);
-    }
-
-    private void updateRutina() {
-        //db.fetchRoutines();
-        Routine r = new Routine("LA CALLE2","MACHACA2","MAZAMIENTO2",4,90,15,null);
-        Cursor c = db.getRoutineByName("MACHACA");
-        long name = c.getLong(c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID));
-        String name2 ="name2";
-        String muscle = "muscle2";
-        String desc = "desc2";
-        String img= "/ruta2";
-        Exercise e = new Exercise(name2,muscle,desc,img,null);
-        long id = db.createExercise(e);
-        ArrayList<Long> exs = new ArrayList<>();
-        exs.add(id);
-        r.setExcercises(exs);
-        db.updateFreemiumRoutine(name,r);
-    }
-
-    private void verRutinica() {
-        Cursor c = db.getRoutineByName("MACHACA2");
-        long name = c.getLong(c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID));
-        Cursor c2 = db.getExercisesFromRoutine(name);
-        long a =c2.getLong(c2.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE));
-        Log.d("PRUEBA",a+"");
-
-
-    }
-
-
 }

@@ -21,7 +21,7 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 22;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
@@ -61,7 +61,7 @@ public class GymnasioDBAdapter {
     private static final String CREATE_TABLE_RELATION = "CREATE TABLE IF NOT EXISTS "
             + Table_ExOfRoutine + "("+KEY_EXRO_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"
             + KEY_EXRO_IDR + " INTEGER," + KEY_EXRO_IDE + " INTEGER)";
-    private static final String CREATE__TABLE_UPDATES="CREATE TABLE IF NOT EXISTS " + Table_Updates +
+    private static final String CREATE_TABLE_UPDATES="CREATE TABLE IF NOT EXISTS " + Table_Updates +
             "( _id integer primary key autoincrement , lastUpdate VARCHAR(20) not null, firstInstalation int not null);";
 
 
@@ -88,7 +88,7 @@ public class GymnasioDBAdapter {
             //        + " (idRut INTEGER,idEj INTEGER, FOREIGN KEY(idRut) REFERENCES "
             //        + Table_Routine + "(_id),FOREIGN KEY (idEj) REFERENCES " + Table_Exercise + "(_id))";
             db.execSQL(CREATE_TABLE_RELATION);
-            db.execSQL(CREATE__TABLE_UPDATES);
+            db.execSQL(CREATE_TABLE_UPDATES);
             ContentValues v = new ContentValues();
             Date currentTime = Calendar.getInstance().getTime();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
@@ -352,7 +352,7 @@ public class GymnasioDBAdapter {
         ArrayList<Long> ex = r.getExercises();
         boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
         Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"="+id,null);
-        if (ex != null) {
+        if (ex != null || ex.size() != 0) {
             for (long ejId : ex) {
                 ContentValues v2 = new ContentValues();
                 v2.put(KEY_EXRO_IDR,id);
@@ -465,6 +465,23 @@ public class GymnasioDBAdapter {
     public boolean deleteExercise (long id) {
         return Db.delete(Table_Exercise,KEY_EX_ID+"="+id,null)>0;
     }
+
+
+    public Cursor getExercisesFromRoutine(long id) {
+        String selectQuery = "SELECT * FROM "+ Table_Exercise+" AS ex, "+
+                Table_ExOfRoutine+" AS exro WHERE exro."+KEY_EXRO_IDR+"="+id+" AND exro."
+                + KEY_EXRO_IDE + "= ex."+KEY_EX_ID;
+        Log.w("TAG",selectQuery);
+        Cursor c = Db.rawQuery(selectQuery,null);
+        // looping through all rows and adding to list
+        if (c.moveToFirst()) {
+            return c;
+        } else {
+            return null;
+        }
+    }
+
+    /*
     public Cursor getExercisesFromRoutine(long id) {
         String selectQuery = "SELECT * FROM "+ Table_Exercise+" ex, "+Table_Routine+" ro, "+
                 Table_ExOfRoutine+" exro WHERE ro."+KEY_RO_ID+"="+id+" AND exro."+KEY_RO_ID+" AND ex."
@@ -477,5 +494,5 @@ public class GymnasioDBAdapter {
         } else {
             return null;
         }
-    }
+    }*/
 }
