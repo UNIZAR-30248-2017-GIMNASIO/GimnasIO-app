@@ -3,6 +3,4 @@
     <item android:id="@+id/update"
         android:title="@string/update">
     </item>
-
-
 </menu>
