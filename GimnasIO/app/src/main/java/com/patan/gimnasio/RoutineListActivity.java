@@ -111,5 +111,4 @@ public class RoutineListActivity extends AppCompatActivity {
         super.onResume();
         fillData();
     }
-
 }
