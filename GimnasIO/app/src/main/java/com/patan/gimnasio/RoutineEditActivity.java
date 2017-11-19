@@ -108,13 +108,12 @@ public class RoutineEditActivity extends AppCompatActivity {
             Cursor c = (Cursor) adapter.getItem(info.position);
             int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
             long id = c.getLong(pos);
-
             Routine r = getRoutineFields();
             ArrayList<Long> ex = r.getExercises();
             int index = ex.indexOf(id);
             ex.remove(index);
             r.setExcercises(ex);
-            db.updateFreemiumRoutine(id_in,r);
+            boolean exito = db.updateFreemiumRoutine(id_in,r);
             populateFields();
             return true;
         } else {
@@ -163,12 +162,6 @@ public class RoutineEditActivity extends AppCompatActivity {
                 break;
         }
         return true;
-    }
-
-    // Metodo que actualiza la rutina abierta con los datos actuales de la actividad
-    public void updateRoutine() {
-        Routine r = getRoutineFields();
-        db.updateFreemiumRoutine(id_in,r);
     }
 
     // Metodo para cambiar las propiedades de los campos EditText al modo Editar
@@ -371,9 +364,7 @@ public class RoutineEditActivity extends AppCompatActivity {
 
     // Metodo que rellena la lista de ejercicios
     public void populateExerciseList() {
-
         Cursor ejercicios = db.getExercisesFromRoutine(id_in);
-
         if (ejercicios != null) {
             startManagingCursor(ejercicios);
             // Create an array to specify the fields we want to display in the list (only NAME)
@@ -386,6 +377,15 @@ public class RoutineEditActivity extends AppCompatActivity {
             l.setAdapter(notes);
             registerForContextMenu(l);
             stopManagingCursor(ejercicios);
+        } else {
+            String[] from = new String[] {};
+            // and an array of the fields we want to bind those fields to (in this case just text1)
+            int[] to = new int[] {};
+            // Now create an array adapter and set it to display using our row
+            SimpleCursorAdapter notes =
+                    new SimpleCursorAdapter(this, R.layout.exercises_row, ejercicios, from, to,0);
+            l.setAdapter(notes);
+            registerForContextMenu(l);
         }
     }
 }
