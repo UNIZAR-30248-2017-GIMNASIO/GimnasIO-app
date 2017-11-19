@@ -81,4 +81,30 @@ public class Routine{
         return objective;
     }
 
+    public boolean equalList(ArrayList<Long> list1, ArrayList<Long> list2)
+    {
+        //null checking
+        if(list1==null && list2==null)
+            return true;
+        if((list1 == null && list2 != null) || (list1 != null && list2 == null))
+            return false;
+
+        if(list1.size()!=list2.size())
+            return false;
+        for(Long itemList1: list1)
+        {
+            if(!list2.contains(itemList1))
+                return false;
+        }
+
+        return true;
+    }
+
+    //int series,double relxTime,int rep, ArrayList<Long> exercises
+    public boolean equals(Routine otro){
+        return (this.name.equals(otro.getName()) && this.nameGym.equals(otro.getNameGym())
+                && otro.getObjective().equals(this.objective) && this.series == otro.getSeries()
+                && this.relxTime == otro.getRelxTime() && this.rep == otro.getRep()
+                && equalList(this.excercises,otro.getExercises()));
+    }
 }
