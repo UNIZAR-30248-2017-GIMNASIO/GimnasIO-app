@@ -465,7 +465,7 @@ public class GymnasioDBAdapter {
     public boolean deleteExercise (long id) {
         return Db.delete(Table_Exercise,KEY_EX_ID+"="+id,null)>0;
     }
-    public Cursor getExercisesFromRoutine(long id) {
+    public void getExercisesFromRoutine(long id) {
         String selectQuery = "SELECT * FROM "+ Table_Exercise+" ex, "+Table_Routine+" ro, "+
                 Table_ExOfRoutine+" exro WHERE ro."+KEY_RO_ID+"="+id+" AND exro."+KEY_RO_ID+" AND ex."
                 + KEY_EX_ID + "= exro."+KEY_EX_ID;
@@ -473,9 +473,17 @@ public class GymnasioDBAdapter {
         Cursor c = Db.rawQuery(selectQuery,null);
         // looping through all rows and adding to list
         if (c.moveToFirst()) {
-            return c;
+            try {
+                while (c.moveToNext()) {
+                    Log.d("PRUEBA",c.getString(c.getColumnIndex(KEY_EX_NAME)));
+                    Log.d("PRUEBA",c.getString(c.getColumnIndex(KEY_EX_MUSCLE)));
+                    Log.d("PRUEBA",c.getString(c.getColumnIndex(KEY_EX_TAG)));
+
+                }
+            } finally {
+                c.close();
+            }
         } else {
-            return null;
         }
     }
 }

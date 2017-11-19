@@ -150,9 +150,9 @@ public class RoutineListActivity extends AppCompatActivity {
     private void verRutinica() {
         Cursor c = db.getRoutineByName("MACHACA2");
         long name = c.getLong(c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID));
-        Cursor c2 = db.getExercisesFromRoutine(name);
-        long a =c2.getLong(c2.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE));
-        Log.d("PRUEBA",a+"");
+        db.getExercisesFromRoutine(name);
+        //long a =c2.getLong(c2.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE));
+        //Log.d("PRUEBA",a+"");
 
 
     }
