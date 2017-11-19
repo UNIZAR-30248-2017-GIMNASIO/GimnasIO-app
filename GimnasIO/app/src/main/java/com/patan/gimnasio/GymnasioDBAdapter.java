@@ -6,14 +6,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class GymnasioDBAdapter {
 
@@ -21,7 +19,7 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 22;
+    private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
@@ -83,10 +81,6 @@ public class GymnasioDBAdapter {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(CREATE_TABLE_ROUTINES);
             db.execSQL(CREATE_TABLE_EXERCISES);
-            // todo_tag table create statement
-            //String crearEjxRutina = "CREATE TABLE IF NOT EXISTS " + Table_ExOfRoutine
-            //        + " (idRut INTEGER,idEj INTEGER, FOREIGN KEY(idRut) REFERENCES "
-            //        + Table_Routine + "(_id),FOREIGN KEY (idEj) REFERENCES " + Table_Exercise + "(_id))";
             db.execSQL(CREATE_TABLE_RELATION);
             db.execSQL(CREATE_TABLE_UPDATES);
             ContentValues v = new ContentValues();
@@ -174,20 +168,39 @@ public class GymnasioDBAdapter {
      * @return exId or -1 if failed
      */
     public long createExercise(Exercise e) {
-        ContentValues v = new ContentValues();
-        v.put(KEY_EX_NAME, e.getName());
-        v.put(KEY_EX_MUSCLE, e.getMuscle());
-        v.put(KEY_EX_DESC, e.getDescription());
-        v.put(KEY_EX_IMG, e.getImage());
-        String tags="";
-        if (e.getTags()!=null){
-            for (String s: e.getTags()) {
-                tags += "#"+s+",";
+        Cursor c = this.getExerciseByName(e.getName());
+        if (c.getCount() == 0) {
+            Log.d("TAG", "Insertando "+e.getName());
+            ContentValues v = new ContentValues();
+            v.put(KEY_EX_NAME, e.getName());
+            v.put(KEY_EX_MUSCLE, e.getMuscle());
+            v.put(KEY_EX_DESC, e.getDescription());
+            v.put(KEY_EX_IMG, e.getImage());
+            String tags="";
+            if (e.getTags()!=null){
+                for (String s: e.getTags()) {
+                    tags += "#"+s+",";
+                }
+                v.put(KEY_EX_TAG, tags);
             }
-            v.put(KEY_EX_TAG, tags);
+            Log.d("DBInsertion", "Inserting exercise to database");
+            return Db.insert(Table_Exercise, null, v);
+        } else {
+            Log.d("TAG", "Actualizando "+e.getName());
+            ContentValues v = new ContentValues();
+            v.put(KEY_EX_NAME, e.getName());
+            v.put(KEY_EX_MUSCLE, e.getMuscle());
+            v.put(KEY_EX_DESC, e.getDescription());
+            v.put(KEY_EX_IMG, e.getImage());
+            String tags="";
+            if (e.getTags()!=null){
+                for (String s: e.getTags()) {
+                    tags += "#"+s+",";
+                }
+                v.put(KEY_EX_TAG, tags);
+            }
+            return Db.update(Table_Exercise,v, KEY_EX_ID + "=" + c.getLong(c.getColumnIndex(KEY_EX_ID)),null);
         }
-        Log.d("DBInsertion", "Inserting exercise to database");
-        return Db.insert(Table_Exercise, null, v);
     }
     /**
      * Delete the exercise with the given rowId
@@ -466,7 +479,6 @@ public class GymnasioDBAdapter {
         return Db.delete(Table_Exercise,KEY_EX_ID+"="+id,null)>0;
     }
 
-
     public Cursor getExercisesFromRoutine(long id) {
         String selectQuery = "SELECT * FROM "+ Table_Exercise+" AS ex, "+
                 Table_ExOfRoutine+" AS exro WHERE exro."+KEY_EXRO_IDR+"="+id+" AND exro."
@@ -480,19 +492,4 @@ public class GymnasioDBAdapter {
             return null;
         }
     }
-
-    /*
-    public Cursor getExercisesFromRoutine(long id) {
-        String selectQuery = "SELECT * FROM "+ Table_Exercise+" ex, "+Table_Routine+" ro, "+
-                Table_ExOfRoutine+" exro WHERE ro."+KEY_RO_ID+"="+id+" AND exro."+KEY_RO_ID+" AND ex."
-                + KEY_EX_ID + "= exro."+KEY_EX_ID;
-        Log.w("TAG",selectQuery);
-        Cursor c = Db.rawQuery(selectQuery,null);
-        // looping through all rows and adding to list
-        if (c.moveToFirst()) {
-            return c;
-        } else {
-            return null;
-        }
-    }*/
 }
