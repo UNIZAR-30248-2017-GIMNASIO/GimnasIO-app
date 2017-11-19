@@ -40,6 +40,10 @@ public class RoutineEditActivity extends AppCompatActivity {
 
     private ListView l;
 
+    public GymnasioDBAdapter getGymnasioDbAdapter() {
+        return db;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

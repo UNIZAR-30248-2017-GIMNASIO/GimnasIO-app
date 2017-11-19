@@ -10,6 +10,7 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -40,8 +41,12 @@ public class ExerciseListActivity extends AppCompatActivity {
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                Adapter adapter = l.getAdapter();
+                Cursor item = (Cursor) adapter.getItem(position);
+                int pos = item.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
+                long id_ex = item.getLong(pos);
                 Intent intent = new Intent(v.getContext(), ExerciseViewActivity.class);
-                intent.putExtra("ID",id);
+                intent.putExtra("ID",id_ex);
                 startActivity(intent);
             }
         });
@@ -64,8 +69,12 @@ public class ExerciseListActivity extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == ADD_ID) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            Adapter adapter = l.getAdapter();
+            Cursor c = (Cursor) adapter.getItem(info.position);
+            int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_EX_ID);
+            long id = c.getLong(pos);
             Intent i = new Intent();
-            i.putExtra("ID", info.id);
+            i.putExtra("ID", id);
             setResult(RESULT_OK,i);
             finish();   // Forzamos volver a la actividad anterior
             return true;
