@@ -95,10 +95,10 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        /*db = new GymnasioDBAdapter(this);
+        db = new GymnasioDBAdapter(this);
         db.open();
 
-        testRutina();*/
+        testRutina();
     }
 
     private void testRutina(){

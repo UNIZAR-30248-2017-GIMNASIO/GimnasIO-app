@@ -2,24 +2,16 @@ package com.patan.gimnasio;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 
 // En esta actividad se mostrara una lista de rutinas creadas ademas de la opcion de crear una nueva rutina
 //  - Crear rutina (boton flotante) llevara a una RoutineEditActivity vacia
@@ -50,9 +42,13 @@ public class RoutineListActivity extends AppCompatActivity {
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                Adapter adapter = l.getAdapter();
+                Cursor item = (Cursor) adapter.getItem(position);
+                int pos = item.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
+                long id_rut = item.getLong(pos);
                 Intent intent = new Intent(v.getContext(), RoutineEditActivity.class);
                 intent.putExtra("MODE","view");
-                intent.putExtra("ID",id);
+                intent.putExtra("ID",id_rut);
                 startActivity(intent);
             }
         });
@@ -98,7 +94,11 @@ public class RoutineListActivity extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == DELETE_ID) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-            db.deleteRoutine(info.id);
+            Adapter adapter = l.getAdapter();
+            Cursor c = (Cursor) adapter.getItem(info.position);
+            int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
+            long id = c.getLong(pos);
+            db.deleteRoutine(id);
             fillData();
             return true;
         } else {
