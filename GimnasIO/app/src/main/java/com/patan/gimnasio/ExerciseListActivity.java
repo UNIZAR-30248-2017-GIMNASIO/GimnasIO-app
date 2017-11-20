@@ -97,4 +97,10 @@ public class ExerciseListActivity extends AppCompatActivity {
         l.setAdapter(notes);
     }
 
+    private Exercise test() {
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add("hola");tags.add("holi");
+        Exercise e = new Exercise("test","gemelo","yo k se","algo",tags);
+        return e;
+    }
 }
