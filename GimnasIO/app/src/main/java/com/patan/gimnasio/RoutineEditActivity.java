@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,6 +36,8 @@ public class RoutineEditActivity extends AppCompatActivity {
     private Menu optionsMenu;
 
     private final int DELETE_EX = 1;
+    private final int MOVE_EX_UP = 2;
+    private final int MOVE_EX_DOWN = 3;
 
     private GymnasioDBAdapter db;
 
@@ -51,7 +54,7 @@ public class RoutineEditActivity extends AppCompatActivity {
 
         l = (ListView)findViewById(R.id.routineEditList);
         textName = (EditText) findViewById(R.id.nombreRutina);
-        textGym = (EditText) findViewById(R.id.gimnasioRutina);;
+        textGym = (EditText) findViewById(R.id.gimnasioRutina);
         textSeries = (EditText) findViewById(R.id.seriesRutina);
         textRep = (EditText) findViewById(R.id.repeticionesRutina);
         textRelax = (EditText) findViewById(R.id.tiempoRelaxRutina);
@@ -97,27 +100,70 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (getSupportActionBar().getTitle().equals("Rutina (Editar)")) {
             super.onCreateContextMenu(menu, v, menuInfo);
             menu.add(Menu.NONE, DELETE_EX, Menu.NONE, R.string.menu_delete);
+            menu.add(Menu.NONE, MOVE_EX_UP, Menu.NONE, "Subir ejercicio");
+            menu.add(Menu.NONE, MOVE_EX_DOWN, Menu.NONE, "Bajar ejercicio");
         }
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        if (item.getItemId() == DELETE_EX) {
-            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-            Adapter adapter = l.getAdapter();
-            Cursor c = (Cursor) adapter.getItem(info.position);
-            int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
-            long id = c.getLong(pos);
-            Routine r = getRoutineFields();
-            ArrayList<Long> ex = r.getExercises();
-            int index = ex.indexOf(id);
-            ex.remove(index);
-            r.setExcercises(ex);
-            boolean exito = db.updateFreemiumRoutine(id_in,r);
-            populateFields();
-            return true;
-        } else {
-            return false;
+        switch(item.getItemId()) {
+            case DELETE_EX :
+                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                Adapter adapter = l.getAdapter();
+                Cursor c = (Cursor) adapter.getItem(info.position);
+                int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
+                long id = c.getLong(pos);
+                Routine r = getRoutineFields();
+                ArrayList<Long> ex = r.getExercises();
+                int index = ex.indexOf(id);
+                ex.remove(index);
+                r.setExcercises(ex);
+                db.updateFreemiumRoutine(id_in,r);
+                populateFields();
+                return true;
+            case MOVE_EX_UP :
+                AdapterView.AdapterContextMenuInfo info_up = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                Adapter adapter_up = l.getAdapter();
+                if (info_up.position > 0 && adapter_up.getCount() >= 2) {
+                    Cursor c_up = (Cursor) adapter_up.getItem(info_up.position);
+                    int pos_up = c_up.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
+                    long id_up = c_up.getLong(pos_up);
+                    Routine r_up = getRoutineFields();
+                    ArrayList<Long> ex_up = r_up.getExercises();
+                    int index_up = ex_up.indexOf(id_up);
+                    long exercise1_up = ex_up.get(index_up);
+                    long exercise2_up = ex_up.get(index_up -1);
+                    ex_up.set(index_up, exercise2_up);
+                    ex_up.set(index_up -1, exercise1_up);
+                    r_up.setExcercises(ex_up);
+                    db.updateFreemiumRoutine(id_in,r_up);
+                    populateFields();
+                }
+                return true;
+            case MOVE_EX_DOWN :
+                AdapterView.AdapterContextMenuInfo info_down = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                Adapter adapter_down = l.getAdapter();
+                if (info_down.position < adapter_down.getCount()-1 && adapter_down.getCount() >= 2) {
+                    Log.w("COUNT: ",""+adapter_down.getCount());
+                    Log.w("POS: ",""+info_down.position);
+                    Cursor c_down = (Cursor) adapter_down.getItem(info_down.position);
+                    int pos_down = c_down.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
+                    long id_down = c_down.getLong(pos_down);
+                    Routine r_down = getRoutineFields();
+                    ArrayList<Long> ex_down = r_down.getExercises();
+                    int index_down = ex_down.indexOf(id_down);
+                    long exercise1_down = ex_down.get(index_down);
+                    long exercise2_down = ex_down.get(index_down + 1);
+                    ex_down.set(index_down, exercise2_down);
+                    ex_down.set(index_down + 1, exercise1_down);
+                    r_down.setExcercises(ex_down);
+                    db.updateFreemiumRoutine(id_in, r_down);
+                    populateFields();
+                }
+                return true;
+            default: return false;
+
         }
     }
 
@@ -172,6 +218,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         textName.setFocusableInTouchMode(true);
         textName.setClickable(true);
 
+        // ESTO NUNCA SERA EDITABLE
         textGym.setFocusable(true);
         textGym.setEnabled(true);
         textGym.setFocusableInTouchMode(true);
