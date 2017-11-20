@@ -73,6 +73,7 @@ public class GymnasioDBAdapter {
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
+
         DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
@@ -338,7 +339,10 @@ public class GymnasioDBAdapter {
         long id = Db.insert(Table_Routine,null,v);
         //Añadimos los ejercicios de la rutina
         for (long ejId : ex) {
-            Db.execSQL("INSERT INTO " + Table_ExOfRoutine + " VALUES (" + id +  "," + ejId + ")");
+            ContentValues v2 = new ContentValues();
+            v2.put(KEY_EXRO_IDR,id);
+            v2.put(KEY_EXRO_IDE,ejId);
+            Db.insert(Table_ExOfRoutine,null,v2);
         }
         Log.d("DBInsertion", "Inserting Premium routine to database");
         return id;
@@ -395,9 +399,14 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_PREMIUM, true);
         ArrayList<Long> ex = r.getExercises();
         boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
-        Db.delete(Table_ExOfRoutine,"idRut="+id,null);
-        for (long ejId: ex) {
-            Db.execSQL("INSERT INTO " +Table_ExOfRoutine + " VALUES (" + id +  "," + ejId + ")");
+        Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"="+id,null);
+        if (ex != null || ex.size() != 0) {
+            for (long ejId : ex) {
+                ContentValues v2 = new ContentValues();
+                v2.put(KEY_EXRO_IDR,id);
+                v2.put(KEY_EXRO_IDE,ejId);
+                Db.insert(Table_ExOfRoutine,null,v2);
+            }
         }
         return updateRo;
     }
