@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +65,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     }
 
     /*Test que simula una actualización de la  BD*/
+    @Ignore
     @Test
     public void upgradeTest() throws Exception{
 
@@ -85,7 +87,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     /*Tests of exercises*/
     /*Test que comrpueba que la bd añade ejercicios correctamente*/
     @Test
-    public void AddExerciseTest() throws Exception{
+    public void addExerciseTest() throws Exception{
         ArrayList<String> tags = new ArrayList<String>();
         tags.add("Tag1");
         tags.add("Tag2");
@@ -106,7 +108,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comrpueba que la bd  no añade ejercicios cuando el nombre se repite*/
     @Test
-    public void AddExerciseTestRepeated() throws Exception{
+    public void addExerciseTestRepeated() throws Exception{
         ArrayList<String> tags = new ArrayList<String>();
         tags.add("Tag1");
         tags.add("Tag2");
@@ -126,7 +128,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comrpueba que la bd borra ejercicios correctamente*/
     @Test
-    public void DeleteExerciseTest() throws Exception{
+    public void deleteExerciseTest() throws Exception{
         ArrayList<String> tags = new ArrayList<String>();
         tags.add("Tag1");
         tags.add("Tag2");
@@ -145,7 +147,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comrpueba que la bd no borra ejercicios si no existen*/
     @Test
-    public void DontDeleteExerciseTest() throws Exception{
+    public void dontDeleteExerciseTest() throws Exception{
         assertFalse( db.deleteExercise(0));
     }
 
@@ -231,7 +233,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     /*Tests of routines*/
     /*Test que comprueba que la bd añada rutinas freemium correctamente*/
     @Test
-    public void AñadirRutinasFreemiumTest() throws Exception{
+    public void addFreemiumRoutineTest() throws Exception{
 
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, ExercisesList);
         Routine r2 = new Routine("Gym2","Rutina2","Objetivo2",2,2.0,2,ExercisesList);
@@ -250,7 +252,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd añada rutinas premium correctamente*/
     @Test
-    public void AñadirRutinasPremiumTest() throws Exception{
+    public void addPremiumRoutineTest() throws Exception{
 
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, ExercisesList);
         Routine r2 = new Routine("Gym2","Rutina2","Objetivo2",2,2.0,2,ExercisesList);
@@ -270,7 +272,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     /*Test que comprueba que la bd saca rutinas correctamente*/
 
     @Test
-    public void SacarRutinaTest() throws Exception{
+    public void getRoutineTest() throws Exception{
 
         ArrayList<String> tags = new ArrayList<String>();
         tags.add("Tag1");
@@ -305,7 +307,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd elimina rutinas correctamente*/
     @Test
-    public void eliminarRutinaTest_existe() throws Exception {
+    public void deleteRoutineTest_existe() throws Exception {
         Routine r4 = new Routine("Gym4","Rutina4","Objetivo4",4,4.0,4,ExercisesList);
         long id4 = db.createFreemiumRoutine(r4);
         assertEquals(true,db.deleteRoutine(id4));
@@ -313,13 +315,13 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd no elimina rutinas con ID = 0*/
     @Test
-    public void eliminarRutinaTest_cero() throws Exception {
+    public void deleteRoutineTest_cero() throws Exception {
         assertEquals(false, db.deleteRoutine(0));
     }
 
     /*Test que comprueba que la bd no elimina al pasar id -1*/
     @Test
-    public void eliminarRutinaTest_negativo() throws Exception {
+    public void deleteRoutineTest_negativo() throws Exception {
         assertEquals(false, db.deleteRoutine(-1));
     }
 
@@ -461,7 +463,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd modifica el campo relaxTime de una rutina freemium*/
     @Test
-    public void updaterelaxTimeRuotineFreemium() throws Exception{
+    public void updateRelaxTimeRuotineFreemium() throws Exception{
         ArrayList<String> tags = new ArrayList<String>();
         tags.add("Tag1");
         tags.add("Tag2");
@@ -495,7 +497,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd modifica el campo repeticiones de una rutina freemium*/
     @Test
-    public void updaterepRuotineFreemium() throws Exception{
+    public void updateRepRuotineFreemium() throws Exception{
         ArrayList<String> tags = new ArrayList<String>();
         tags.add("Tag1");
         tags.add("Tag2");
@@ -529,7 +531,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd modifica el campo repeticiones de una rutina freemium*/
     @Test
-    public void updateejsRuotineFreemium() throws Exception{
+    public void updateExsRuotineFreemium() throws Exception{
         ArrayList<String> tags = new ArrayList<String>();
         tags.add("Tag1");
         tags.add("Tag2");
@@ -651,7 +653,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     }
     /*Test que comprueba que el método getNumberOfRoutines devuelve el numero correcto*/
     @Test
-    public void getNumberOfRotuinesTest() throws Exception{
+    public void getNumberOfRotinesTest() throws Exception{
 
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, ExercisesList);
         Routine r2 = new Routine("Update!","Update!","Update!",23,44.0,125, ExercisesList);
@@ -691,7 +693,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd devuelve la rutina según el nombre cuando no existe*/
     @Test
-    public void DontgetRoutineByNameTest() throws Exception{
+    public void dontGetRoutineByNameTest() throws Exception{
 
         Cursor c = db.getRoutineByName("nothing");
 

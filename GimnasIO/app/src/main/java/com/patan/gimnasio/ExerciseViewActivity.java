@@ -27,10 +27,6 @@ public class ExerciseViewActivity extends AppCompatActivity {
     private ImageView image;
     private TextView desc;
 
-    public GymnasioDBAdapter getBD() {
-        return db;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
