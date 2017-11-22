@@ -36,6 +36,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoadingActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+
+
+    private int status = 0;
+    private int total = 0;
+    private TextView state;
     /**
      * Id to identify a contacts permission request.
      */
@@ -67,6 +72,8 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
         setContentView(R.layout.activity_loading);
         //barra = (ProgressBar) findViewById(R.id.progressBar);
         //texto = (TextView) findViewById(R.id.descargando);
+        state = (TextView) findViewById(R.id.descargando);
+        state.setText("Descargando");
 
         String url ="http://10.0.2.2:32001/exercises/";
         RequestQueue mQueue = Volley.newRequestQueue(this);
@@ -106,6 +113,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     private void updateDatabase(JSONObject list) throws JSONException {
         db = new GymnasioDBAdapter(this);
         db.open();
+        total = list.length();
         for (int i = 0; i < list.length(); i++) {
             //texto.setText("Descargando 0 ejercicios de " + list.length());
             //barra.setProgress(list.length(),i);
@@ -143,6 +151,12 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                 out.flush();
                 out.close();
                 Log.d("SAVED","Image with name "+s+" saved on filesystem");
+                status++;
+                if (status == total) {
+                    state.setText("Descarga finalizada");
+                    Log.d("DWL", "DOWNLOAD AND STORAGE FINISHED");
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
