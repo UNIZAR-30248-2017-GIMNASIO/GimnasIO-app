@@ -1,12 +1,14 @@
 package com.patan.gimnasio;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,18 +42,22 @@ public class MainActivity extends AppCompatActivity {
     private static String[] EXTERNAL_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private View mLayout;
+    private View dLayout;
 
     private GymnasioDBAdapter db;
-    private String url = "http://10.0.2.2:32001/update/";
+    private String url = "http://10.0.2.2:32001/dbdata/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        goToStartApp();
+    }
+
+    private void startApp() {
         db = new GymnasioDBAdapter(this);
         db.open();
         final Cursor c = db.checkForUpdates();
-        int countej = c.getCount();
         RequestQueue mQueue = Volley.newRequestQueue(this);
         if (c.moveToFirst()){
             final String lUL = c.getString(c.getColumnIndex("lastUpdate"));
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onResponse(JSONObject response) {
                             String lUR = null;
                             try {
+                                Log.w("TAG",response.toString());
                                 lUR = response.getString("lastUpdate");
                                 lUR = lUR.replace('T','_');
                                 lUR = lUR.substring(0,19);
@@ -71,8 +78,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (!lUR.equals(lUL) || fI==1) {
                                     Log.d("INFO", "Update needed because new " +
                                             "installation or new remote db");
-                                    goToLoadingActivity();
-                                    db.updateLastUpdate(id, lUR);
+                                    checkIfUserWantsDownload(id, lUR,response.getString("totalSize"));
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -101,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
         c.close();
-
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,7 +114,29 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.main_menu, menu);
         return true;
     }
-    public void goToLoadingActivity() {
+    private void goToLoadingActivity() {
+        Intent intent = new Intent(this, LoadingActivity.class);
+        startActivity(intent);
+    }
+    private void checkIfUserWantsDownload(int id, String lUR, String size){
+        final int rowId = id;
+        final String lu = lUR;
+        CharSequence options[] = new CharSequence[] {"De acuerdo", "En otro momento"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("La aplicación necesita descargar " + size +"MB ¿De acuerdo?");
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(which==0){
+                    goToLoadingActivity();
+                    db.updateLastUpdate(rowId, lu);
+                }
+            }
+        });
+        builder.show();
+    }
+    public void goToStartApp() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -122,18 +149,14 @@ public class MainActivity extends AppCompatActivity {
             // Contact permissions have been granted. Show the contacts fragment.
             Log.i("TAG",
                     "Contact permissions have already been granted. Displaying contact details.");
-
-            Intent intent = new Intent(this, LoadingActivity.class);
-            startActivity(intent);
+            startApp();
         }
-
-
-        Log.d("Update", "Succesfully Updated");
     }
 
 
     public void goToExercise(View v) {
         Intent intent = new Intent(this, ExerciseListActivity.class);
+        intent.putExtra("MODE","view");
         startActivity(intent);
     }
 
@@ -178,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         } else {
             // Contact permissions have not been granted yet. Request them directly.
-            Log.w("TAG", "YEEEEEEP");
             ActivityCompat.requestPermissions(this, EXTERNAL_STORAGE, REQUEST_RW);
         }
         // END_INCLUDE(contacts_permission_request)
@@ -199,8 +221,8 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Camera permission has been granted, preview can be displayed
                 Log.i("TAG", "ReadWrite permission has now been granted. Showing preview.");
-                Intent intent = new Intent(this, LoadingActivity.class);
-                startActivity(intent);
+                startApp();
+
             } else {
                 Log.i("TAG", "ReadWrite permission was NOT granted.");
             }
@@ -210,5 +232,4 @@ public class MainActivity extends AppCompatActivity {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-
 }

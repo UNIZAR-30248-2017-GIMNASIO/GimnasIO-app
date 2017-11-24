@@ -13,8 +13,12 @@ android {
     }
     buildTypes {
         release {
+            testCoverageEnabled true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            testCoverageEnabled true
         }
     }
     lintOptions {
@@ -23,6 +27,9 @@ android {
     adbOptions {
         timeOutInMs 20 * 60 * 1000  // 20 minutes
         installOptions "-d","-t"
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 

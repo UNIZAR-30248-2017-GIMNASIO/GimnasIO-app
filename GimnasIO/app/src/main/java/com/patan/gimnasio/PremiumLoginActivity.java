@@ -43,6 +43,8 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
+    private GymnasioDBAdapter db;
+
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -92,6 +94,31 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        db = new GymnasioDBAdapter(this);
+        db.open();
+
+        testRutina();
+    }
+
+    private void testRutina(){
+        ArrayList<String> tags = new ArrayList<>();
+        //Routine r = new Routine("LA CALLE","MACHACA","MAZAMIENTO",4,90,15,null);
+        Exercise e = new Exercise("Ejercicio1","muscle","desc","img",tags);
+        Exercise e2 = new Exercise("Ejercicio2","muscle","desc","img",tags);
+        Exercise e3 = new Exercise("Ejercicio3","muscle","desc","img",tags);
+        Exercise e4 = new Exercise("Ejercicio4","muscle","desc","img",tags);
+        long id = db.createExercise(e);
+        long id2 = db.createExercise(e2);
+        long id3 = db.createExercise(e3);
+        long id4 = db.createExercise(e4);
+        /*ArrayList<Long> exs = new ArrayList<>();
+        exs.add(id);
+        exs.add(id2);
+        r.setExcercises(exs);
+        long t = db.createFreemiumRoutine(r);
+        Log.w("id ejecicio al crearlo", id+"");
+        Log.w("id rutina al crearla", t+"");*/
     }
 
     private void populateAutoComplete() {

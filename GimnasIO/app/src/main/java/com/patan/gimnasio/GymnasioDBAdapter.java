@@ -12,9 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class GymnasioDBAdapter {
 
@@ -22,7 +19,7 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 23;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
@@ -45,10 +42,37 @@ public class GymnasioDBAdapter {
     public static final String KEY_RO_GYM = "gym";
     public static final String KEY_RO_OBJ = "objective";
 
+    public static final String KEY_EXRO_ID = "_id";
+    public static final String KEY_EXRO_IDR = KEY_RO_ID+"R";
+    public static final String KEY_EXRO_IDE = KEY_EX_ID+"E";
+
+    private static final String CREATE_TABLE_ROUTINES = "CREATE TABLE IF NOT EXISTS " + Table_Routine +
+            " ("+ KEY_RO_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ KEY_RO_S
+            + " INTEGER not null ,"+ KEY_RO_RT +" double not null,"+ KEY_RO_R
+            + " INTEGER not null,"+ KEY_RO_OBJ +" VARCHAR(20)"
+            + " not null,"+ KEY_RO_NAME +" VARCHAR(20) not null,"+KEY_RO_PREMIUM
+            + " INT not null,"+ KEY_RO_GYM +" gym varchar(20))";
+    private static final String CREATE_TABLE_EXERCISES="CREATE TABLE IF NOT EXISTS " + Table_Exercise +
+            " (" + KEY_EX_ID + " integer primary key autoincrement," + KEY_EX_NAME + " VARCHAR(20) not null," +
+    KEY_EX_DESC + " not null," + KEY_EX_MUSCLE + " VARCHAR(20) not null, " + KEY_EX_IMG +
+            " varchar(20) not null, "+ KEY_EX_TAG +" varchar(100))";
+    private static final String CREATE_TABLE_RELATION = "CREATE TABLE IF NOT EXISTS "
+            + Table_ExOfRoutine + "("+KEY_EXRO_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_EXRO_IDR + " INTEGER," + KEY_EXRO_IDE + " INTEGER)";
+    private static final String CREATE_TABLE_UPDATES="CREATE TABLE IF NOT EXISTS " + Table_Updates +
+            "( _id integer primary key autoincrement , lastUpdate VARCHAR(20) not null, firstInstalation int not null);";
+
+
+    private static final String[] RO_ROWS={KEY_RO_ID, KEY_RO_S, KEY_RO_RT, KEY_RO_R,
+            KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,KEY_RO_GYM};
+    private static final String[] EX_ROWS=new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
+            KEY_EX_MUSCLE, KEY_EX_IMG, KEY_EX_TAG};
+
 
     private final Context mCtx;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
+
 
         DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -56,27 +80,10 @@ public class GymnasioDBAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            List<String> lista = new ArrayList<String>();
-            String crearRutina = "CREATE TABLE IF NOT EXISTS " + Table_Routine +
-                    " ("+ KEY_RO_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ KEY_RO_S
-                    + " INTEGER not null ,"+ KEY_RO_RT +" double not null,"+ KEY_RO_R
-                    + " INTEGER not null,"+ KEY_RO_OBJ +" VARCHAR(20)"
-                    + " not null,"+ KEY_RO_NAME +" VARCHAR(20) not null,"+KEY_RO_PREMIUM
-                    + " INT not null,"+ KEY_RO_GYM +" gym varchar(20))";
-            lista.add(crearRutina);
-            String crearEjercicio = "CREATE TABLE IF NOT EXISTS " + Table_Exercise +
-                    " (" + KEY_EX_ID + " integer primary key autoincrement," + KEY_EX_NAME + " VARCHAR(20) not null," +
-                    KEY_EX_DESC + " not null," + KEY_EX_MUSCLE + " VARCHAR(20) not null, " + KEY_EX_IMG +
-                    " varchar(20) not null, "+ KEY_EX_TAG +" varchar(100))";
-            lista.add(crearEjercicio);
-            String crearEjxRutina = "CREATE TABLE IF NOT EXISTS " + Table_ExOfRoutine
-                    + " (idRut INTEGER,idEj INTEGER, FOREIGN KEY(idRut) REFERENCES "
-                    + Table_Routine + "(id),FOREIGN KEY (idEj) REFERENCES " + Table_Exercise + "(id))";
-            //lista.add(crearEjxRutina);
-            String crearUpdates = "CREATE TABLE IF NOT EXISTS " + Table_Updates +
-                    "( _id integer primary key autoincrement , lastUpdate VARCHAR(20) not null, firstInstalation int not null);";
-            lista.add(crearUpdates);
-            for (String query : lista) db.execSQL(query);
+            db.execSQL(CREATE_TABLE_ROUTINES);
+            db.execSQL(CREATE_TABLE_EXERCISES);
+            db.execSQL(CREATE_TABLE_RELATION);
+            db.execSQL(CREATE_TABLE_UPDATES);
             ContentValues v = new ContentValues();
             Date currentTime = Calendar.getInstance().getTime();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
@@ -150,7 +157,7 @@ public class GymnasioDBAdapter {
      * @return Cursor over all exercises.
      */
     public Cursor fetchExercises() {
-        return Db.query(Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC, KEY_EX_IMG, KEY_EX_TAG}
+        return Db.query(Table_Exercise, EX_ROWS
                 , null, null, null, null, KEY_EX_NAME);
     }
     /**
@@ -162,18 +169,39 @@ public class GymnasioDBAdapter {
      * @return exId or -1 if failed
      */
     public long createExercise(Exercise e) {
-        ContentValues v = new ContentValues();
-        v.put(KEY_EX_NAME, e.getName());
-        v.put(KEY_EX_MUSCLE, e.getMuscle());
-        v.put(KEY_EX_DESC, e.getDescription());
-        v.put(KEY_EX_IMG, e.getImage());
-        String tags="";
-        for (String s: e.getTags()) {
-            tags += "#"+s+",";
+        Cursor c = this.getExerciseByName(e.getName());
+        if (c.getCount() == 0) {
+            Log.d("TAG", "Insertando "+e.getName());
+            ContentValues v = new ContentValues();
+            v.put(KEY_EX_NAME, e.getName());
+            v.put(KEY_EX_MUSCLE, e.getMuscle());
+            v.put(KEY_EX_DESC, e.getDescription());
+            v.put(KEY_EX_IMG, e.getImage());
+            String tags="";
+            if (e.getTags()!=null){
+                for (String s: e.getTags()) {
+                    tags += "#"+s+",";
+                }
+                v.put(KEY_EX_TAG, tags);
+            }
+            Log.d("DBInsertion", "Inserting exercise to database");
+            return Db.insert(Table_Exercise, null, v);
+        } else {
+            Log.d("TAG", "Actualizando "+e.getName());
+            ContentValues v = new ContentValues();
+            v.put(KEY_EX_NAME, e.getName());
+            v.put(KEY_EX_MUSCLE, e.getMuscle());
+            v.put(KEY_EX_DESC, e.getDescription());
+            v.put(KEY_EX_IMG, e.getImage());
+            String tags="";
+            if (e.getTags()!=null){
+                for (String s: e.getTags()) {
+                    tags += "#"+s+",";
+                }
+                v.put(KEY_EX_TAG, tags);
+            }
+            return Db.update(Table_Exercise,v, KEY_EX_ID + "=" + c.getLong(c.getColumnIndex(KEY_EX_ID)),null);
         }
-        v.put(KEY_EX_TAG, tags);
-        Log.d("DBInsertion", "Inserting exercise to database");
-        return Db.insert(Table_Exercise, null, v);
     }
     /**
      * Delete the exercise with the given rowId
@@ -196,7 +224,7 @@ public class GymnasioDBAdapter {
 
         Cursor mCursor =
 
-                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
+                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
                                 KEY_EX_IMG, KEY_EX_TAG}, KEY_EX_ID + "=" + rowId, null,
                         null, null, null, null);
         if (mCursor != null) {
@@ -215,7 +243,7 @@ public class GymnasioDBAdapter {
     public Cursor getExerciseByName(String name) throws SQLException {
         String[] consulta = {name};
         Cursor mCursor;
-        mCursor = Db.query( Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
+        mCursor = Db.query( Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
                         KEY_EX_IMG, KEY_EX_TAG}, KEY_EX_NAME+"='"+name+"'", null,
                 null, null, null, null);
         if (mCursor != null) {
@@ -235,7 +263,7 @@ public class GymnasioDBAdapter {
 
         Cursor mCursor =
 
-                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
+                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
                                 KEY_EX_IMG,  KEY_EX_TAG}, KEY_EX_MUSCLE + "='" + muscle+"'", null,
                         null, null, null, null);
         if (mCursor != null) {
@@ -254,7 +282,7 @@ public class GymnasioDBAdapter {
     public Cursor getExercisesByTag(String tag) throws SQLException {
         //THIS WILL DO SOMETHING WHEN I KNOW HOW TO DO IT.
         Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_TAG
-                + "LIKE '%#" + tag + ",%';", null);
+                + " LIKE '%#" + tag + ",%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -271,14 +299,23 @@ public class GymnasioDBAdapter {
     public long createFreemiumRoutine(Routine r) {
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
-        v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_S, r.getSeries());
         v.put(KEY_RO_RT, r.getRelxTime());
         v.put(KEY_RO_R, r.getRep());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
-        Log.d("DBInsertion", "Inserting freemium routine to database");
-        return Db.insert(Table_Routine, null, v);
+        ArrayList<Long> ex = r.getExercises();
+        //Introducimos la rutina
+        long id = Db.insert(Table_Routine,null,v);
+        //Añadimos los ejercicios de la rutina
+        for (long ejId : ex) {
+            ContentValues v2 = new ContentValues();
+            v2.put(KEY_EXRO_IDR,id);
+            v2.put(KEY_EXRO_IDE,ejId);
+            Db.insert(Table_ExOfRoutine,null,v2);
+        }
+        Log.d("DBInsertion", "Inserting Freemium routine to database");
+        return id;
     }
     /**
      * Create a new Freemium Routine using the object provided. If the routine is
@@ -297,8 +334,18 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_R, r.getRep());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, true);
+        ArrayList<Long> ex = r.getExercises();
+        //Introducimos la rutina
+        long id = Db.insert(Table_Routine,null,v);
+        //Añadimos los ejercicios de la rutina
+        for (long ejId : ex) {
+            ContentValues v2 = new ContentValues();
+            v2.put(KEY_EXRO_IDR,id);
+            v2.put(KEY_EXRO_IDE,ejId);
+            Db.insert(Table_ExOfRoutine,null,v2);
+        }
         Log.d("DBInsertion", "Inserting Premium routine to database");
-        return Db.insert(Table_Routine, null, v);
+        return id;
     }
 
     /**
@@ -319,7 +366,49 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_R, r.getRep());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
-        return Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+        ArrayList<Long> ex = r.getExercises();
+        boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+        Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"="+id,null);
+        if (ex != null || ex.size() != 0) {
+            for (long ejId : ex) {
+                ContentValues v2 = new ContentValues();
+                v2.put(KEY_EXRO_IDR,id);
+                v2.put(KEY_EXRO_IDE,ejId);
+                Db.insert(Table_ExOfRoutine,null,v2);
+            }
+        }
+        return updateRo;
+    }
+    /**
+     * Update a new Freemium Routine using the object provided. If the routine is
+     * successfully created return the new roId for that routine, otherwise return
+     * a -1 to indicate failure.
+     *
+     * @param r the object which contains the routine
+     * @param id id of the routine to be updated
+     * @return true if success or false if failure
+     */
+    public boolean updatePremiumRoutine(long id, Routine r) {
+        ContentValues v = new ContentValues();
+        v.put(KEY_RO_NAME, r.getName());
+        v.put(KEY_RO_GYM, r.getNameGym());
+        v.put(KEY_RO_S, r.getSeries());
+        v.put(KEY_RO_RT, r.getRelxTime());
+        v.put(KEY_RO_R, r.getRep());
+        v.put(KEY_RO_OBJ, r.getObjective());
+        v.put(KEY_RO_PREMIUM, true);
+        ArrayList<Long> ex = r.getExercises();
+        boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+        Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"="+id,null);
+        if (ex != null || ex.size() != 0) {
+            for (long ejId : ex) {
+                ContentValues v2 = new ContentValues();
+                v2.put(KEY_EXRO_IDR,id);
+                v2.put(KEY_EXRO_IDE,ejId);
+                Db.insert(Table_ExOfRoutine,null,v2);
+            }
+        }
+        return updateRo;
     }
 
 
@@ -330,8 +419,7 @@ public class GymnasioDBAdapter {
      * @return Cursor over all routines.
      */
     public Cursor fetchRoutines() {
-        return Db.query(Table_Routine, new String[]{KEY_RO_ID, KEY_RO_S, KEY_RO_RT, KEY_RO_R,
-                        KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,KEY_RO_GYM}, null,
+        return Db.query(Table_Routine, RO_ROWS, null,
                         null, null, null, null);
     }
 
@@ -388,7 +476,7 @@ public class GymnasioDBAdapter {
         Cursor mCursor =
 
                 Db.query(Table_Routine, new String[]{KEY_RO_ID, KEY_RO_S, KEY_RO_RT, KEY_RO_R,
-                                KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,KEY_RO_GYM}, KEY_RO_NAME + "=" + name, null,
+                                KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,KEY_RO_GYM}, KEY_RO_NAME + "='" + name+"'", null,
                         null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
@@ -398,5 +486,19 @@ public class GymnasioDBAdapter {
     }
     public boolean deleteExercise (long id) {
         return Db.delete(Table_Exercise,KEY_EX_ID+"="+id,null)>0;
+    }
+
+    public Cursor getExercisesFromRoutine(long id) {
+        String selectQuery = "SELECT * FROM "+ Table_Exercise+" AS ex, "+
+                Table_ExOfRoutine+" AS exro WHERE exro."+KEY_EXRO_IDR+"="+id+" AND exro."
+                + KEY_EXRO_IDE + "= ex."+KEY_EX_ID;
+        Log.w("TAG",selectQuery);
+        Cursor c = Db.rawQuery(selectQuery,null);
+        // looping through all rows and adding to list
+        if (c.moveToFirst()) {
+            return c;
+        } else {
+            return null;
+        }
     }
 }
