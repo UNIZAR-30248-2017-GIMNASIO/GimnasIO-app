@@ -75,7 +75,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
         state = (TextView) findViewById(R.id.descargando);
         state.setText("Descargando");
 
-        String url ="http://10.0.2.2:32001/exercises/";
+        String url ="http://54.171.225.70:32001/exercises/";
         RequestQueue mQueue = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -101,8 +101,8 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> params = new HashMap<String, String>();
-                        params.put("user", "adminGPS");
-                        params.put("pwd", "gimnasIOapp");
+                        params.put("user", "gpsAdmin");
+                        params.put("pwd", "Gps@1718");
                         return params;
                     }
 
@@ -177,23 +177,24 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
         @Override
         protected String doInBackground(String... params) {
             final String image = params[0].replaceAll("\\s+","");
-            String url = "http://10.0.2.2:32001/exercises/download";
+            String url = "http://54.171.225.70:32001/exercises/download";
             Log.d("ImgDwn","Trying to download "+image);
             RequestQueue mQueue = Volley.newRequestQueue(LoadingActivity.this);
             //Retrieves an image specified by the URL, displays it in the UI.
-            ImageRequest r = new ImageRequest(url, new Response.Listener<Bitmap>() {
+            ImageRequest r = new ImageRequest(
+                    url,  new Response.Listener<Bitmap>() {
                 @Override
                 public void onResponse(Bitmap bitmap) {
                     Log.d("ImgDwn","Image from "+image+" downloaded");
                     SaveImage(bitmap, image);
                 }
-            }, 1028,1028,Bitmap.Config.ARGB_8888,
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-                            Log.e("ERROR from " + image, "http Volley request failed!", volleyError);
-                        }
-                    }) {
+            }, 1028,
+                    1028, null, Bitmap.Config.ARGB_8888, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                    Log.e("ERROR from " + image, "http Volley request failed!", volleyError);
+                }
+            }) {
 
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {

@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private View dLayout;
 
     private GymnasioDBAdapter db;
-    private String url = "http://10.0.2.2:32001/dbdata/";
+    private String url = "http://54.171.225.70:32001/dbdata/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,8 +97,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String, String> params = new HashMap<String, String>();
-                    params.put("user", "adminGPS");
-                    params.put("pwd", "gimnasIOapp");
+                    params.put("user", "gpsAdmin");
+                    params.put("pwd", "Gps@1718");
                     return params;
                 }
 
