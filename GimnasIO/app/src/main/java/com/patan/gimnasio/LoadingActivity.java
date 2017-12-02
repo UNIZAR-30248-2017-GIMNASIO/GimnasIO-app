@@ -11,6 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -23,6 +25,7 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,6 +36,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoadingActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+
+
+    private int status = 0;
+    private int total = 0;
+    private TextView state;
     /**
      * Id to identify a contacts permission request.
      */
@@ -48,6 +56,8 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
      * Root of the layout of this Activity.
      */
     private View mLayout;
+    private TextView texto;
+    private ProgressBar barra;
 
     private String ruta = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/GymnasIOapp";
 
@@ -60,6 +70,11 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
+        //barra = (ProgressBar) findViewById(R.id.progressBar);
+        //texto = (TextView) findViewById(R.id.descargando);
+        state = (TextView) findViewById(R.id.descargando);
+        state.setText("Descargando");
+
         String url ="http://10.0.2.2:32001/exercises/";
         RequestQueue mQueue = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
@@ -67,6 +82,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            //texto.setText("Descargando 0 ejercicios de " + response.length());
                             updateDatabase(response);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -97,7 +113,10 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     private void updateDatabase(JSONObject list) throws JSONException {
         db = new GymnasioDBAdapter(this);
         db.open();
+        total = list.length();
         for (int i = 0; i < list.length(); i++) {
+            //texto.setText("Descargando 0 ejercicios de " + list.length());
+            //barra.setProgress(list.length(),i);
             JSONObject ejercicio = list.getJSONObject(i + "");
             Log.d("" + i, ejercicio.toString());
             ArrayList<String> tags = new ArrayList<String>();
@@ -132,6 +151,12 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                 out.flush();
                 out.close();
                 Log.d("SAVED","Image with name "+s+" saved on filesystem");
+                status++;
+                if (status == total) {
+                    state.setText("Descarga finalizada");
+                    Log.d("DWL", "DOWNLOAD AND STORAGE FINISHED");
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
