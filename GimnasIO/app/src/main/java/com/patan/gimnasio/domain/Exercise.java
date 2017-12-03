@@ -11,6 +11,7 @@ public class Exercise {
     private String image;
     private ArrayList<String> tags;
 
+
     public Exercise(String name,String muscle,String description,String image,ArrayList<String> tags){
         this.name=name;
         this.muscle=muscle;
@@ -39,6 +40,8 @@ public class Exercise {
         this.tags = tags;
     }
 
+
+
     public String getMuscle() {
         return muscle;
     }
@@ -58,6 +61,8 @@ public class Exercise {
     public String getName() {
         return name;
     }
+
+
 
     public boolean equalList(ArrayList<String> list1, ArrayList<String> list2)
     {
