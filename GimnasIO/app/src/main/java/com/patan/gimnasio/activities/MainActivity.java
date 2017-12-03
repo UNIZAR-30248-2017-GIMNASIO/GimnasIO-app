@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.android.volley.AuthFailureError;
@@ -25,7 +26,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
-import com.patan.gimnasio.services.ApiHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
 
     private GymnasioDBAdapter db;
     private String url = "http://54.171.225.70:32001/dbdata/";
+    private String lUR;
+    private int rowId;
+    private String downloadSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,18 +70,87 @@ public class MainActivity extends AppCompatActivity {
             final int fI = c.getInt(c.getColumnIndex("firstInstalation"));
             final int id = c.getInt(c.getColumnIndex("_id"));
             // Consulta al server
-            ApiHandler api = new ApiHandler();
-            JsonObjectRequest jsonObjectRequest = api.getDbData(url, lUL, fI, id);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            lUR = null;
+                            try {
+                                Log.w("TAG",response.toString());
+                                lUR = response.getString("lastUpdate");
+                                lUR = lUR.replace('T','_');
+                                lUR = lUR.substring(0,19);
+                                //Launch update
+                                if (!lUR.equals(lUL) || fI==1) {
+                                    Log.d("INFO", "Update needed because new " +
+                                            "installation or new remote db");
+                                    rowId=id;
+                                    downloadSize = response.getString("totalSize");
+                                    checkIfUserWantsDownload(downloadSize);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("TAG", error.getMessage(), error);
+                }
+
+
+            }){
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("user", "gpsAdmin");
+                    params.put("pwd", "Gps@1718");
+                    return params;
+                }
+
+            };
             mQueue.add(jsonObjectRequest);
 
         }
         c.close();
     }
 
+    private void checkIfUserWantsDownload(String size){
+        CharSequence options[] = new CharSequence[] {"De acuerdo", "En otro momento"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("La aplicación necesita descargar " + size +"MB ¿De acuerdo?");
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(which==0){
+                    goToLoadingActivity();
+                    db.updateLastUpdate(rowId, lUR);
+                }
+            }
+        });
+        builder.show();
+    }
+
+
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.update:
+                checkIfUserWantsDownload(downloadSize);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
     private void goToLoadingActivity() {
         Intent intent = new Intent(this, LoadingActivity.class);

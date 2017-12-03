@@ -136,7 +136,6 @@ public class GymnasioDBAdapter {
         DbHelper.close();
     }
 
-
     public Cursor checkForUpdates() {
         return Db.query(Table_Updates, new String[]{"_id","lastUpdate","firstInstalation"},
                 null,null,null,null,null);
