@@ -1,7 +1,6 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.domain;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class Exercise {
@@ -11,6 +10,7 @@ public class Exercise {
     private String description;
     private String image;
     private ArrayList<String> tags;
+
 
     public Exercise(String name,String muscle,String description,String image,ArrayList<String> tags){
         this.name=name;
@@ -40,6 +40,8 @@ public class Exercise {
         this.tags = tags;
     }
 
+
+
     public String getMuscle() {
         return muscle;
     }
@@ -59,6 +61,8 @@ public class Exercise {
     public String getName() {
         return name;
     }
+
+
 
     public boolean equalList(ArrayList<String> list1, ArrayList<String> list2)
     {

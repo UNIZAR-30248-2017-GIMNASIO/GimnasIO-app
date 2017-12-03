@@ -1,16 +1,17 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.activities;
 
 import android.Manifest;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -20,19 +21,25 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.patan.gimnasio.database.GymnasioDBAdapter;
+import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.Exercise;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class LoadingActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+
+
+    private int status = 0;
+    private int total = 0;
+    private TextView state;
     /**
      * Id to identify a contacts permission request.
      */
@@ -48,6 +55,8 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
      * Root of the layout of this Activity.
      */
     private View mLayout;
+    private TextView texto;
+    private ProgressBar barra;
 
     private String ruta = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/GymnasIOapp";
 
@@ -60,13 +69,19 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
-        String url ="http://10.0.2.2:32001/exercises/";
+        //barra = (ProgressBar) findViewById(R.id.progressBar);
+        //texto = (TextView) findViewById(R.id.descargando);
+        state = (TextView) findViewById(R.id.descargando);
+        state.setText("Descargando");
+
+        String url ="http://54.171.225.70:32001/exercises/";
         RequestQueue mQueue = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            //texto.setText("Descargando 0 ejercicios de " + response.length());
                             updateDatabase(response);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -85,8 +100,8 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> params = new HashMap<String, String>();
-                        params.put("user", "adminGPS");
-                        params.put("pwd", "gimnasIOapp");
+                        params.put("user", "gpsAdmin");
+                        params.put("pwd", "Gps@1718");
                         return params;
                     }
 
@@ -97,7 +112,10 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     private void updateDatabase(JSONObject list) throws JSONException {
         db = new GymnasioDBAdapter(this);
         db.open();
+        total = list.length();
         for (int i = 0; i < list.length(); i++) {
+            //texto.setText("Descargando 0 ejercicios de " + list.length());
+            //barra.setProgress(list.length(),i);
             JSONObject ejercicio = list.getJSONObject(i + "");
             Log.d("" + i, ejercicio.toString());
             ArrayList<String> tags = new ArrayList<String>();
@@ -132,6 +150,12 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                 out.flush();
                 out.close();
                 Log.d("SAVED","Image with name "+s+" saved on filesystem");
+                status++;
+                if (status == total) {
+                    state.setText("Descarga finalizada");
+                    Log.d("DWL", "DOWNLOAD AND STORAGE FINISHED");
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -152,23 +176,24 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
         @Override
         protected String doInBackground(String... params) {
             final String image = params[0].replaceAll("\\s+","");
-            String url = "http://10.0.2.2:32001/exercises/download";
+            String url = "http://54.171.225.70:32001/exercises/download";
             Log.d("ImgDwn","Trying to download "+image);
             RequestQueue mQueue = Volley.newRequestQueue(LoadingActivity.this);
             //Retrieves an image specified by the URL, displays it in the UI.
-            ImageRequest r = new ImageRequest(url, new Response.Listener<Bitmap>() {
+            ImageRequest r = new ImageRequest(
+                    url,  new Response.Listener<Bitmap>() {
                 @Override
                 public void onResponse(Bitmap bitmap) {
                     Log.d("ImgDwn","Image from "+image+" downloaded");
                     SaveImage(bitmap, image);
                 }
-            }, 1028,1028,Bitmap.Config.ARGB_8888,
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-                            Log.e("ERROR from " + image, "http Volley request failed!", volleyError);
-                        }
-                    }) {
+            }, 1028,
+                    1028, null, Bitmap.Config.ARGB_8888, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                    Log.e("ERROR from " + image, "http Volley request failed!", volleyError);
+                }
+            }) {
 
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {

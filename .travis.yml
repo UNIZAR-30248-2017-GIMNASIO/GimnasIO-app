@@ -1,3 +1,5 @@
+sudo: required
+jdk: oraclejdk8
 language: android
 android:
   components:
@@ -7,17 +9,80 @@ android:
     # - platform-tools
 
     # The BuildTools version used by your project
-    - build-tools-25.0.0
-
-    # The SDK version used to compile your project
-    - android-25
+    - tools
+    - build-tools-26.0.2
+    - platform-tools
 
     # Additional components
     - extra-google-google_play_services
     - extra-google-m2repository
     - extra-android-m2repository
+    - extra-android-support
     - addon-google_apis-google-25
+    - addon-google_apis-google-26
+    - tools
+
+    # The SDK version used to compile your project
+    - android-26
+    - android-25
+    - android-22
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
+    - sys-img-armeabi-v7a-android-26
     - sys-img-armeabi-v7a-android-25
+    - sys-img-armeabi-v7a-android-22
+env:
+  global:
+    - API=25 # Android API level 25 by default
+    - TAG=google_apis # Google APIs by default, alternatively use default
+    - ABI=armeabi-v7a # ARM ABI v7a by default
+    - QEMU_AUDIO_DRV=none # Disable emulator audio to avoid warning
+    - ANDROID_HOME=/usr/local/android-sdk-26.0.2 # Depends on the cookbooks version used in the VM
+    - TOOLS=${ANDROID_HOME}/tools # PATH order matters, exists more than one emulator script
+    - PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
+    - ADB_INSTALL_TIMEOUT=30 # minutes (2 minutes by default)
+
+before_install:
+  - cd ./GimnasIO
+  - export EMULATOR="system-images;android-${API};${TAG};${ABI}" # Used to install/create emulator
+  - echo 'count=0' > /home/travis/.android/repositories.cfg # Avoid warning
+  - chmod +x gradlew
+
+install:
+  - echo yes | sdkmanager "tools"
+  - echo yes | sdkmanager "platforms;android-25" # Latest platform required by SDK tools
+  - echo yes | sdkmanager "platforms;android-${API}" # Android platform required by emulator
+  - echo yes | sdkmanager "extras;android;m2repository"
+  - echo yes | sdkmanager "extras;google;m2repository"
+  - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
+  - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
+  - echo yes | sdkmanager "$EMULATOR" # Install emulator system image
+#   # Create and start emulator
+  - echo no | avdmanager create avd -n acib -k "$EMULATOR" -f --abi "$ABI" --tag "$TAG"
+  - emulator -avd acib -engine classic -no-window -verbose -qemu -m 512 &
+  - travis_wait 25 android-wait-for-emulator
+
+before_script:
+  # echo no | avdmanager create avd -n test -k "$EMULATOR" -f --abi armeabi-v7a --tag google-apis
+  #- emulator -avd test -engine classic -no-audio -no-window &
+  - adb shell input keyevent 82 &
+  - yes | sdkmanager --licenses 
+
+script:
+  - ./gradlew build connectedCheck
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
+licenses:
+  - 'android-sdk-preview-license-.+'
+  - 'android-sdk-license-.+'
+  - 'google-gdk-license-.+'
+  - 'android-*'
+os: linux
