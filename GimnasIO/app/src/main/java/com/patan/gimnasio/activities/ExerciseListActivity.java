@@ -1,11 +1,10 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.activities;
 
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,8 +13,11 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.patan.gimnasio.database.GymnasioDBAdapter;
+import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.Exercise;
+
 import java.util.ArrayList;
-import java.util.List;
 
 // En esta actividad se mostrara una lista con todos los ejercicios, ademas de una barra de busqueda para poder filtrar
 public class ExerciseListActivity extends AppCompatActivity {

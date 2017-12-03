@@ -1,4 +1,4 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -28,6 +28,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.patan.gimnasio.database.GymnasioDBAdapter;
+import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.Exercise;
 
 import java.util.ArrayList;
 import java.util.List;

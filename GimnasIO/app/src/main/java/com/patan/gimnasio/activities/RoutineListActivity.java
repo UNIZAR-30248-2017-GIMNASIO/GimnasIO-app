@@ -1,4 +1,4 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.activities;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,6 +12,9 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import com.patan.gimnasio.database.GymnasioDBAdapter;
+import com.patan.gimnasio.R;
 
 // En esta actividad se mostrara una lista de rutinas creadas ademas de la opcion de crear una nueva rutina
 //  - Crear rutina (boton flotante) llevara a una RoutineEditActivity vacia

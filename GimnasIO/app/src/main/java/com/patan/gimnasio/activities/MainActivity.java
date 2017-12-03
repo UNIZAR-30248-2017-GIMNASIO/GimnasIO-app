@@ -1,4 +1,4 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.activities;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.android.volley.AuthFailureError;
@@ -23,6 +24,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.patan.gimnasio.database.GymnasioDBAdapter;
+import com.patan.gimnasio.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
 
     private GymnasioDBAdapter db;
     private String url = "http://54.171.225.70:32001/dbdata/";
+    private String lUR;
+    private int rowId;
+    private String downloadSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            String lUR = null;
+                            lUR = null;
                             try {
                                 Log.w("TAG",response.toString());
                                 lUR = response.getString("lastUpdate");
@@ -78,7 +84,9 @@ public class MainActivity extends AppCompatActivity {
                                 if (!lUR.equals(lUL) || fI==1) {
                                     Log.d("INFO", "Update needed because new " +
                                             "installation or new remote db");
-                                    checkIfUserWantsDownload(id, lUR,response.getString("totalSize"));
+                                    rowId=id;
+                                    downloadSize = response.getString("totalSize");
+                                    checkIfUserWantsDownload(downloadSize);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -109,18 +117,7 @@ public class MainActivity extends AppCompatActivity {
         c.close();
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-    private void goToLoadingActivity() {
-        Intent intent = new Intent(this, LoadingActivity.class);
-        startActivity(intent);
-    }
-    private void checkIfUserWantsDownload(int id, String lUR, String size){
-        final int rowId = id;
-        final String lu = lUR;
+    private void checkIfUserWantsDownload(String size){
         CharSequence options[] = new CharSequence[] {"De acuerdo", "En otro momento"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -130,12 +127,36 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 if(which==0){
                     goToLoadingActivity();
-                    db.updateLastUpdate(rowId, lu);
+                    db.updateLastUpdate(rowId, lUR);
                 }
             }
         });
         builder.show();
     }
+
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.update:
+                checkIfUserWantsDownload(downloadSize);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    private void goToLoadingActivity() {
+        Intent intent = new Intent(this, LoadingActivity.class);
+        startActivity(intent);
+    }
+
     public void goToStartApp() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED

@@ -204,7 +204,7 @@
     android:layout_gravity="center"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.patan.gimnasio.MainActivity">
+    tools:contecom.patan.gimnasio.activities.MainActivityvity">
 
     <ImageView
         android:id="@+id/verticalSeparator"

@@ -1,47 +1,28 @@
 package com.patan.gimnasio;
 
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.test.RenamingDelegatingContext;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import android.content.Intent;
-import android.database.Cursor;
+
 import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ActivityInstrumentationTestCase2;
-import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.patan.gimnasio.activities.ExerciseListActivity;
+import com.patan.gimnasio.database.GymnasioDBAdapter;
+import com.patan.gimnasio.domain.Exercise;
+import com.patan.gimnasio.domain.Routine;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
-
-import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListActivity> {
