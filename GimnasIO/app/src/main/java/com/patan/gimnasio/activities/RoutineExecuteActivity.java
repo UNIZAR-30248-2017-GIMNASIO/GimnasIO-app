@@ -1,7 +1,9 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.patan.gimnasio.R;
 
 // En esta actividad se ejecutara la actividad seleccionada
 

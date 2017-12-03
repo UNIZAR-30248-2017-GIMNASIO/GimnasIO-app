@@ -1,4 +1,4 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.database;
 
 import android.content.Context;
 import android.database.Cursor;

@@ -1,4 +1,4 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.activities;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -23,6 +23,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.patan.gimnasio.database.GymnasioDBAdapter;
+import com.patan.gimnasio.R;
+import com.patan.gimnasio.services.ApiHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,45 +67,8 @@ public class MainActivity extends AppCompatActivity {
             final int fI = c.getInt(c.getColumnIndex("firstInstalation"));
             final int id = c.getInt(c.getColumnIndex("_id"));
             // Consulta al server
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            String lUR = null;
-                            try {
-                                Log.w("TAG",response.toString());
-                                lUR = response.getString("lastUpdate");
-                                lUR = lUR.replace('T','_');
-                                lUR = lUR.substring(0,19);
-                                //Launch update
-                                if (!lUR.equals(lUL) || fI==1) {
-                                    Log.d("INFO", "Update needed because new " +
-                                            "installation or new remote db");
-                                    checkIfUserWantsDownload(id, lUR,response.getString("totalSize"));
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("TAG", error.getMessage(), error);
-                }
-
-
-            }){
-
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("user", "gpsAdmin");
-                    params.put("pwd", "Gps@1718");
-                    return params;
-                }
-
-            };
+            ApiHandler api = new ApiHandler();
+            JsonObjectRequest jsonObjectRequest = api.getDbData(url, lUL, fI, id);
             mQueue.add(jsonObjectRequest);
 
         }
@@ -118,24 +84,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LoadingActivity.class);
         startActivity(intent);
     }
-    private void checkIfUserWantsDownload(int id, String lUR, String size){
-        final int rowId = id;
-        final String lu = lUR;
-        CharSequence options[] = new CharSequence[] {"De acuerdo", "En otro momento"};
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("La aplicación necesita descargar " + size +"MB ¿De acuerdo?");
-        builder.setItems(options, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(which==0){
-                    goToLoadingActivity();
-                    db.updateLastUpdate(rowId, lu);
-                }
-            }
-        });
-        builder.show();
-    }
     public void goToStartApp() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED

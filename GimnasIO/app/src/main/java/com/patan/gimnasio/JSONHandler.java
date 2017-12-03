@@ -2,7 +2,7 @@ package com.patan.gimnasio;
 
 import android.util.JsonReader;
 
-import org.json.JSONObject;
+import com.patan.gimnasio.domain.Exercise;
 
 import java.io.IOException;
 import java.io.InputStream;
