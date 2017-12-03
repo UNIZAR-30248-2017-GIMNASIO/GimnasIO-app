@@ -1,4 +1,4 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,6 +7,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.patan.gimnasio.domain.Exercise;
+import com.patan.gimnasio.domain.Routine;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

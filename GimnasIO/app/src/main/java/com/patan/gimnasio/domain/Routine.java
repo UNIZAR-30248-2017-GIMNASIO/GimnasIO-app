@@ -1,7 +1,6 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.domain;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class Routine{

@@ -16,27 +16,27 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".ExerciseListActivity"
+            android:name=".activities.ExerciseListActivity"
             android:label="@string/lista_ejercicios" />
-        <activity android:name=".ExerciseViewActivity" />
+        <activity android:name=".activities.ExerciseViewActivity" />
         <activity
-            android:name=".RoutineListActivity"
+            android:name=".activities.RoutineListActivity"
             android:label="@string/lista_rutinas" />
         <activity
-            android:name=".RoutineEditActivity"
+            android:name=".activities.RoutineEditActivity"
             android:label="@string/title_activity_routine_edit" />
-        <activity android:name=".RoutineExecuteActivity" />
+        <activity android:name=".activities.RoutineExecuteActivity" />
         <activity
-            android:name=".PremiumLoginActivity"
+            android:name=".activities.PremiumLoginActivity"
             android:label="@string/iniciar_sesion" />
-        <activity android:name=".LoadingActivity" >
+        <activity android:name=".activities.LoadingActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

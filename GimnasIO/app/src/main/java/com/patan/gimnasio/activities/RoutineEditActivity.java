@@ -1,4 +1,4 @@
-package com.patan.gimnasio;
+package com.patan.gimnasio.activities;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,6 +16,10 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+
+import com.patan.gimnasio.database.GymnasioDBAdapter;
+import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.Routine;
 
 import java.util.ArrayList;
 
