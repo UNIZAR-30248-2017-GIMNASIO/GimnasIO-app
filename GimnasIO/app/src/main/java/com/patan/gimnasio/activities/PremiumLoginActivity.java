@@ -119,7 +119,7 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         /*ArrayList<Long> exs = new ArrayList<>();
         exs.add(id);
         exs.add(id2);
-        r.setExcercises(exs);
+        r.setExercises(exs);
         long t = db.createFreemiumRoutine(r);
         Log.w("id ejecicio al crearlo", id+"");
         Log.w("id rutina al crearla", t+"");*/

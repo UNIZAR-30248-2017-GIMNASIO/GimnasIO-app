@@ -88,7 +88,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (mode_in.equals("new")) {
             ArrayList<Long> array = new ArrayList<>();
             Routine r = new Routine("","","",0,0,0,array);
-            id_in = db.createFreemiumRoutine(r);
+            id_in = db.createFreemiumRoutine(r,null);
             populateFields();
             goToEditMode();
         } else if (mode_in.equals("view")) {
@@ -122,8 +122,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                 ArrayList<Long> ex = r.getExercises();
                 int index = ex.indexOf(id);
                 ex.remove(index);
-                r.setExcercises(ex);
-                db.updateFreemiumRoutine(id_in,r);
+                r.setExercises(ex);
+                db.updateFreemiumRoutine(id_in,r,null);
                 populateFields();
                 return true;
             case MOVE_EX_UP :
@@ -140,8 +140,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                     long exercise2_up = ex_up.get(index_up -1);
                     ex_up.set(index_up, exercise2_up);
                     ex_up.set(index_up -1, exercise1_up);
-                    r_up.setExcercises(ex_up);
-                    db.updateFreemiumRoutine(id_in,r_up);
+                    r_up.setExercises(ex_up);
+                    db.updateFreemiumRoutine(id_in,r_up,null);
                     populateFields();
                 }
                 return true;
@@ -161,8 +161,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                     long exercise2_down = ex_down.get(index_down + 1);
                     ex_down.set(index_down, exercise2_down);
                     ex_down.set(index_down + 1, exercise1_down);
-                    r_down.setExcercises(ex_down);
-                    db.updateFreemiumRoutine(id_in, r_down);
+                    r_down.setExercises(ex_down);
+                    db.updateFreemiumRoutine(id_in, r_down,null);
                     populateFields();
                 }
                 return true;
@@ -316,8 +316,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                 Routine r = getRoutineFields();
                 ArrayList<Long> r_ex = r.getExercises();
                 r_ex.add(id);
-                r.setExcercises(r_ex);
-                boolean exito = db.updateFreemiumRoutine(id_in,r);
+                r.setExercises(r_ex);
+                boolean exito = db.updateFreemiumRoutine(id_in,r,null);
                 populateFields();
             }
         }
@@ -370,7 +370,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (mode_in.equals("new")) {
             mode_in = "view";   // Cambiamos a modo view para que no se cree la rutina multiples veces
         }
-        db.updateFreemiumRoutine(id_in,r);
+        db.updateFreemiumRoutine(id_in,r,null);
     }
 
     @Override
@@ -390,7 +390,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)) != null) {
             textGym.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)));
         } else textGym.setText("");
-
+        /*
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_S)) != null) {
             textSeries.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_S)));
         } else textSeries.setText("");
@@ -402,7 +402,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_RT)) != null) {
             textRelax.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_RT)));
         } else textRelax.setText("");
-
+        */
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)) != null) {
             textObjetivo.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)));
         } else textObjetivo.setText("");

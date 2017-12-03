@@ -8,27 +8,20 @@ public class Routine{
     private String nameGym;
     private String name;
     private String objective;
-    private int series;
-    private int rep;
-    private double relxTime;
-    private ArrayList<Long> excercises;
+
+    private ArrayList<Long> exercises;
 
     public Routine(String nameGym,String name,String objective,int series,double relxTime,int rep, ArrayList<Long> exercises){
         this.nameGym = nameGym;
         this.name = name;
         this.objective = objective;
-        this.series = series;
-        this.relxTime = relxTime;
-        this.excercises = exercises;
-        this.rep=rep;
+        this.exercises = exercises;
     }
 
-    public void setRelxTime(double relxTime) {
-        this.relxTime = relxTime;
-    }
 
-    public void setExcercises(ArrayList<Long> excercises) {
-        this.excercises = excercises;
+
+    public void setExercises(ArrayList<Long> exercises) {
+        this.exercises = exercises;
     }
 
     public void setName(String name) {
@@ -43,33 +36,13 @@ public class Routine{
         this.objective = objective;
     }
 
-    public void setRep(int rep) {
-        this.rep = rep;
-    }
-
-    public void setSeries(int series) {
-        this.series = series;
-    }
-
     public String getName() {
         return name;
     }
 
-    public double getRelxTime() {
-        return relxTime;
-    }
-
-    public int getRep() {
-        return rep;
-    }
-
-    public int getSeries() {
-        return series;
-    }
-
     public ArrayList<Long> getExercises() {
 
-        return excercises;
+        return exercises;
     }
 
     public String getNameGym() {
@@ -102,8 +75,7 @@ public class Routine{
     //int series,double relxTime,int rep, ArrayList<Long> exercises
     public boolean equals(Routine otro){
         return (this.name.equals(otro.getName()) && this.nameGym.equals(otro.getNameGym())
-                && otro.getObjective().equals(this.objective) && this.series == otro.getSeries()
-                && this.relxTime == otro.getRelxTime() && this.rep == otro.getRep()
-                && equalList(this.excercises,otro.getExercises()));
+                && otro.getObjective().equals(this.objective)
+                && equalList(this.exercises,otro.getExercises()));
     }
 }
