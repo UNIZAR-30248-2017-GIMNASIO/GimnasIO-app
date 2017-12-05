@@ -23,7 +23,7 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 23;
+    private static final int DATABASE_VERSION = 29;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
@@ -39,9 +39,7 @@ public class GymnasioDBAdapter {
 
     public static final String KEY_RO_ID= "_id";
     public static final String KEY_RO_NAME = "name";
-    //public static final String KEY_RO_S = "series";
-    //public static final String KEY_RO_RT = "relaxTime";
-    //public static final String KEY_RO_R = "rep";
+
     public static final String KEY_RO_PREMIUM = "premium";
     public static final String KEY_RO_GYM = "gym";
     public static final String KEY_RO_OBJ = "objective";
@@ -64,7 +62,7 @@ public class GymnasioDBAdapter {
     private static final String CREATE_TABLE_RELATION = "CREATE TABLE IF NOT EXISTS "
             + Table_ExOfRoutine + "("+KEY_EXRO_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"
             + KEY_EXRO_IDR + " INTEGER," + KEY_EXRO_IDE + " INTEGER,"+KEY_EXRO_EXREP+" INTEGER not null,"
-            + KEY_EXRO_EXSER + "INTEGER not null," + KEY_EXRO_EXRT + " double not null)";
+            + KEY_EXRO_EXSER + " INTEGER not null," + KEY_EXRO_EXRT + " double not null)";
     private static final String CREATE_TABLE_UPDATES="CREATE TABLE IF NOT EXISTS " + Table_Updates +
             "( _id integer primary key autoincrement , lastUpdate VARCHAR(20) not null, firstInstalation int not null);";
 
@@ -300,7 +298,7 @@ public class GymnasioDBAdapter {
      * @param r the object which contains the routine
      * @return exId or -1 if failed
      */
-    public long createFreemiumRoutine(Routine r, ExFromRoutine[] ex) {
+    public long createFreemiumRoutine(Routine r, ArrayList<ExFromRoutine> ex) {
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
         v.put(KEY_RO_OBJ, r.getObjective());
@@ -359,22 +357,23 @@ public class GymnasioDBAdapter {
      * @param id id of the routine to be updated
      * @return true if success or false if failure
      */
-    public boolean updateFreemiumRoutine(long id, Routine r, ExFromRoutine[] ex) {
+    public boolean updateFreemiumRoutine(long id, Routine r, ArrayList<ExFromRoutine> ex) {
+        Log.d("UPDT: ", "Entro al updato");
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
         v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
         boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
-        Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"="+id,null);
-        if (ex != null || ex.length != 0) {
+        Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"=" + id,null);
+        if (ex != null || ex.size() != 0) {
             for (ExFromRoutine e : ex) {
                 ContentValues v2 = new ContentValues();
                 v2.put(KEY_EXRO_IDR,id);
                 v2.put(KEY_EXRO_IDE,e.getId());
                 v2.put(KEY_EXRO_EXSER, e.getSeries());
-                v2.put(KEY_EXRO_EXRT, e.getRelxTime());
                 v2.put(KEY_EXRO_EXREP, e.getRep());
+                v2.put(KEY_EXRO_EXRT, e.getRelxTime());
                 Db.insert(Table_ExOfRoutine,null,v2);
             }
         }
@@ -491,7 +490,6 @@ public class GymnasioDBAdapter {
                 + KEY_EXRO_IDE + "= ex."+KEY_EX_ID;
         Log.w("TAG",selectQuery);
         Cursor c = Db.rawQuery(selectQuery,null);
-        // looping through all rows and adding to list
         if (c.moveToFirst()) {
             return c;
         } else {

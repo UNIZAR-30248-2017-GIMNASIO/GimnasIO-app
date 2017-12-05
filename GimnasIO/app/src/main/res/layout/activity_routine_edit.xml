@@ -27,7 +27,8 @@
                 android:id="@+id/textNombreRutina"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nombre de la rutina:" />
+                android:text="Nombre de la rutina:"
+                android:textAppearance="@android:style/TextAppearance.Material.Title"/>
 
             <EditText
                 android:id="@+id/nombreRutina"
@@ -40,7 +41,8 @@
                 android:id="@+id/textGimnasioRutina"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Gimnasio:" />
+                android:text="Gimnasio:"
+                android:textAppearance="@android:style/TextAppearance.Material.Title"/>
 
             <EditText
                 android:id="@+id/gimnasioRutina"
@@ -53,7 +55,8 @@
                 android:id="@+id/textObjetivoRutina"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Objetivo:" />
+                android:text="Objetivo:"
+                android:textAppearance="@android:style/TextAppearance.Material.Title"/>
 
             <EditText
                 android:id="@+id/objetivoRutina"
@@ -63,55 +66,22 @@
                 android:inputType="textMultiLine" />
 
             <TextView
-                android:id="@+id/textSeriesRutina"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Series:" />
-
-            <EditText
-                android:id="@+id/seriesRutina"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number" />
-
-            <TextView
-                android:id="@+id/textRepeticionesRutina"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Repeticiones:" />
-
-            <EditText
-                android:id="@+id/repeticionesRutina"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number" />
-
-            <TextView
-                android:id="@+id/textTiempoRelaxRutina"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tiempo de descanso (segundos):" />
-
-            <EditText
-                android:id="@+id/tiempoRelaxRutina"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="numberDecimal" />
-
-            <TextView
                 android:id="@+id/textEjercicios"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ejercicios:" />
+                android:text="Ejercicios:"
+                android:textAppearance="@android:style/TextAppearance.Material.Title"/>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
                 <ListView android:id="@+id/routineEditList"
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"/>
                 <TextView android:id="@+id/empty"
                     android:layout_width="wrap_content"

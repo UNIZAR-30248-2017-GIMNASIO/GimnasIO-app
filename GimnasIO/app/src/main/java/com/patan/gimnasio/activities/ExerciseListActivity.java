@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -75,13 +76,40 @@ public class ExerciseListActivity extends AppCompatActivity {
             Cursor c = (Cursor) adapter.getItem(info.position);
             int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_EX_ID);
             long id = c.getLong(pos);
-            Intent i = new Intent();
-            i.putExtra("ID", id);
-            setResult(RESULT_OK,i);
-            finish();   // Forzamos volver a la actividad anterior
+            int name = c.getColumnIndex(GymnasioDBAdapter.KEY_EX_NAME);
+            String nombre = c.getString(name);
+
+            Intent intent = new Intent(this, AddExerciseToRoutineActivity.class);
+            intent.putExtra("MODE","add");
+            intent.putExtra("ID",id);
+            Log.d("ID SELECTED",""+id);
+            intent.putExtra("NAME", nombre);
+            startActivityForResult(intent,1);
+
             return true;
         } else {
             return false;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                long id = data.getLongExtra("ID",0);  // Cogemos el ID del ejercicio añadido;
+                int series = data.getIntExtra("SERIES",0); // Cogemos las series del ejercicio añadido
+                int rep = data.getIntExtra("REP",0); // Cogemos las repeticiones del ejercicio añadido
+                double relax = data.getDoubleExtra("RELAX",0); // Cogemos el tiempo de relax del ejercicio añadido
+
+                Intent i = new Intent();
+                i.putExtra("ID",id);
+                i.putExtra("SERIES",series);
+                i.putExtra("REP",rep);
+                i.putExtra("RELAX",relax);
+                setResult(RESULT_OK,i);
+                finish();       // Forzamos volver a la actividad anterior
+            }
         }
     }
 
