@@ -326,7 +326,7 @@ public class GymnasioDBAdapter {
      * @param r the object which contains the routine
      * @return exId or -1 if failed
      */
-    public long createPremiumRoutine(Routine r, ExFromRoutine[] ex) {
+    public long createPremiumRoutine(Routine r, ArrayList<ExFromRoutine> ex) {
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
         v.put(KEY_RO_GYM, r.getNameGym());
@@ -388,7 +388,7 @@ public class GymnasioDBAdapter {
      * @param id id of the routine to be updated
      * @return true if success or false if failure
      */
-    public boolean updatePremiumRoutine(long id, Routine r, ExFromRoutine[] ex) {
+    public boolean updatePremiumRoutine(long id, Routine r, ArrayList<ExFromRoutine> ex) {
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
         v.put(KEY_RO_GYM, r.getNameGym());
@@ -396,7 +396,7 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_PREMIUM, true);
         boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
         Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"="+id,null);
-        if (ex != null || ex.length != 0) {
+        if (ex != null || ex.size() != 0) {
             for (ExFromRoutine e : ex) {
                 ContentValues v2 = new ContentValues();
                 v2.put(KEY_EXRO_IDR,id);
