@@ -19,6 +19,7 @@
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -36,12 +37,15 @@
         <activity
             android:name=".activities.PremiumLoginActivity"
             android:label="@string/iniciar_sesion" />
-        <activity android:name=".activities.LoadingActivity" >
+        <activity android:name=".activities.LoadingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.Main2Activity" />
+        <activity android:name=".activities.AddExerciseToRoutineActivity"></activity>
     </application>
 
 </manifest>

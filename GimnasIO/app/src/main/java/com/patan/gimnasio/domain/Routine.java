@@ -11,18 +11,14 @@ public class Routine{
 
     private ArrayList<Long> exercises;
 
-    public Routine(String nameGym,String name,String objective,int series,double relxTime,int rep, ArrayList<Long> exercises){
+    public Routine(String nameGym,String name,String objective){
         this.nameGym = nameGym;
         this.name = name;
         this.objective = objective;
-        this.exercises = exercises;
     }
 
 
 
-    public void setExercises(ArrayList<Long> exercises) {
-        this.exercises = exercises;
-    }
 
     public void setName(String name) {
         this.name = name;
@@ -40,10 +36,6 @@ public class Routine{
         return name;
     }
 
-    public ArrayList<Long> getExercises() {
-
-        return exercises;
-    }
 
     public String getNameGym() {
         return nameGym;
@@ -70,12 +62,5 @@ public class Routine{
         }
 
         return true;
-    }
-
-    //int series,double relxTime,int rep, ArrayList<Long> exercises
-    public boolean equals(Routine otro){
-        return (this.name.equals(otro.getName()) && this.nameGym.equals(otro.getNameGym())
-                && otro.getObjective().equals(this.objective)
-                && equalList(this.exercises,otro.getExercises()));
     }
 }

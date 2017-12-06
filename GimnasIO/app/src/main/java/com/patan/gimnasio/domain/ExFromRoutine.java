@@ -6,7 +6,7 @@ public class ExFromRoutine {
     private int series;
     private double relaxTime;
 
-    public ExFromRoutine (long id, int rep, int ser, double rT) {
+    public ExFromRoutine (long id, int ser, int rep, double rT) {
         this.id = id;
         this.repetitions = rep;
         this.series = ser;

@@ -5,4 +5,5 @@
     <color name="colorAccent">#ba0de1</color>
     <color name="colorText">#ffffff</color>
     <color name="labelColor">#000000</color>
+    <color name="listRow">#D3D3D3</color>
 </resources>
