@@ -19,6 +19,7 @@ import android.widget.ListView;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 
 import java.util.ArrayList;
@@ -32,16 +33,15 @@ public class RoutineEditActivity extends AppCompatActivity {
     private long id_in;
     private EditText textName;
     private EditText textGym;
-    private EditText textSeries;
-    private EditText textRep;
-    private EditText textRelax;
     private EditText textObjetivo;
     private FloatingActionButton fab;
     private Menu optionsMenu;
 
-    private final int DELETE_EX = 1;
-    private final int MOVE_EX_UP = 2;
-    private final int MOVE_EX_DOWN = 3;
+    private final int EDIT_EX = 1;
+    private final int DELETE_EX = 2;
+    private final int MOVE_EX_UP = 3;
+    private final int MOVE_EX_DOWN = 4;
+
 
     private GymnasioDBAdapter db;
 
@@ -59,9 +59,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         l = (ListView)findViewById(R.id.routineEditList);
         textName = (EditText) findViewById(R.id.nombreRutina);
         textGym = (EditText) findViewById(R.id.gimnasioRutina);
-        textSeries = (EditText) findViewById(R.id.seriesRutina);
-        textRep = (EditText) findViewById(R.id.repeticionesRutina);
-        textRelax = (EditText) findViewById(R.id.tiempoRelaxRutina);
         textObjetivo = (EditText) findViewById(R.id.objetivoRutina);
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -86,9 +83,9 @@ public class RoutineEditActivity extends AppCompatActivity {
         mode_in = intent.getStringExtra("MODE");
 
         if (mode_in.equals("new")) {
-            ArrayList<Long> array = new ArrayList<>();
-            Routine r = new Routine("","","",0,0,0,array);
-            id_in = db.createFreemiumRoutine(r,null);
+            ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
+            Routine r = new Routine("","","");
+            id_in = db.createFreemiumRoutine(r,efrArray);
             populateFields();
             goToEditMode();
         } else if (mode_in.equals("view")) {
@@ -103,6 +100,7 @@ public class RoutineEditActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         if (getSupportActionBar().getTitle().equals("Rutina (Editar)")) {
             super.onCreateContextMenu(menu, v, menuInfo);
+            menu.add(Menu.NONE, EDIT_EX, Menu.NONE, "Editar ejercicio");
             menu.add(Menu.NONE, DELETE_EX, Menu.NONE, R.string.menu_delete);
             menu.add(Menu.NONE, MOVE_EX_UP, Menu.NONE, "Subir ejercicio");
             menu.add(Menu.NONE, MOVE_EX_DOWN, Menu.NONE, "Bajar ejercicio");
@@ -112,18 +110,51 @@ public class RoutineEditActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+            case EDIT_EX:
+                AdapterView.AdapterContextMenuInfo info_edit = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                Adapter adapter_edit = l.getAdapter();
+                Cursor c_edit = (Cursor) adapter_edit.getItem(info_edit.position);
+                int pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EX_ID);
+                long id_edit = c_edit.getLong(pos_edit);
+                pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EX_NAME);
+                String nombre_edit = c_edit.getString(pos_edit);
+                pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXSER);
+                int series_edit = c_edit.getInt(pos_edit);
+                pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXREP);
+                int rep_edit = c_edit.getInt(pos_edit);
+                pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXRT);
+                double relax_edit = c_edit.getDouble(pos_edit);
+
+                Intent intent = new Intent(this, AddExerciseToRoutineActivity.class);
+                intent.putExtra("MODE","EDIT");
+                intent.putExtra("ID",id_edit);
+                intent.putExtra("NAME", nombre_edit);
+                intent.putExtra("SERIES", series_edit);
+                intent.putExtra("REP", rep_edit);
+                intent.putExtra("RELAX", relax_edit);
+                startActivityForResult(intent,1);
+                return true;
             case DELETE_EX :
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
                 Adapter adapter = l.getAdapter();
                 Cursor c = (Cursor) adapter.getItem(info.position);
                 int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
                 long id = c.getLong(pos);
+
+                // Obtenemos los ejercicios
+                ArrayList<ExFromRoutine> efrArray = getExFromRoutineDB();
+
+                // Borramos el seleccionado
+                for (ExFromRoutine ex: efrArray) {
+                    if (ex.getId() == id) {
+                        int index = efrArray.indexOf(ex);
+                        efrArray.remove(index);
+                        break;
+                    }
+                }
+                // Update de la rutina
                 Routine r = getRoutineFields();
-                ArrayList<Long> ex = r.getExercises();
-                int index = ex.indexOf(id);
-                ex.remove(index);
-                r.setExercises(ex);
-                db.updateFreemiumRoutine(id_in,r,null);
+                db.updateFreemiumRoutine(id_in,r,efrArray);
                 populateFields();
                 return true;
             case MOVE_EX_UP :
@@ -134,14 +165,23 @@ public class RoutineEditActivity extends AppCompatActivity {
                     int pos_up = c_up.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
                     long id_up = c_up.getLong(pos_up);
                     Routine r_up = getRoutineFields();
-                    ArrayList<Long> ex_up = r_up.getExercises();
-                    int index_up = ex_up.indexOf(id_up);
-                    long exercise1_up = ex_up.get(index_up);
-                    long exercise2_up = ex_up.get(index_up -1);
+                    ArrayList<ExFromRoutine> ex_up = getExFromRoutineDB();
+
+                    // Buscamos el indice del ejercicio que queremos mover
+                    int index_up = 0;
+                    for (ExFromRoutine ex: ex_up) {
+                        if (ex.getId() == id_up) {
+                            index_up = ex_up.indexOf(ex);
+                            break;
+                        }
+                    }
+
+                    // Actualizamos las nuevas posiciones
+                    ExFromRoutine exercise1_up = ex_up.get(index_up);
+                    ExFromRoutine exercise2_up = ex_up.get(index_up -1);
                     ex_up.set(index_up, exercise2_up);
                     ex_up.set(index_up -1, exercise1_up);
-                    r_up.setExercises(ex_up);
-                    db.updateFreemiumRoutine(id_in,r_up,null);
+                    db.updateFreemiumRoutine(id_in,r_up,ex_up);
                     populateFields();
                 }
                 return true;
@@ -149,20 +189,27 @@ public class RoutineEditActivity extends AppCompatActivity {
                 AdapterView.AdapterContextMenuInfo info_down = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
                 Adapter adapter_down = l.getAdapter();
                 if (info_down.position < adapter_down.getCount()-1 && adapter_down.getCount() >= 2) {
-                    Log.w("COUNT: ",""+adapter_down.getCount());
-                    Log.w("POS: ",""+info_down.position);
                     Cursor c_down = (Cursor) adapter_down.getItem(info_down.position);
                     int pos_down = c_down.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
                     long id_down = c_down.getLong(pos_down);
                     Routine r_down = getRoutineFields();
-                    ArrayList<Long> ex_down = r_down.getExercises();
-                    int index_down = ex_down.indexOf(id_down);
-                    long exercise1_down = ex_down.get(index_down);
-                    long exercise2_down = ex_down.get(index_down + 1);
+                    ArrayList<ExFromRoutine> ex_down = getExFromRoutineDB();
+
+                    // Buscamos el indice del ejercicio que queremos mover
+                    int index_down = 0;
+                    for (ExFromRoutine ex: ex_down) {
+                        if (ex.getId() == id_down) {
+                            index_down = ex_down.indexOf(ex);
+                            break;
+                        }
+                    }
+                    Log.d("EX1:",""+index_down);
+                    // Actualizamos las nuevas positiciones
+                    ExFromRoutine exercise1_down = ex_down.get(index_down);
+                    ExFromRoutine exercise2_down = ex_down.get(index_down + 1);
                     ex_down.set(index_down, exercise2_down);
-                    ex_down.set(index_down + 1, exercise1_down);
-                    r_down.setExercises(ex_down);
-                    db.updateFreemiumRoutine(id_in, r_down,null);
+                    ex_down.set(index_down + 1, exercise1_down);;
+                    db.updateFreemiumRoutine(id_in, r_down,ex_down);
                     populateFields();
                 }
                 return true;
@@ -228,21 +275,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         textGym.setFocusableInTouchMode(true);
         textGym.setClickable(true);
 
-        textSeries.setFocusable(true);
-        textSeries.setEnabled(true);
-        textSeries.setFocusableInTouchMode(true);
-        textSeries.setClickable(true);
-
-        textRep.setFocusable(true);
-        textRep.setEnabled(true);
-        textRep.setFocusableInTouchMode(true);
-        textRep.setClickable(true);
-
-        textRelax.setFocusable(true);
-        textRelax.setEnabled(true);
-        textRelax.setFocusableInTouchMode(true);
-        textRelax.setClickable(true);
-
         textObjetivo.setFocusable(true);
         textObjetivo.setEnabled(true);
         textObjetivo.setFocusableInTouchMode(true);
@@ -261,18 +293,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         textGym.setFocusable(false);
         textGym.setEnabled(false);
         textGym.setTextColor(getResources().getColor(R.color.labelColor));
-
-        textSeries.setFocusable(false);
-        textSeries.setEnabled(false);
-        textSeries.setTextColor(getResources().getColor(R.color.labelColor));
-
-        textRep.setFocusable(false);
-        textRep.setEnabled(false);
-        textRep.setTextColor(getResources().getColor(R.color.labelColor));
-
-        textRelax.setFocusable(false);
-        textRelax.setEnabled(false);
-        textRelax.setTextColor(getResources().getColor(R.color.labelColor));
 
         textObjetivo.setFocusable(false);
         textObjetivo.setEnabled(false);
@@ -298,9 +318,16 @@ public class RoutineEditActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        saveState();
     }
 
-    // Metodo que cambia a la actividad de ExercisesListActivity en modo routine par aañadir ejercicios
+    // Metodo que cambia a la actividad de AddExerciseToRoutineActivity en modo edit
+    public void goToEditExercise(View v) {
+
+    }
+
+
+    // Metodo que cambia a la actividad de ExercisesListActivity en modo routine par añadir ejercicios
     public void goToListOfExercises(View v) {
         saveState();
         Intent intent = new Intent(v.getContext(), ExerciseListActivity.class);
@@ -312,15 +339,74 @@ public class RoutineEditActivity extends AppCompatActivity {
                                     Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
+                String mode = data.getStringExtra("MODE");
                 long id = data.getLongExtra("ID",0);  // Cogemos el ID del ejercicio añadido;
+                int series = data.getIntExtra("SERIES",0);
+                int rep = data.getIntExtra("REP",0);
+                double relax = data.getDoubleExtra("RELAX",0);
+
+                ArrayList<ExFromRoutine> efrArray = getExFromRoutineDB();
+
+                if (!mode.equals("EDIT")) {
+                    // Añadimos el nuevo ejercicio
+                    ExFromRoutine efr_new = new ExFromRoutine(id,series,rep,relax);
+                    efrArray.add(efr_new);
+
+
+                } else {
+                    // Buscamos el indice del ejercicio que queremos modificar
+                    int index = 0;
+                    for (ExFromRoutine ex: efrArray) {
+                        if (ex.getId() == id) {
+                            index = efrArray.indexOf(ex);
+                            break;
+                        }
+                    }
+                    // Actualizamos los valores del ejercicio
+                    ExFromRoutine ex = efrArray.get(index);
+                    ex.setSeries(series);
+                    ex.setRep(rep);
+                    ex.setRelxTime(relax);
+
+                    // Actualizamos el ejercicio
+                    efrArray.set(index,ex);
+                }
+
                 Routine r = getRoutineFields();
-                ArrayList<Long> r_ex = r.getExercises();
-                r_ex.add(id);
-                r.setExercises(r_ex);
-                boolean exito = db.updateFreemiumRoutine(id_in,r,null);
+
+                // Actualizamos la rutina
+                db.updateFreemiumRoutine(id_in,r,efrArray);
                 populateFields();
+
             }
         }
+    }
+
+    // Devuelve el array de ejercicios de rutina almacenado en la BD
+    public ArrayList<ExFromRoutine> getExFromRoutineDB() {
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
+        // Cogemos los ejercicios de la rutina
+        Cursor exercises = db.getExercisesFromRoutine(id_in);
+        startManagingCursor(exercises);
+        if (exercises != null) {
+            int times = exercises.getCount();
+            int index_id = exercises.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
+            int index_series = exercises.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXSER);
+            int index_rep = exercises.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXREP);
+            int index_relax = exercises.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXRT);
+
+            for (int i = 0; i < times; i++) {
+                long id_efr = exercises.getLong(index_id);
+                int series_efr = exercises.getInt(index_series);
+                int rep_efr = exercises.getInt(index_rep);
+                double relax_efr = exercises.getDouble(index_relax);
+                ExFromRoutine efr = new ExFromRoutine(id_efr, series_efr, rep_efr, relax_efr);
+                efrArray.add(efr);
+                exercises.moveToNext();
+            }
+        }
+        stopManagingCursor(exercises);
+        return efrArray;
     }
 
     // Metodo que genera un objeto rutina a partir del contenido de los campos de la actividad
@@ -331,21 +417,14 @@ public class RoutineEditActivity extends AppCompatActivity {
             name = "Rutina sin nombre";
         } else name = textName.getText().toString();
         String objective = textObjetivo.getText().toString();
-        int series = 0;
-        if (!textSeries.getText().toString().equals("")) {
-            series = Integer.parseInt(textSeries.getText().toString());
-        }
-        int rep = 0;
-        if (!textRep.getText().toString().equals("")) {
-            rep = Integer.parseInt(textRep.getText().toString());
-        }
-        double relxTime = 0.0;
-        if (!textRelax.getText().toString().equals("")) {
-            relxTime = Double.parseDouble(textRelax.getText().toString());
-        }
 
-        ArrayList<Long> id_array = new ArrayList<>();
+        Routine r = new Routine(nameGym, name, objective);
+        return r;
+    }
 
+    // Metodo que devuelve un arraylist con los ejercicios de la lista de ejercicios
+    public ArrayList<ExFromRoutine> getExFromRoutine() {
+        ArrayList<ExFromRoutine> returned = new ArrayList<>();
         if (l.getCount() != 0) {
             // Cogemos los ejercicios de la listView
             Adapter adapter = this.l.getAdapter();
@@ -354,30 +433,34 @@ public class RoutineEditActivity extends AppCompatActivity {
             if (elementos != 0) {
                 for (int i = 0; i < elementos; i++) {
                     Cursor item = (Cursor) adapter.getItem(i);
-                    int pos = item.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
-                    long id = item.getLong(pos);
-                    id_array.add(id);
+                    int pos_id = item.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_IDE);
+                    long id = item.getLong(pos_id);
+                    int pos_series = item.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXSER);
+                    int series = item.getInt(pos_series);
+                    int pos_rep = item.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXREP);
+                    int rep = item.getInt(pos_rep);
+                    int pos_relax = item.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXRT);
+                    double relax = item.getDouble(pos_relax);
+                    ExFromRoutine ex = new ExFromRoutine(id, series, rep, relax);
+                    returned.add(ex);
                 }
             }
         }
-
-        Routine r = new Routine(nameGym, name, objective, series, relxTime, rep,id_array);
-        return r;
+        return returned;
     }
 
     public void saveState() {
         Routine r = getRoutineFields();
+        ArrayList<ExFromRoutine> efrArray = getExFromRoutine();
         if (mode_in.equals("new")) {
             mode_in = "view";   // Cambiamos a modo view para que no se cree la rutina multiples veces
         }
-        db.updateFreemiumRoutine(id_in,r,null);
+        db.updateFreemiumRoutine(id_in,r,efrArray);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // No se si es necesario
-         //populateFields();
     }
 
     public void populateFields() {
@@ -390,27 +473,15 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)) != null) {
             textGym.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)));
         } else textGym.setText("");
-        /*
-        if (routine.getString(routine.getColumnIndex(db.KEY_RO_S)) != null) {
-            textSeries.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_S)));
-        } else textSeries.setText("");
 
-        if (routine.getString(routine.getColumnIndex(db.KEY_RO_R)) != null) {
-            textRep.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_R)));
-        } else textRep.setText("");
-
-        if (routine.getString(routine.getColumnIndex(db.KEY_RO_RT)) != null) {
-            textRelax.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_RT)));
-        } else textRelax.setText("");
-        */
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)) != null) {
             textObjetivo.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)));
         } else textObjetivo.setText("");
-        stopManagingCursor(routine);
 
         if (!mode_in.equals("new")) {
             populateExerciseList();
         }
+        stopManagingCursor(routine);
     }
 
     // Metodo que rellena la lista de ejercicios
@@ -419,12 +490,12 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (ejercicios != null) {
             startManagingCursor(ejercicios);
             // Create an array to specify the fields we want to display in the list (only NAME)
-            String[] from = new String[] {GymnasioDBAdapter.KEY_EX_NAME,GymnasioDBAdapter.KEY_EX_TAG};
+            String[] from = new String[] {GymnasioDBAdapter.KEY_EX_NAME, GymnasioDBAdapter.KEY_EXRO_EXSER, GymnasioDBAdapter.KEY_EXRO_EXREP, GymnasioDBAdapter.KEY_EXRO_EXRT};
             // and an array of the fields we want to bind those fields to (in this case just text1)
-            int[] to = new int[] { R.id.ex_row,R.id.ex_row2};
+            int[] to = new int[] { R.id.ex_row, R.id.seriesRutina, R.id.repeticionesRutina, R.id.tiempoRelaxRutina};
             // Now create an array adapter and set it to display using our row
             SimpleCursorAdapter notes =
-                    new SimpleCursorAdapter(this, R.layout.exercises_row, ejercicios, from, to,0);
+                    new SimpleCursorAdapter(this, R.layout.exfromroutine_row, ejercicios, from, to,0);
             l.setAdapter(notes);
             registerForContextMenu(l);
             stopManagingCursor(ejercicios);
@@ -434,7 +505,7 @@ public class RoutineEditActivity extends AppCompatActivity {
             int[] to = new int[] {};
             // Now create an array adapter and set it to display using our row
             SimpleCursorAdapter notes =
-                    new SimpleCursorAdapter(this, R.layout.exercises_row, ejercicios, from, to,0);
+                    new SimpleCursorAdapter(this, R.layout.exfromroutine_row, ejercicios, from, to,0);
             l.setAdapter(notes);
             registerForContextMenu(l);
         }

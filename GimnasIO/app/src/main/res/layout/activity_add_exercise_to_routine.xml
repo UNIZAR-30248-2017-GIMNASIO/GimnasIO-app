@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/nombreEjercicioText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ejercicio a añadir: " />
+
+    <TextView
+        android:id="@+id/nombreEjercicio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textSeries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Series:" />
+
+    <EditText
+        android:id="@+id/seriesField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number" />
+
+    <TextView
+        android:id="@+id/textRepeticiones"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Repeticiones:" />
+
+    <EditText
+        android:id="@+id/repeticionesField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number" />
+
+    <TextView
+        android:id="@+id/textRelax"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tiempo de descanso:" />
+
+    <EditText
+        android:id="@+id/relaxField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/buttonAdd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="guardarEjercicio"
+        android:text="Añadir ejercicio" />
+</LinearLayout>
+

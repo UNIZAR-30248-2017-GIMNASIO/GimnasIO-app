@@ -1,5 +1,6 @@
 package com.patan.gimnasio;
 
+import android.content.Context;
 import android.database.Cursor;
 
 import java.text.SimpleDateFormat;
@@ -13,6 +14,7 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.patan.gimnasio.activities.ExerciseListActivity;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
+import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Exercise;
 import com.patan.gimnasio.domain.Routine;
 
@@ -24,17 +26,26 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(AndroidJUnit4.class)
 public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListActivity> {
 
     private ExerciseListActivity exerciseList;
     private GymnasioDBAdapter db;
-    private Exercise e,e2,e3,e4;
     private long id1,id2,id3,idr1,idr2,idr3;
     private ArrayList<Long> ExercisesList = new ArrayList<>();
 
     public DatabaseTest() {
         super(ExerciseListActivity.class);
+    }
+
+    @Test
+    public void useAppContext() throws Exception {
+         //Context of the app under test.
+        Context appContext = InstrumentationRegistry.getTargetContext();
+
+        assertEquals("com.patan.gimnasio", appContext.getPackageName());
     }
 
     @Before
@@ -87,7 +98,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         assertEquals(nExercisesPre+3,nExercisesPost);
     }
 
-    /*Test que comrpueba que la bd  no añade ejercicios cuando el nombre se repite*/
+    /*Test que comrpueba que la bd no añade ejercicios cuando el nombre se repite*/
     @Test
     public void addExerciseTestRepeated() throws Exception{
         ArrayList<String> tags = new ArrayList<String>();
@@ -216,36 +227,46 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     @Test
     public void addFreemiumRoutineTest() throws Exception{
 
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, ExercisesList);
-        Routine r2 = new Routine("Gym2","Rutina2","Objetivo2",2,2.0,2,ExercisesList);
-        Routine r3 = new Routine("Gym3","Rutina3","Objetivo3",3,3.0,3,ExercisesList);
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+        Routine r2 = new Routine("Gym2","Rutina2","Objetivo2");
+        Routine r3 = new Routine("Gym3","Rutina3","Objetivo3");
 
         int nRoutinesPre = db.fetchRoutines().getCount();
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
-        idr1 = db.createFreemiumRoutine(r1);
-        idr2 = db.createFreemiumRoutine(r2);
-        idr3 = db.createFreemiumRoutine(r3);
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
+        idr2 = db.createFreemiumRoutine(r2,efrArray);
+        idr3 = db.createFreemiumRoutine(r3,efrArray);
 
         int nRoutinesPost = db.fetchRoutines().getCount();
+
+        db.deleteRoutine(idr1);
+        db.deleteRoutine(idr2);
+        db.deleteRoutine(idr3);
 
         assertEquals( nRoutinesPre + 3, nRoutinesPost);
     }
 
     /*Test que comprueba que la bd añada rutinas premium correctamente*/
-    @Test
+   @Test
     public void addPremiumRoutineTest() throws Exception{
 
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, ExercisesList);
-        Routine r2 = new Routine("Gym2","Rutina2","Objetivo2",2,2.0,2,ExercisesList);
-        Routine r3 = new Routine("Gym3","Rutina3","Objetivo3",3,3.0,3,ExercisesList);
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+        Routine r2 = new Routine("Gym2","Rutina2","Objetivo2");
+        Routine r3 = new Routine("Gym3","Rutina3","Objetivo3");
 
         int nRoutinesPre = db.fetchRoutines().getCount();
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
-        idr1 = db.createPremiumRoutine(r1);
-        idr2 = db.createPremiumRoutine(r2);
-        idr3 = db.createPremiumRoutine(r3);
+        idr1 = db.createPremiumRoutine(r1,efrArray);
+        idr2 = db.createPremiumRoutine(r2,efrArray);
+        idr3 = db.createPremiumRoutine(r3,efrArray);
 
         int nRoutinesPost = db.fetchRoutines().getCount();
+
+       db.deleteRoutine(idr1);
+       db.deleteRoutine(idr2);
+       db.deleteRoutine(idr3);
 
         assertEquals( nRoutinesPre + 3, nRoutinesPost);
     }
@@ -254,44 +275,36 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     @Test
     public void getRoutineTest() throws Exception{
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
-
-        Exercise e3 = new Exercise("Nombre3","Musculo2","El ejercicio 2","/ruta2",tags);
-
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
-        id3 = db.createExercise(e3);
-
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
-
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createPremiumRoutine(r1);
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
 
         Cursor c = db.fetchRoutine(idr1);
+        int name_row = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_NAME);
+        String name_name = c.getString(name_row);
 
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
+        db.deleteRoutine(idr1);
 
-        Routine res = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue( res.equals(r1));
+        assertTrue(name_name.equals("Rutina1"));
     }
 
     /*Test que comprueba que la bd elimina rutinas correctamente*/
     @Test
     public void deleteRoutineTest_existe() throws Exception {
-        Routine r4 = new Routine("Gym4","Rutina4","Objetivo4",4,4.0,4,ExercisesList);
-        long id4 = db.createFreemiumRoutine(r4);
-        assertEquals(true,db.deleteRoutine(id4));
+
+        int nRoutinesPre = db.fetchRoutines().getCount();
+
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
+
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
+        db.deleteRoutine(idr1);
+
+        int nRoutinesPost = db.fetchRoutines().getCount();
+
+        assertEquals( nRoutinesPre, nRoutinesPost);
     }
 
     /*Test que comprueba que la bd no elimina rutinas con ID = 0*/
@@ -309,367 +322,114 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     /*Test que comprueba que la bd modifica el campo gimnasio de una rutina freemium*/
     @Test
     public void updateNameGymRuotineFreemium() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createFreemiumRoutine(r1);
-
-        Routine newR = new Routine("Update!","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        boolean ok = db.updateFreemiumRoutine(idr1,newR);
+        r1 = new Routine("new_Gym1","Rutina1","Objetivo1");
+        db.updateFreemiumRoutine(idr1,r1,efrArray);
 
         Cursor c = db.fetchRoutine(idr1);
+        int gym_row = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_GYM);
+        String gym_name = c.getString(gym_row);
 
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
+        db.deleteRoutine(idr1);
 
-        Routine afterUpdate = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue(ok && afterUpdate.equals(newR));
+        assertTrue(gym_name.equals("new_Gym1"));
     }
 
     /*Test que comprueba que la bd modifica el campo objetivo de una rutina freemium*/
     @Test
     public void updateObjRuotineFreemium() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createFreemiumRoutine(r1);
-
-        Routine newR = new Routine("Gym1!","Rutina1","Update!",1,1.0,1, foo);
-
-        boolean ok = db.updateFreemiumRoutine(idr1,newR);
+        r1 = new Routine("Gym1","Rutina1","new_Objetivo1");
+        db.updateFreemiumRoutine(idr1,r1,efrArray);
 
         Cursor c = db.fetchRoutine(idr1);
+        int obj_row = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_OBJ);
+        String obj_name = c.getString(obj_row);
 
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
+        db.deleteRoutine(idr1);
 
-        Routine afterUpdate = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue(ok && afterUpdate.equals(newR));
+        assertTrue(obj_name.equals("new_Objetivo1"));
     }
 
     /*Test que comprueba que la bd modifica el campo nombre de una rutina freemium*/
     @Test
-    public void updateNameRuotineFreemium() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
+    public void updateNameRoutineFreemium() throws Exception{
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createFreemiumRoutine(r1);
-
-        Routine newR = new Routine("Gym1","Update","Objetivo1",1,1.0,1, foo);
-
-        boolean ok = db.updateFreemiumRoutine(idr1,newR);
+        r1 = new Routine("Gym1","new_Rutina1","Objetivo1");
+        db.updateFreemiumRoutine(idr1,r1,efrArray);
 
         Cursor c = db.fetchRoutine(idr1);
+        int name_row = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_NAME);
+        String name_name = c.getString(name_row);
 
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
+        db.deleteRoutine(idr1);
 
-        Routine afterUpdate = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue(ok && afterUpdate.equals(newR));
+        assertTrue(name_name.equals("new_Rutina1"));
     }
 
-    /*Test que comprueba que la bd modifica el campo series de una rutina freemium*/
-    @Test
-    public void updateSeriesRuotineFreemium() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
-
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
-
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createFreemiumRoutine(r1);
-
-        Routine newR = new Routine("Gym1","Rutina1","Objetivo1",234,1.0,1, foo);
-
-        boolean ok = db.updateFreemiumRoutine(idr1,newR);
-
-        Cursor c = db.fetchRoutine(idr1);
-
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
-
-        Routine afterUpdate = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue(ok && afterUpdate.equals(newR));
-    }
-
-    /*Test que comprueba que la bd modifica el campo relaxTime de una rutina freemium*/
-    @Test
-    public void updateRelaxTimeRuotineFreemium() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
-
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
-
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createFreemiumRoutine(r1);
-
-        Routine newR = new Routine("Gym1","Rutina1","Objetivo1",1,234.0,1, foo);
-
-        boolean ok = db.updateFreemiumRoutine(idr1,newR);
-
-        Cursor c = db.fetchRoutine(idr1);
-
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
-
-        Routine afterUpdate = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue(ok && afterUpdate.equals(newR));
-    }
-
-    /*Test que comprueba que la bd modifica el campo repeticiones de una rutina freemium*/
-    @Test
-    public void updateRepRuotineFreemium() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
-
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
-
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createFreemiumRoutine(r1);
-
-        Routine newR = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,22, foo);
-
-        boolean ok = db.updateFreemiumRoutine(idr1,newR);
-
-        Cursor c = db.fetchRoutine(idr1);
-
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
-
-        Routine afterUpdate = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue(ok && afterUpdate.equals(newR));
-    }
-
-    /*Test que comprueba que la bd modifica el campo repeticiones de una rutina freemium*/
+    /*Test que comprueba que la bd modifica el campo ejercicios de una rutina freemium*/
     @Test
     public void updateExsRuotineFreemium() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
-        Exercise e3 = new Exercise("Nombre3","Musculo2","El ejercicio 2","/ruta2",tags);
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
-        id3 = db.createExercise(e3);
+        efrArray.add(new ExFromRoutine(23,1,1,1.0));
+        db.updateFreemiumRoutine(idr1,r1,efrArray);
 
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
+        Cursor c = db.getExercisesFromRoutine(idr1);
+        int n2 = c.getCount();
 
-        ArrayList<Long> bar = new ArrayList<>();
-        bar.add(id3);
+        db.deleteRoutine(idr1);
 
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createFreemiumRoutine(r1);
-
-        Routine newR = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, bar);
-
-        boolean ok = db.updateFreemiumRoutine(idr1,newR);
-
-        Cursor c = db.fetchRoutine(idr1);
-
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
-
-        Routine afterUpdate = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue(ok && afterUpdate.equals(newR));
+        assertTrue(n2 == 1);
     }
 
-    /*Test que comprueba que la bd modifica TODOS los campos de una rutina freemium*/
-    @Test
-    public void updateRoutineFreemium() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
-
-        Exercise e3 = new Exercise("Nombre3","Musculo2","El ejercicio 2","/ruta2",tags);
-
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
-        id3 = db.createExercise(e3);
-
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
-
-        ArrayList<Long> bar = new ArrayList<>();
-        bar.add(id3);
-
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createFreemiumRoutine(r1);
-
-        Routine newR = new Routine("Update!","Update!","Update!",23,44.0,125, bar);
-
-        boolean ok = db.updateFreemiumRoutine(idr1,newR);
-
-        Cursor c = db.fetchRoutine(idr1);
-
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
-
-        Routine afterUpdate = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue(ok && afterUpdate.equals(newR));
-    }
-
-    /*Test que comprueba que la bd modifica TODOS los campos de una rutina premium*/
-    @Test
-    public void updateRoutinePremium() throws Exception{
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Tag1");
-        tags.add("Tag2");
-        Exercise e1 = new Exercise("Nombre1","Musculo1","El ejercicio 1","/ruta1",tags);
-        Exercise e2 = new Exercise("Nombre2","Musculo2","El ejercicio 2","/ruta2",tags);
-
-        Exercise e3 = new Exercise("Nombre3","Musculo2","El ejercicio 2","/ruta2",tags);
-
-        id1 = db.createExercise(e1);
-        id2 = db.createExercise(e2);
-        id3 = db.createExercise(e3);
-
-        ArrayList<Long> foo = new ArrayList<>();
-        foo.add(id1);foo.add(id2);
-
-        ArrayList<Long> bar = new ArrayList<>();
-        bar.add(id3);
-
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, foo);
-
-        idr1 = db.createPremiumRoutine(r1);
-
-        Routine newR = new Routine("Update!","Update!","Update!",23,44.0,125, bar);
-
-        boolean ok = db.updatePremiumRoutine(idr1,newR);
-
-        Cursor c = db.fetchRoutine(idr1);
-
-        Cursor ejs = db.getExercisesFromRoutine(idr1);
-        ArrayList<Long> newE = new ArrayList<>();
-        for(int number = ejs.getCount();number>0;number--) newE.add(ejs.getLong(0));
-
-        Routine afterUpdate = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),newE);
-
-        assertTrue(ok && afterUpdate.equals(newR));
-    }
     /*Test que comprueba que el método getNumberOfRoutines devuelve el numero correcto*/
     @Test
-    public void getNumberOfRotinesTest() throws Exception{
+    public void getNumberOfRoutinesTest() throws Exception{
 
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, ExercisesList);
-        Routine r2 = new Routine("Update!","Update!","Update!",23,44.0,125, ExercisesList);
-        Routine r3 = new Routine("Update!","Update!","Update!",23,44.0,125, ExercisesList);
+        Cursor c1 = db.fetchRoutines();
+        int n1 = c1.getCount();
 
-        idr1 = db.createFreemiumRoutine(r1);
-        idr2 = db.createFreemiumRoutine(r2);
-        idr3 = db.createFreemiumRoutine(r3);
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
-        int manual = db.fetchRoutines().getCount();
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        int withMethod = db.getNumberOfRoutines();
+        Cursor c2 = db.fetchRoutines();
+        int n2 = c2.getCount();
 
-
-        assertEquals(manual,withMethod);
+        assertTrue(n1 +1 == n2);
     }
 
     /*Test que comprueba que la bd devuelve la rutina según el nombre cuando existe*/
     @Test
     public void getRoutineByNameTest() throws Exception{
 
-        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1",1,1.0,1, ExercisesList);
-        Routine r2 = new Routine("Update!","Update!","Update!",23,44.0,125, ExercisesList);
-        Routine r3 = new Routine("Update!","Update!","Update!",23,44.0,125, ExercisesList);
+        Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
-        idr1 = db.createFreemiumRoutine(r1);
-        idr2 = db.createFreemiumRoutine(r2);
-        idr3 = db.createFreemiumRoutine(r3);
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        Cursor c = db.getRoutineByName(r1.getName());
+        Cursor c = db.getRoutineByName("Rutina1");
 
-        Routine res = new Routine(c.getString(7),c.getString(5),c.getString(4),
-                c.getInt(1),c.getDouble(2),c.getInt(3),ExercisesList);
+        db.deleteRoutine(idr1);
 
-        assertEquals(c.getString(5),r1.getName());
+        assertTrue(c != null);
     }
 
     /*Test que comprueba que la bd devuelve la rutina según el nombre cuando no existe*/
