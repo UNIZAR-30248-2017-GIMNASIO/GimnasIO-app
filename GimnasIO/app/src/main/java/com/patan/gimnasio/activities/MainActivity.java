@@ -39,9 +39,6 @@ public class MainActivity extends AppCompatActivity {
      * Id to identify a contacts permission request.
      */
     private static final int REQUEST_RW = 0;
-    /**
-     * Permissions required to read and write contacts. Used by the {@link ContactsFragment}.
-     */
     private static String[] EXTERNAL_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private View mLayout;

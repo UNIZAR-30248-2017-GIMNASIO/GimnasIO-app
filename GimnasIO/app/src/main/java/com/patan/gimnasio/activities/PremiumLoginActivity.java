@@ -3,6 +3,7 @@ package com.patan.gimnasio.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -19,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,12 +31,29 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.common.ANRequest;
+import com.androidnetworking.common.ANResponse;
+import com.androidnetworking.error.ANError;
+import com.google.gson.JsonObject;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
 import com.patan.gimnasio.domain.Exercise;
+import com.patan.gimnasio.services.ApiHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -71,6 +90,7 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AndroidNetworking.initialize(getApplicationContext());
         setContentView(R.layout.activity_premium_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -101,28 +121,6 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
 
         db = new GymnasioDBAdapter(this);
         db.open();
-
-        testRutina();
-    }
-
-    private void testRutina(){
-        ArrayList<String> tags = new ArrayList<>();
-        //Routine r = new Routine("LA CALLE","MACHACA","MAZAMIENTO",4,90,15,null);
-        Exercise e = new Exercise("Ejercicio1","muscle","desc","img",tags);
-        Exercise e2 = new Exercise("Ejercicio2","muscle","desc","img",tags);
-        Exercise e3 = new Exercise("Ejercicio3","muscle","desc","img",tags);
-        Exercise e4 = new Exercise("Ejercicio4","muscle","desc","img",tags);
-        long id = db.createExercise(e);
-        long id2 = db.createExercise(e2);
-        long id3 = db.createExercise(e3);
-        long id4 = db.createExercise(e4);
-        /*ArrayList<Long> exs = new ArrayList<>();
-        exs.add(id);
-        exs.add(id2);
-        r.setExercises(exs);
-        long t = db.createFreemiumRoutine(r);
-        Log.w("id ejecicio al crearlo", id+"");
-        Log.w("id rutina al crearla", t+"");*/
     }
 
     private void populateAutoComplete() {
@@ -216,14 +214,14 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(email, password,this);
             mAuthTask.execute((Void) null);
         }
     }
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return !email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
@@ -329,33 +327,106 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
 
         private final String mEmail;
         private final String mPassword;
+        private Context mCtx;
+        private boolean login;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(String email, String password, Context ctx) {
             mEmail = email;
             mPassword = password;
+            mCtx = ctx;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
+            String url ="http://54.171.225.70:32001/gym/login";
+            ApiHandler api = new ApiHandler(mCtx);
+            Log.w("LOGIN",mEmail + mPassword);
+            ANRequest request1 = AndroidNetworking.get(url)
+                    .addHeaders("user", "gpsAdmin")
+                    .addHeaders("pwd", "Gps@1718")
+                    .addHeaders("namegym", mEmail)
+                    .addHeaders("key", mPassword)
+                    .build();
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
+            ANResponse<JSONObject> response = request1.executeForJSONObject();
+            JSONObject respuesta = response.getResult();
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+            if (response.isSuccess()) {
+                try {
+                    boolean exito = respuesta.getBoolean("success");
+                    if(exito) {
+                        String type = respuesta.getString("type");
+                        if (type.equals("user")) {
+                            login = true;
+                            db.loginAsUser(mEmail);
+                        } else if (type.equals("admin")) {
+                            login = true;
+                            db.loginAsAdmin(mEmail);
+                        } else {
+                            login = false;
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+            } else {
+                ANError error = response.getError();
+                login = false;
+                // Handle Error
             }
+            /*
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
 
+                                boolean exito = response.getBoolean("success");
+                                if(exito) {
+                                    String type = response.getString("type");
+                                    if (type.equals("user")) {
+                                        login = true;
+                                        db.loginAsUser(mEmail);
+                                    } else if (type.equals("admin")) {
+                                        login = true;
+                                        db.loginAsAdmin(mEmail);
+                                    } else {
+                                        login = false;
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("TAG", error.getMessage(), error);
+                    login = false;
+                }
+
+
+            }){
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("user", "gpsAdmin");
+                    params.put("pwd", "Gps@1718");
+                    params.put("namegym", mEmail);
+                    params.put("key", mPassword);
+                    return params;
+                }
+
+            };
+            mQueue.add(jsonObjectRequest);*/
+
+
+            Log.w("TEST", "TRYING TO LOG INTO GYM: "+mEmail+" WITH KEY: "+mPassword);
             // TODO: register the new account here.
-            return true;
+            return login;
         }
 
         @Override
