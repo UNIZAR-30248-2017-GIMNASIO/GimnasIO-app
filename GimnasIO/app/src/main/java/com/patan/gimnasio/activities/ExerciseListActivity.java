@@ -80,9 +80,8 @@ public class ExerciseListActivity extends AppCompatActivity {
             String nombre = c.getString(name);
 
             Intent intent = new Intent(this, AddExerciseToRoutineActivity.class);
-            intent.putExtra("MODE","add");
+            intent.putExtra("MODE","ADD");
             intent.putExtra("ID",id);
-            Log.d("ID SELECTED",""+id);
             intent.putExtra("NAME", nombre);
             startActivityForResult(intent,1);
 
@@ -101,8 +100,10 @@ public class ExerciseListActivity extends AppCompatActivity {
                 int series = data.getIntExtra("SERIES",0); // Cogemos las series del ejercicio añadido
                 int rep = data.getIntExtra("REP",0); // Cogemos las repeticiones del ejercicio añadido
                 double relax = data.getDoubleExtra("RELAX",0); // Cogemos el tiempo de relax del ejercicio añadido
+                String mode = data.getStringExtra("MODE");
 
                 Intent i = new Intent();
+                i.putExtra("MODE", mode);
                 i.putExtra("ID",id);
                 i.putExtra("SERIES",series);
                 i.putExtra("REP",rep);

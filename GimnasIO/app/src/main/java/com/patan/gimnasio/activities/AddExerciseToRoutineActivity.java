@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -23,6 +24,7 @@ public class AddExerciseToRoutineActivity extends AppCompatActivity {
     EditText textoSeries;
     EditText textoRep;
     EditText textoRelax;
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,12 +40,23 @@ public class AddExerciseToRoutineActivity extends AppCompatActivity {
         textoSeries = (EditText) findViewById(R.id.seriesField);
         textoRep = (EditText) findViewById(R.id.repeticionesField);
         textoRelax = (EditText) findViewById(R.id.relaxField);
+        button = (Button) findViewById(R.id.buttonAdd);
 
         textoNombre.setText(name_in);   // Ponemos el nombre del ejercicio
 
-        // TODO: Contemplar el caso en el que se llame mediante editar
-        //  - Cogeremos extras del intent con los valores de los campos y los rellenarmos,
-        //      el guardar ejerciio devolvera lo mismo.
+        if (mode_in.equals("EDIT")) {
+            series = intent.getIntExtra("SERIES",0);
+            rep = intent.getIntExtra("REP",0);
+            relax = intent.getDoubleExtra("RELAX",0.0);
+            button.setText("Guardar cambios");
+            fillFields();
+        }
+    }
+
+    public void fillFields() {
+        textoSeries.setText(String.valueOf(series));
+        textoRep.setText(String.valueOf(rep));
+        textoRelax.setText(String.valueOf(relax));
     }
 
     public void guardarEjercicio(View v) {
@@ -61,6 +74,7 @@ public class AddExerciseToRoutineActivity extends AppCompatActivity {
             relax = Double.parseDouble(textoRelax.getText().toString());
         } else relax = 0.0;
 
+        i.putExtra("MODE",mode_in);
         i.putExtra("ID",id_in);
         i.putExtra("SERIES",series);
         i.putExtra("REP",rep);

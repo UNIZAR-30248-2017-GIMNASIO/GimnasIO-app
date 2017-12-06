@@ -37,9 +37,11 @@ public class RoutineEditActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private Menu optionsMenu;
 
-    private final int DELETE_EX = 1;
-    private final int MOVE_EX_UP = 2;
-    private final int MOVE_EX_DOWN = 3;
+    private final int EDIT_EX = 1;
+    private final int DELETE_EX = 2;
+    private final int MOVE_EX_UP = 3;
+    private final int MOVE_EX_DOWN = 4;
+
 
     private GymnasioDBAdapter db;
 
@@ -98,6 +100,7 @@ public class RoutineEditActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         if (getSupportActionBar().getTitle().equals("Rutina (Editar)")) {
             super.onCreateContextMenu(menu, v, menuInfo);
+            menu.add(Menu.NONE, EDIT_EX, Menu.NONE, "Editar ejercicio");
             menu.add(Menu.NONE, DELETE_EX, Menu.NONE, R.string.menu_delete);
             menu.add(Menu.NONE, MOVE_EX_UP, Menu.NONE, "Subir ejercicio");
             menu.add(Menu.NONE, MOVE_EX_DOWN, Menu.NONE, "Bajar ejercicio");
@@ -107,6 +110,30 @@ public class RoutineEditActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+            case EDIT_EX:
+                AdapterView.AdapterContextMenuInfo info_edit = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                Adapter adapter_edit = l.getAdapter();
+                Cursor c_edit = (Cursor) adapter_edit.getItem(info_edit.position);
+                int pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EX_ID);
+                long id_edit = c_edit.getLong(pos_edit);
+                pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EX_NAME);
+                String nombre_edit = c_edit.getString(pos_edit);
+                pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXSER);
+                int series_edit = c_edit.getInt(pos_edit);
+                pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXREP);
+                int rep_edit = c_edit.getInt(pos_edit);
+                pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXRT);
+                double relax_edit = c_edit.getDouble(pos_edit);
+
+                Intent intent = new Intent(this, AddExerciseToRoutineActivity.class);
+                intent.putExtra("MODE","EDIT");
+                intent.putExtra("ID",id_edit);
+                intent.putExtra("NAME", nombre_edit);
+                intent.putExtra("SERIES", series_edit);
+                intent.putExtra("REP", rep_edit);
+                intent.putExtra("RELAX", relax_edit);
+                startActivityForResult(intent,1);
+                return true;
             case DELETE_EX :
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
                 Adapter adapter = l.getAdapter();
@@ -294,7 +321,13 @@ public class RoutineEditActivity extends AppCompatActivity {
         saveState();
     }
 
-    // Metodo que cambia a la actividad de ExercisesListActivity en modo routine par aañadir ejercicios
+    // Metodo que cambia a la actividad de AddExerciseToRoutineActivity en modo edit
+    public void goToEditExercise(View v) {
+
+    }
+
+
+    // Metodo que cambia a la actividad de ExercisesListActivity en modo routine par añadir ejercicios
     public void goToListOfExercises(View v) {
         saveState();
         Intent intent = new Intent(v.getContext(), ExerciseListActivity.class);
@@ -306,6 +339,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                                     Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
+                String mode = data.getStringExtra("MODE");
                 long id = data.getLongExtra("ID",0);  // Cogemos el ID del ejercicio añadido;
                 int series = data.getIntExtra("SERIES",0);
                 int rep = data.getIntExtra("REP",0);
@@ -313,15 +347,37 @@ public class RoutineEditActivity extends AppCompatActivity {
 
                 ArrayList<ExFromRoutine> efrArray = getExFromRoutineDB();
 
-                // Añadimos el nuevo ejercicio
-                ExFromRoutine efr_new = new ExFromRoutine(id,series,rep,relax);
-                efrArray.add(efr_new);
+                if (!mode.equals("EDIT")) {
+                    // Añadimos el nuevo ejercicio
+                    ExFromRoutine efr_new = new ExFromRoutine(id,series,rep,relax);
+                    efrArray.add(efr_new);
+
+
+                } else {
+                    // Buscamos el indice del ejercicio que queremos modificar
+                    int index = 0;
+                    for (ExFromRoutine ex: efrArray) {
+                        if (ex.getId() == id) {
+                            index = efrArray.indexOf(ex);
+                            break;
+                        }
+                    }
+                    // Actualizamos los valores del ejercicio
+                    ExFromRoutine ex = efrArray.get(index);
+                    ex.setSeries(series);
+                    ex.setRep(rep);
+                    ex.setRelxTime(relax);
+
+                    // Actualizamos el ejercicio
+                    efrArray.set(index,ex);
+                }
 
                 Routine r = getRoutineFields();
 
                 // Actualizamos la rutina
                 db.updateFreemiumRoutine(id_in,r,efrArray);
                 populateFields();
+
             }
         }
     }
