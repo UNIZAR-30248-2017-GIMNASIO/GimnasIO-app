@@ -67,15 +67,6 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
      */
     private static final int REQUEST_READ_CONTACTS = 0;
     private GymnasioDBAdapter db;
-
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -91,36 +82,40 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidNetworking.initialize(getApplicationContext());
-        setContentView(R.layout.activity_premium_login);
-        // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
-
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-
         db = new GymnasioDBAdapter(this);
         db.open();
+        if (db.logged()) {
+            this.finish();
+        } else {
+            setContentView(R.layout.activity_premium_login);
+            // Set up the login form.
+            mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+            populateAutoComplete();
+
+            mPasswordView = (EditText) findViewById(R.id.password);
+            mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                    if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                        attemptLogin();
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+            mEmailSignInButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    attemptLogin();
+                }
+            });
+
+            mLoginFormView = findViewById(R.id.login_form);
+            mProgressView = findViewById(R.id.login_progress);
+        }
+
     }
 
     private void populateAutoComplete() {
@@ -337,95 +332,11 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground (Void... params) {
             // TODO: attempt authentication against a network service.
             String url ="http://54.171.225.70:32001/gym/login";
             ApiHandler api = new ApiHandler(mCtx);
-            Log.w("LOGIN",mEmail + mPassword);
-            ANRequest request1 = AndroidNetworking.get(url)
-                    .addHeaders("user", "gpsAdmin")
-                    .addHeaders("pwd", "Gps@1718")
-                    .addHeaders("namegym", mEmail)
-                    .addHeaders("key", mPassword)
-                    .build();
-
-            ANResponse<JSONObject> response = request1.executeForJSONObject();
-            JSONObject respuesta = response.getResult();
-
-            if (response.isSuccess()) {
-                try {
-                    boolean exito = respuesta.getBoolean("success");
-                    if(exito) {
-                        String type = respuesta.getString("type");
-                        if (type.equals("user")) {
-                            login = true;
-                            db.loginAsUser(mEmail);
-                        } else if (type.equals("admin")) {
-                            login = true;
-                            db.loginAsAdmin(mEmail);
-                        } else {
-                            login = false;
-                        }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                ANError error = response.getError();
-                login = false;
-                // Handle Error
-            }
-            /*
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-
-                                boolean exito = response.getBoolean("success");
-                                if(exito) {
-                                    String type = response.getString("type");
-                                    if (type.equals("user")) {
-                                        login = true;
-                                        db.loginAsUser(mEmail);
-                                    } else if (type.equals("admin")) {
-                                        login = true;
-                                        db.loginAsAdmin(mEmail);
-                                    } else {
-                                        login = false;
-                                    }
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("TAG", error.getMessage(), error);
-                    login = false;
-                }
-
-
-            }){
-
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("user", "gpsAdmin");
-                    params.put("pwd", "Gps@1718");
-                    params.put("namegym", mEmail);
-                    params.put("key", mPassword);
-                    return params;
-                }
-
-            };
-            mQueue.add(jsonObjectRequest);*/
-
-
-            Log.w("TEST", "TRYING TO LOG INTO GYM: "+mEmail+" WITH KEY: "+mPassword);
-            // TODO: register the new account here.
+            boolean login = api.loginPremium(mEmail,mPassword);
             return login;
         }
 

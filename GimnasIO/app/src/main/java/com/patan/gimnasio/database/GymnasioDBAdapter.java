@@ -79,7 +79,7 @@ public class GymnasioDBAdapter {
             KEY_RO_GYM};
     private static final String[] EX_ROWS=new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
             KEY_EX_MUSCLE, KEY_EX_IMG, KEY_EX_TAG};
-    private static final String[] GY_ROWS= new String[] {KEY_GYM_ID,KEY_GYM_NAME};
+    private static final String[] GY_ROWS= new String[] {KEY_GYM_ID,KEY_GYM_NAME,KEY_GYM_TYPE};
 
     private final Context mCtx;
 
@@ -495,10 +495,19 @@ public class GymnasioDBAdapter {
     public boolean deleteExercise (long id) {
         return Db.delete(Table_Exercise,KEY_EX_ID+"="+id,null)>0;
     }
+    public boolean logged () {
+        boolean logged = false;
+        Cursor mCursor  = Db.query(Table_Gyms, GY_ROWS, null,null,
+                null,null,null);
+        if (mCursor.getCount() != 0 ) {
+          logged = true;
+        }
+        Log.w("Login", String.valueOf(logged));
+        return logged;
+    }
     public long loginAsUser(String nameGym) {
-        Cursor c = this.getExerciseByName(nameGym);
-        if (c.getCount() == 0) {
-            Log.d("TAG", "Insertando "+nameGym);
+        if (this.logged()) {
+            Log.d("TAG", "Insertando " + nameGym);
             ContentValues v = new ContentValues();
             v.put(KEY_GYM_NAME, nameGym);
             v.put(KEY_GYM_TYPE, "user");
@@ -507,9 +516,8 @@ public class GymnasioDBAdapter {
         } else return -1;
     }
     public long loginAsAdmin(String nameGym){
-        Cursor c = this.getExerciseByName(nameGym);
-        if (c.getCount() == 0) {
-            Log.d("TAG", "Insertando "+nameGym);
+        if (this.logged()) {
+            Log.d("TAG", "Insertando " + nameGym);
             ContentValues v = new ContentValues();
             v.put(KEY_GYM_NAME, nameGym);
             v.put(KEY_GYM_TYPE, "admin");
