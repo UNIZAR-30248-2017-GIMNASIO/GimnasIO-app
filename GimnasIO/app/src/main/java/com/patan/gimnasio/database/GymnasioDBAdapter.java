@@ -29,6 +29,7 @@ public class GymnasioDBAdapter {
     private static final String Table_Exercise = "Exercise";
     private static final String Table_ExOfRoutine = "ExOfRoutine";
     private static final String Table_Updates = "Updates";
+    private static final String Table_Gyms = "Gyms";
 
     public static final String KEY_EX_NAME = "name";
     public static final String KEY_EX_MUSCLE = "muscle";
@@ -39,9 +40,6 @@ public class GymnasioDBAdapter {
 
     public static final String KEY_RO_ID= "_id";
     public static final String KEY_RO_NAME = "name";
-    //public static final String KEY_RO_S = "series";
-    //public static final String KEY_RO_RT = "relaxTime";
-    //public static final String KEY_RO_R = "rep";
     public static final String KEY_RO_PREMIUM = "premium";
     public static final String KEY_RO_GYM = "gym";
     public static final String KEY_RO_OBJ = "objective";
@@ -53,6 +51,9 @@ public class GymnasioDBAdapter {
     public static final String KEY_EXRO_EXSER = "series";
     public static final String KEY_EXRO_EXRT = "relaxTime";
 
+    public static final String KEY_GYM_ID = "_id";
+    public static final String KEY_GYM_NAME = "nameGym";
+
     private static final String CREATE_TABLE_ROUTINES = "CREATE TABLE IF NOT EXISTS " + Table_Routine +
             " ("+ KEY_RO_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ KEY_RO_OBJ +" VARCHAR(20)"
             + " not null,"+ KEY_RO_NAME +" VARCHAR(20) not null,"+KEY_RO_PREMIUM
@@ -61,19 +62,22 @@ public class GymnasioDBAdapter {
             " (" + KEY_EX_ID + " integer primary key autoincrement," + KEY_EX_NAME + " VARCHAR(20) not null," +
     KEY_EX_DESC + " not null," + KEY_EX_MUSCLE + " VARCHAR(20) not null, " + KEY_EX_IMG +
             " varchar(20) not null, "+ KEY_EX_TAG +" varchar(100))";
-    private static final String CREATE_TABLE_RELATION = "CREATE TABLE IF NOT EXISTS "
+    private static final String CREATE_TABLE_RELATIONEXRO = "CREATE TABLE IF NOT EXISTS "
             + Table_ExOfRoutine + "("+KEY_EXRO_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"
             + KEY_EXRO_IDR + " INTEGER," + KEY_EXRO_IDE + " INTEGER,"+KEY_EXRO_EXREP+" INTEGER not null,"
             + KEY_EXRO_EXSER + "INTEGER not null," + KEY_EXRO_EXRT + " double not null)";
     private static final String CREATE_TABLE_UPDATES="CREATE TABLE IF NOT EXISTS " + Table_Updates +
             "( _id integer primary key autoincrement , lastUpdate VARCHAR(20) not null, firstInstalation int not null);";
 
+    private static final String CREATE_TABLE_GYMS = "CREATE TABLE IF NOT EXISTS " + Table_Gyms +
+            "("+KEY_GYM_ID+" integer primary key autoincrement,"+KEY_GYM_NAME+"VARCHAR(20) not null)";
+
 
     private static final String[] RO_ROWS={KEY_RO_ID,KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,
             KEY_RO_GYM};
     private static final String[] EX_ROWS=new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
             KEY_EX_MUSCLE, KEY_EX_IMG, KEY_EX_TAG};
-
+    private static final String[] GY_ROWS= new String{KEY_GYM_ID,KEY_GYM_NAME};
 
     private final Context mCtx;
 
@@ -88,7 +92,8 @@ public class GymnasioDBAdapter {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(CREATE_TABLE_ROUTINES);
             db.execSQL(CREATE_TABLE_EXERCISES);
-            db.execSQL(CREATE_TABLE_RELATION);
+            db.execSQL(CREATE_TABLE_GYMS);
+            db.execSQL(CREATE_TABLE_RELATIONEXRO);
             db.execSQL(CREATE_TABLE_UPDATES);
             ContentValues v = new ContentValues();
             Date currentTime = Calendar.getInstance().getTime();
