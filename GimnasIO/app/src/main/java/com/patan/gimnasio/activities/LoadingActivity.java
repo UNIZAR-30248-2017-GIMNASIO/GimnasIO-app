@@ -218,7 +218,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-
+            finish();
             // Do things like hide the progress bar or change a TextView
         }
     }
