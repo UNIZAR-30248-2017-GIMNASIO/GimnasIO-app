@@ -46,4 +46,6 @@
 
     <string name="updateneeded">La aplicación necesita realizar una actualización, lo que puede consumir datos adicionales ¿De acuerdo?</string>
     <string name="title_activity_add_exercise_to_routine">AddExerciseToRoutineActivity</string>
+    <string name="actualizar">Actualizar ejercicios</string>
+    <string name="logout">Cerrar sesión</string>
 </resources>
