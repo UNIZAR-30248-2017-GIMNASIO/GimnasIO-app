@@ -69,8 +69,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
-        //barra = (ProgressBar) findViewById(R.id.progressBar);
-        //texto = (TextView) findViewById(R.id.descargando);
+        barra = (ProgressBar) findViewById(R.id.progressBar);
         state = (TextView) findViewById(R.id.descargando);
         state.setText("Descargando");
 
@@ -81,7 +80,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            //texto.setText("Descargando 0 ejercicios de " + response.length());
+                            //state.setText("Descargando 0 ejercicios de " + response.length());
                             updateDatabase(response);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -113,9 +112,11 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
         db = new GymnasioDBAdapter(this);
         db.open();
         total = list.length();
+        barra.setMax(total);
+        barra.setProgress(0);
         for (int i = 0; i < list.length(); i++) {
-            //texto.setText("Descargando 0 ejercicios de " + list.length());
-            //barra.setProgress(list.length(),i);
+            //state.setText("Descargando "+ i  + " ejercicios de " + list.length());
+            barra.setProgress(barra.getProgress()+1);
             JSONObject ejercicio = list.getJSONObject(i + "");
             Log.d("" + i, ejercicio.toString());
             ArrayList<String> tags = new ArrayList<String>();
