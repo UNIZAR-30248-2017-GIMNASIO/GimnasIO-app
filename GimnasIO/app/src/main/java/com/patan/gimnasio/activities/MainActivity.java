@@ -257,11 +257,10 @@ public class MainActivity extends AppCompatActivity {
             if (success) {
                 checkIfUserWantsDownload(downloadSize);
             } else {
-                Context context = mCtx;
                 CharSequence text = "No hay nada que descargar";
                 int duration = Toast.LENGTH_LONG;
 
-                Toast toast = Toast.makeText(context, text, duration);
+                Toast toast = Toast.makeText(mCtx, text, duration);
                 toast.setGravity(Gravity.TOP, 0, 100);
                 toast.show();
             }
