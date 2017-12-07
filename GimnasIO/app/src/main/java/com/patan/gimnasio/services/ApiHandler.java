@@ -2,6 +2,7 @@ package com.patan.gimnasio.services;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.androidnetworking.AndroidNetworking;
@@ -22,6 +23,8 @@ public class ApiHandler {
 
     private final String urlDb = "http://54.171.225.70:32001/dbdata/";
     private final String urlLogin = "http://54.171.225.70:32001/gym/login";
+    private final String urlUpdate ="http://54.171.225.70:32001/exercises/";
+    private final String urlImg = "http://54.171.225.70:32001/exercises/download";
 
     private final String u = "gpsAdmin";
     private final String p = "Gps@1718";
@@ -41,10 +44,8 @@ public class ApiHandler {
                 .addHeaders("namegym", nameGym)
                 .addHeaders("key", key)
                 .build();
-
         ANResponse<JSONObject> response = request.executeForJSONObject();
         JSONObject respuesta = response.getResult();
-
         if (response.isSuccess()) {
             try {
                 boolean exito = respuesta.getBoolean("success");
@@ -81,7 +82,6 @@ public class ApiHandler {
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
                 .build();
-
         ANResponse<JSONObject> response = request.executeForJSONObject();
         JSONObject respuesta = response.getResult();
         Log.w("DBData", response.toString());
@@ -104,5 +104,63 @@ public class ApiHandler {
             return null;
         }
     }
+
+    public JSONObject updateDB() {
+        ANRequest request = AndroidNetworking.get(urlUpdate)
+                .addHeaders("user", u)
+                .addHeaders("pwd", p)
+                .build();
+        ANResponse<JSONObject> response = request.executeForJSONObject();
+
+        Log.w("DBData", response.toString());
+        if (response.isSuccess()) {
+            return response.getResult();
+        } else {
+            ANError error = response.getError();
+            // Handle Error
+            Log.e("Premium", error.getErrorBody());
+            return null;
+        }
+    }
+
+    public Bitmap downloadIMG(String imgName) {
+        ANRequest request = AndroidNetworking.get(urlImg)
+                .addHeaders("user", u)
+                .addHeaders("pwd", p)
+                .addHeaders("image", remove1(imgName)+".jpg")
+                .addHeaders("Content-type", "application/json;charset=utf-8")
+                .setBitmapConfig(Bitmap.Config.ARGB_8888)
+                .build();
+        ANResponse<Bitmap> response = request.executeForBitmap();
+        Log.d("ImgDwn","Trying to download " + imgName);
+        if (response.isSuccess()) {
+            Log.d("ImgDwn","Image from " + imgName + " downloaded");
+            Bitmap res = (Bitmap) response.getResult();
+            return res;
+        } else {
+            ANError error = response.getError();
+            // Handle Error
+            Log.e("ImgError", error.getErrorBody());
+            return null;
+        }
+    }
+    /**
+     * Función que elimina acentos y caracteres especiales de
+     * una cadena de texto.
+     * @param input
+     * @return cadena de texto limpia de acentos y caracteres especiales.
+     */
+    private static String remove1(String input) {
+        // Cadena de caracteres original a sustituir.
+        String original = "áàäéèëíìïóòöúùuñÁÀÄÉÈËÍÌÏÓÒÖÚÙÜÑçÇ";
+        // Cadena de caracteres ASCII que reemplazarán los originales.
+        String ascii = "aaaeeeiiiooouuunAAAEEEIIIOOOUUUNcC";
+        String output = input;
+        for (int i=0; i<original.length(); i++) {
+            // Reemplazamos los caracteres especiales.
+            output = output.replace(original.charAt(i), ascii.charAt(i));
+        }//for i
+        return output;
+    }//remove1
 }
 

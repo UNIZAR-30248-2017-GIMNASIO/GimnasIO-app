@@ -9,9 +9,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -23,7 +25,9 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.DBRData;
 import com.patan.gimnasio.domain.Exercise;
+import com.patan.gimnasio.services.ApiHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,11 +49,6 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
      */
     private static final int REQUEST_RW = 0;
 
-    /**
-     * Permissions required to read and write contacts. Used by the {@link ContactsFragment}.
-     */
-    private static String[] EXTERNAL_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private GymnasioDBAdapter db;
     /**
      * Root of the layout of this Activity.
@@ -57,6 +56,9 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     private View mLayout;
     private TextView texto;
     private ProgressBar barra;
+
+    private UpdateTask task = null;
+    private DownloadingImgTask task2 = null;
 
     private String ruta = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/GymnasIOapp";
 
@@ -69,50 +71,22 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
-        //barra = (ProgressBar) findViewById(R.id.progressBar);
-        //texto = (TextView) findViewById(R.id.descargando);
+        barra = (ProgressBar) findViewById(R.id.progressBar);
+        texto = (TextView) findViewById(R.id.descargando);
         state = (TextView) findViewById(R.id.descargando);
         state.setText("Descargando");
-
-        String url ="http://54.171.225.70:32001/exercises/";
-        RequestQueue mQueue = Volley.newRequestQueue(this);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            //texto.setText("Descargando 0 ejercicios de " + response.length());
-                            updateDatabase(response);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("TAG", error.getMessage(), error);
-            }
-
-
-        }){
-
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String> params = new HashMap<String, String>();
-                        params.put("user", "gpsAdmin");
-                        params.put("pwd", "Gps@1718");
-                        return params;
-                    }
-
-        };
-        mQueue.add(jsonObjectRequest);
+        ApiHandler api = new ApiHandler(this);
+        task = new UpdateTask(this);
+        task.execute((Void) null);
     }
 
     private void updateDatabase(JSONObject list) throws JSONException {
         db = new GymnasioDBAdapter(this);
         db.open();
         total = list.length();
+        barra.setVisibility(View.VISIBLE);
+        barra.setMax(list.length());
+        //barra.setProgress(0);
         for (int i = 0; i < list.length(); i++) {
             //texto.setText("Descargando 0 ejercicios de " + list.length());
             //barra.setProgress(list.length(),i);
@@ -130,7 +104,10 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                     ejercicio.getString("description"),
                     rutaEj,
                     tags);
-            new MyTask().execute(ejercicio.getString("name"));
+            task2 = new DownloadingImgTask(i, ejercicio.getString("name"),this);
+            task2.execute((Void) null);
+
+            //new MyTask().execute(ejercicio.getString("name"));
             db.createExercise(e);
         }
         Log.d("Update", "Database updated");
@@ -151,6 +128,8 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                 out.close();
                 Log.d("SAVED","Image with name "+s+" saved on filesystem");
                 status++;
+                texto.setText("Descargando ejercicio "+status+"...");
+                barra.setProgress(status);
                 if (status == total) {
                     state.setText("Descarga finalizada");
                     Log.d("DWL", "DOWNLOAD AND STORAGE FINISHED");
@@ -161,65 +140,92 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
             }
 
     }
+    /**
+     * Represents an asynchronous update task.
+     */
+    public class UpdateTask extends AsyncTask<Void, Void, Boolean> {
 
-    private class MyTask extends AsyncTask<String, Integer, String> {
-        private String result = "";
-        // Runs in UI before background thread is called
+        private Context mCtx;
+        private JSONObject data;
+
+        UpdateTask(Context ctx) {
+            mCtx = ctx;
+        }
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+        protected Boolean doInBackground (Void... params) {
+            // TODO: attempt authentication against a network service.
+            ApiHandler api = new ApiHandler(mCtx);
+            JSONObject respuesta = api.updateDB();
+            if (respuesta != null) {
+                data = respuesta;
+                return true;
+            } return false;
+        }
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                try {
+                    updateDatabase(data);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                CharSequence text = "Error en la descarga";
+                int duration = Toast.LENGTH_LONG;
 
-            // Do something like display a progress bar
+                Toast toast = Toast.makeText(mCtx, text, duration);
+                toast.setGravity(Gravity.TOP, 0, 100);
+                toast.show();
+            }
         }
 
-        // This is run in a background thread
         @Override
-        protected String doInBackground(String... params) {
-            final String image = params[0].replaceAll("\\s+","");
-            String url = "http://54.171.225.70:32001/exercises/download";
-            Log.d("ImgDwn","Trying to download "+image);
-            RequestQueue mQueue = Volley.newRequestQueue(LoadingActivity.this);
-            //Retrieves an image specified by the URL, displays it in the UI.
-            ImageRequest r = new ImageRequest(
-                    url,  new Response.Listener<Bitmap>() {
-                @Override
-                public void onResponse(Bitmap bitmap) {
-                    Log.d("ImgDwn","Image from "+image+" downloaded");
-                    SaveImage(bitmap, image);
-                }
-            }, 1028,
-                    1028, null, Bitmap.Config.ARGB_8888, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError volleyError) {
-                    Log.e("ERROR from " + image, "http Volley request failed!", volleyError);
-                }
-            }) {
+        protected void onCancelled() {
+            task = null;
+        }
+    }
 
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("image", image+".jpg");
-                    return params;
-                }
-            };
-            mQueue.add(r);
-            return "DONE";
+    /**
+     * Represents an asynchronous downloadImg task.
+     */
+    public class DownloadingImgTask extends AsyncTask<Void, Void, Boolean> {
+
+        private Context mCtx;
+        private String imgName;
+        private Bitmap data;
+        private int count;
+
+        DownloadingImgTask(int contador, String iN, Context ctx) {
+            count=contador;
+            mCtx = ctx;
+            imgName = iN.replaceAll("\\s+","");
         }
 
-        // This is called from background thread but runs in UI
         @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-
-            // Do things like update the progress bar
+        protected Boolean doInBackground (Void... params) {
+            ApiHandler api = new ApiHandler(mCtx);
+            Bitmap ok = api.downloadIMG(imgName);
+            if (ok != null) {
+                data = ok;
+                return true;
+            } return false;
         }
-
-        // This runs in UI when background thread finishes
         @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                SaveImage(data,imgName);
+            } else {
+                CharSequence text = "Error en la descarga de " + imgName;
+                int duration = Toast.LENGTH_LONG;
 
-            // Do things like hide the progress bar or change a TextView
+                Toast toast = Toast.makeText(mCtx, text, duration);
+                toast.setGravity(Gravity.TOP, 0, 100);
+                toast.show();
+            }
+        }
+        @Override
+        protected void onCancelled() {
+            task = null;
         }
     }
 
