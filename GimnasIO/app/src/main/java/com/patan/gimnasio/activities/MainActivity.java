@@ -1,10 +1,12 @@
 package com.patan.gimnasio.activities;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -12,10 +14,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -26,6 +30,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.DBRData;
+import com.patan.gimnasio.services.ApiHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,19 +45,16 @@ public class MainActivity extends AppCompatActivity {
      * Id to identify a contacts permission request.
      */
     private static final int REQUEST_RW = 0;
-    /**
-     * Permissions required to read and write contacts. Used by the {@link ContactsFragment}.
-     */
     private static String[] EXTERNAL_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private View mLayout;
     private View dLayout;
 
     private GymnasioDBAdapter db;
-    private String url = "http://54.171.225.70:32001/dbdata/";
     private String lUR;
     private int rowId;
     private String downloadSize;
+    private DbDataTask task = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,62 +67,21 @@ public class MainActivity extends AppCompatActivity {
         db = new GymnasioDBAdapter(this);
         db.open();
         final Cursor c = db.checkForUpdates();
-        RequestQueue mQueue = Volley.newRequestQueue(this);
+        ApiHandler api = new ApiHandler(this);
+        //RequestQueue mQueue = Volley.newRequestQueue(this);
         if (c.moveToFirst()){
             final String lUL = c.getString(c.getColumnIndex("lastUpdate"));
             final int fI = c.getInt(c.getColumnIndex("firstInstalation"));
             final int id = c.getInt(c.getColumnIndex("_id"));
-            // Consulta al server
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            lUR = null;
-                            try {
-                                Log.w("TAG",response.toString());
-                                lUR = response.getString("lastUpdate");
-                                lUR = lUR.replace('T','_');
-                                lUR = lUR.substring(0,19);
-                                //Launch update
-                                if (!lUR.equals(lUL) || fI==1) {
-                                    Log.d("INFO", "Update needed because new " +
-                                            "installation or new remote db");
-                                    rowId=id;
-                                    downloadSize = response.getString("totalSize");
-                                    checkIfUserWantsDownload(downloadSize);
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("TAG", error.getMessage(), error);
-                }
-
-
-            }){
-
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("user", "gpsAdmin");
-                    params.put("pwd", "Gps@1718");
-                    return params;
-                }
-
-            };
-            mQueue.add(jsonObjectRequest);
-
+            rowId = id;
+            task = new DbDataTask(lUL, fI,this);
+            task.execute((Void) null);
         }
         c.close();
     }
 
     private void checkIfUserWantsDownload(String size){
         CharSequence options[] = new CharSequence[] {"De acuerdo", "En otro momento"};
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("La aplicación necesita descargar " + size +"MB ¿De acuerdo?");
         builder.setItems(options, new DialogInterface.OnClickListener() {
@@ -146,12 +108,13 @@ public class MainActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.update:
-                checkIfUserWantsDownload(downloadSize);
+                goToStartApp();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
     private void goToLoadingActivity() {
         Intent intent = new Intent(this, LoadingActivity.class);
         startActivity(intent);
@@ -183,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void goToRoutine(View v) {
         Intent intent = new Intent(this, RoutineListActivity.class);
+        intent.putExtra("USERTYPE","free");
         startActivity(intent);
     }
 
@@ -251,6 +215,60 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+    public class DbDataTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final String lastUpdateLocal;
+        private final int firstInstallation;
+        private Context mCtx;
+
+        DbDataTask(String lUL, int fI, Context ctx) {
+            lastUpdateLocal = lUL;
+            firstInstallation = fI;
+            mCtx = ctx;
+        }
+
+        @Override
+        protected Boolean doInBackground (Void... params) {
+            // TODO: attempt authentication against a network service.
+            ApiHandler api = new ApiHandler(mCtx);
+            DBRData respuesta = api.dbData(lastUpdateLocal, firstInstallation);
+            if (respuesta != null) {
+                String lastUpdateRemote = respuesta.getLastUpdate();
+                lastUpdateRemote = lastUpdateRemote.replace('T', '_');
+                lastUpdateRemote = lastUpdateRemote.substring(0, 19);
+                //Launch update
+                lUR = lastUpdateRemote;
+                if (!lUR.equals(lastUpdateLocal) || firstInstallation == 1) {
+                    Log.d("INFO", "Update needed because new " +
+                            "installation or new remote db");
+                    downloadSize = respuesta.getTotalSize() + "";
+                    return true;
+                } else return false;
+            } return false;
+        }
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                checkIfUserWantsDownload(downloadSize);
+            } else {
+                CharSequence text = "No hay nada que descargar";
+                int duration = Toast.LENGTH_LONG;
+
+                Toast toast = Toast.makeText(mCtx, text, duration);
+                toast.setGravity(Gravity.TOP, 0, 100);
+                toast.show();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            task = null;
         }
     }
 }
