@@ -13,10 +13,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+
+import java.util.ArrayList;
 
 // En esta actividad se mostrara una lista de rutinas creadas ademas de la opcion de crear una nueva rutina
 //  - Crear rutina (boton flotante) llevara a una RoutineEditActivity vacia
@@ -32,6 +38,9 @@ public class RoutineListActivity extends AppCompatActivity {
     private String user_type;
     private String gym_name;
     private FloatingActionButton fab;
+    private Spinner spinner;
+    private Button boton;
+    private EditText busqueda;
 
 
     public GymnasioDBAdapter getGymnasioDBAdapter(){
@@ -48,6 +57,14 @@ public class RoutineListActivity extends AppCompatActivity {
 
         l = (ListView)findViewById(R.id.dbRoutinesList);
         fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+        busqueda = (EditText) (findViewById(R.id.busqueda));
+        spinner = (Spinner) findViewById(R.id.spinner);
+        ArrayList<String> categories = new ArrayList<String>();
+        categories.add("Objective");
+        categories.add("Name");
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+        spinner.setAdapter(dataAdapter);
 
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -134,6 +151,59 @@ public class RoutineListActivity extends AppCompatActivity {
     }
 
 
+    private void fillDataByName(String name) {
+        Cursor routines = null ;
+        if (user_type.equals("free")) {
+            // Get all of the routines from the database and create the item list
+            routines = db.getRoutineByName(name);
+            startManagingCursor(routines);
+        } else if (user_type.equals("premium")) {
+            fab.hide();
+            getSupportActionBar().setTitle("Rutinas " + gym_name);
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        } else if (user_type.equals("trainer")) {
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        }
+        // Create an array to specify the fields we want to display in the list (only NAME)
+        String[] from = new String[] {GymnasioDBAdapter.KEY_RO_NAME};
+        // and an array of the fields we want to bind those fields to (in this case just text1)
+        int[] to = new int[] { R.id.ro_row };
+        // Now create an array adapter and set it to display using our row
+        SimpleCursorAdapter notes =
+                new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
+        l.setAdapter(notes);
+        registerForContextMenu(l);
+    }
+
+    private void fillDataByObj(String obj) {
+        Cursor routines = null ;
+        if (user_type.equals("free")) {
+            // Get all of the routines from the database and create the item list
+            routines = db.getRoutineByObj(obj);
+            startManagingCursor(routines);
+        } else if (user_type.equals("premium")) {
+            fab.hide();
+            getSupportActionBar().setTitle("Rutinas " + gym_name);
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        } else if (user_type.equals("trainer")) {
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        }
+        // Create an array to specify the fields we want to display in the list (only NAME)
+        String[] from = new String[] {GymnasioDBAdapter.KEY_RO_NAME};
+        // and an array of the fields we want to bind those fields to (in this case just text1)
+        int[] to = new int[] { R.id.ro_row };
+        // Now create an array adapter and set it to display using our row
+        SimpleCursorAdapter notes =
+                new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
+        l.setAdapter(notes);
+        registerForContextMenu(l);
+    }
+
+
     /**
      * Metodo que cambia a la actividad ExerciseViewActivity en modo crear nueva rutina
      */
@@ -173,4 +243,19 @@ public class RoutineListActivity extends AppCompatActivity {
         super.onResume();
         fillData();
     }
+
+
+    public void Touch (View v){
+        String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
+        String search = busqueda.getText().toString(); //Para saber que se esta buscando
+        if (!search.isEmpty()){
+            if(text.equals("Objective")) fillDataByObj(search);
+            else if (text.equals("Name")) fillDataByName(search);
+        }
+    }
+
+    public void onReset (View v){
+        fillData();
+    }
+
 }

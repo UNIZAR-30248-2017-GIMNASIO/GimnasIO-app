@@ -502,6 +502,29 @@ public class GymnasioDBAdapter {
 
     }
 
+
+
+    /**
+     * Return a Cursor positioned at the routines which match the given objetive
+     *
+     * @param obj objective of exercises to retrieve
+     * @return Cursor positioned to matching routine, if found
+     * @throws SQLException if exercise could not be found/retrieved
+     */
+    public Cursor getRoutineByObj(String obj) throws SQLException {
+
+        Cursor mCursor =
+
+                Db.query(Table_Routine, RO_ROWS, KEY_RO_OBJ + "='" + obj+"'", null,
+                        null, null, null, null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+
+    }
+
+
     public Cursor getExercisesFromRoutine(long id) {
         String selectQuery = "SELECT * FROM "+ Table_Exercise+" AS ex, "+
                 Table_ExOfRoutine+" AS exro WHERE exro."+KEY_EXRO_IDR+"="+id+" AND exro."

@@ -81,8 +81,6 @@ public class ExerciseListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mode_in = intent.getStringExtra("MODE");
 
-        boton = (Button) findViewById(R.id.button);
-
     }
 
     @Override
@@ -196,7 +194,7 @@ public class ExerciseListActivity extends AppCompatActivity {
     }
 
 
-    public void toca (View v){
+    public void Touch (View v){
         String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
         String search = busqueda.getText().toString(); //Para saber que se esta buscando
         if (!search.isEmpty()){
@@ -204,7 +202,10 @@ public class ExerciseListActivity extends AppCompatActivity {
             else if (text.equals("Tag")) fillDataByTag(search);
             else if (text.equals("Name")) fillDataByName(search);
         }
-        else fillData();
-
     }
+
+    public void onReset (View v){
+        fillData();
+    }
+
 }

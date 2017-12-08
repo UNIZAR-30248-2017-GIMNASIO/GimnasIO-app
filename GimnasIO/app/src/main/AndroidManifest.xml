@@ -25,6 +25,7 @@
         </activity>
         <activity
             android:name=".activities.ExerciseListActivity"
+            android:windowSoftInputMode="adjustPan"
             android:label="@string/lista_ejercicios" />
         <activity android:name=".activities.ExerciseViewActivity" />
         <activity
