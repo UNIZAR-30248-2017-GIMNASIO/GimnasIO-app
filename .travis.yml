@@ -5,10 +5,11 @@ jdk: oraclejdk8
 
 android:
   components:
-  - platform-tools
-  - tools
-  - build-tools-26.0.2
-  - android-25
+    - tools
+    - platform-tools
+    - build-tools-25.0.2
+    - android-25
+    - tools
 
 before_install:
   - cd GimnasIO
@@ -18,7 +19,7 @@ script:
   - "./gradlew clean build connectedAndroidTest -PdisablePreDex --stacktrace"
 
 notifications:
-  email: true
+  email: false
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
