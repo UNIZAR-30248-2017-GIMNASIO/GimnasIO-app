@@ -14,10 +14,10 @@ android:
 before_install:
   - cd GimnasIO
   - chmod +x gradlew
-  - yes | sudo sdkmanager --licenses
+  - yes | sdkmanager --licenses
 
 script:
-  - "./gradlew clean build connectedAndroidTest -PdisablePreDex --stacktrace"
+  - "./gradlew clean build -PdisablePreDex --stacktrace"
 
 notifications:
   email: false
