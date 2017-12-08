@@ -18,7 +18,7 @@ jobs:
       environment:
         QEMU_AUDIO_DRV: none
 
-    working_directory: ~/GimnasIO-app/GimnasIO/app
+    working_directory: ~/GimnasIO-app/GimnasIO
     environment:
       # Customize the JVM maximum heap limit
       JVM_OPTS: -Xmx3200m
@@ -41,7 +41,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: gradle dependencies
+      - run: gradle dependencies androidDependencies
 
       - save_cache:
           paths:
