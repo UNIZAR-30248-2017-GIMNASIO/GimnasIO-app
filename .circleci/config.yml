@@ -5,14 +5,18 @@
 version: 2
 jobs:
   build:
-    docker:
+    #docker:
       # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
+      #- image: circleci/openjdk:8-jdk
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
+
+    machine:
+      environment:
+        QEMU_AUDIO_DRV: none
 
     working_directory: ~/GimnasIO-app
 
@@ -20,10 +24,6 @@ jobs:
       # Customize the JVM maximum heap limit
       JVM_OPTS: -Xmx3200m
       TERM: dumb
-
-    machine:
-      environment:
-        QEMU_AUDIO_DRV: none
 
     test:
       pre:
