@@ -9,10 +9,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ActivityInstrumentationTestCase2;
+import android.view.WindowManager;
 
 import com.patan.gimnasio.activities.ExerciseListActivity;
+import com.patan.gimnasio.activities.MainActivity;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Exercise;
@@ -21,6 +24,7 @@ import com.patan.gimnasio.domain.Routine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,12 +52,25 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         assertEquals("com.patan.gimnasio", appContext.getPackageName());
     }
 
+    @Rule
+    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(
+            MainActivity.class);
+
     @Before
     public void setUp() throws Exception{
         injectInstrumentation(InstrumentationRegistry.getInstrumentation());
         exerciseList = getActivity();
         db = exerciseList.getGymnasioDbAdapter();
         ExercisesList.add((long)1);
+        final MainActivity activity = mActivityRule.getActivity();
+        Runnable wakeUpDevice = new Runnable() {
+            public void run() {
+                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
+        };
+        activity.runOnUiThread(wakeUpDevice);
     }
 
     /*Test que simula una actualización de la  BD*/
