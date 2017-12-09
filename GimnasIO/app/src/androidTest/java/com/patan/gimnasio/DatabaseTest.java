@@ -231,14 +231,14 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         Routine r2 = new Routine("Gym2","Rutina2","Objetivo2");
         Routine r3 = new Routine("Gym3","Rutina3","Objetivo3");
 
-        int nRoutinesPre = db.fetchRoutines().getCount();
+        int nRoutinesPre = db.getNumberOfRoutines();
         ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
         idr1 = db.createFreemiumRoutine(r1,efrArray);
         idr2 = db.createFreemiumRoutine(r2,efrArray);
         idr3 = db.createFreemiumRoutine(r3,efrArray);
 
-        int nRoutinesPost = db.fetchRoutines().getCount();
+        int nRoutinesPost = db.getNumberOfRoutines();
 
         db.deleteRoutine(idr1);
         db.deleteRoutine(idr2);
@@ -255,14 +255,14 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         Routine r2 = new Routine("Gym2","Rutina2","Objetivo2");
         Routine r3 = new Routine("Gym3","Rutina3","Objetivo3");
 
-        int nRoutinesPre = db.fetchRoutines().getCount();
+        int nRoutinesPre = db.getNumberOfRoutines();
         ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
         idr1 = db.createPremiumRoutine(r1,efrArray);
         idr2 = db.createPremiumRoutine(r2,efrArray);
         idr3 = db.createPremiumRoutine(r3,efrArray);
 
-        int nRoutinesPost = db.fetchRoutines().getCount();
+        int nRoutinesPost = db.getNumberOfRoutines();
 
        db.deleteRoutine(idr1);
        db.deleteRoutine(idr2);
@@ -293,7 +293,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     @Test
     public void deleteRoutineTest_existe() throws Exception {
 
-        int nRoutinesPre = db.fetchRoutines().getCount();
+        int nRoutinesPre = db.getNumberOfRoutines();
 
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
 
@@ -302,7 +302,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         idr1 = db.createFreemiumRoutine(r1,efrArray);
         db.deleteRoutine(idr1);
 
-        int nRoutinesPost = db.fetchRoutines().getCount();
+        int nRoutinesPost = db.getNumberOfRoutines();
 
         assertEquals( nRoutinesPre, nRoutinesPost);
     }
@@ -402,7 +402,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     @Test
     public void getNumberOfRoutinesTest() throws Exception{
 
-        Cursor c1 = db.fetchRoutines();
+        Cursor c1 = db.fetchFreemiumRoutines();
         int n1 = c1.getCount();
 
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
@@ -410,7 +410,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
         idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        Cursor c2 = db.fetchRoutines();
+        Cursor c2 = db.fetchFreemiumRoutines();
         int n2 = c2.getCount();
 
         assertTrue(n1 +1 == n2);

@@ -12,7 +12,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
@@ -25,6 +29,9 @@ public class ExerciseListActivity extends AppCompatActivity {
 
     private ListView l;
     private GymnasioDBAdapter db;
+    private Spinner spinner;
+    private Button boton;
+    private EditText busqueda;
     private static final int ADD_ID = 1;
     private String mode_in;
 
@@ -38,6 +45,21 @@ public class ExerciseListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_exercises_list);
         db = new GymnasioDBAdapter(this);
         db.open();
+        busqueda = (EditText) (findViewById(R.id.busqueda));
+        spinner = (Spinner) findViewById(R.id.spinner);
+
+        //We declare the search options
+        ArrayList<String> categories = new ArrayList<String>();
+        categories.add("Muscle");
+        categories.add("Tag");
+        categories.add("Name");
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+        spinner.setAdapter(dataAdapter);
+
+
+
+
 
         l = (ListView)findViewById(R.id.dbExercisesList);
 
@@ -58,6 +80,7 @@ public class ExerciseListActivity extends AppCompatActivity {
         registerForContextMenu(l);
         Intent intent = getIntent();
         mode_in = intent.getStringExtra("MODE");
+
     }
 
     @Override
@@ -128,10 +151,61 @@ public class ExerciseListActivity extends AppCompatActivity {
         l.setAdapter(notes);
     }
 
-    private Exercise test() {
-        ArrayList<String> tags = new ArrayList<>();
-        tags.add("hola");tags.add("holi");
-        Exercise e = new Exercise("test","gemelo","yo k se","algo",tags);
-        return e;
+    private void fillDataByMuscle(String muscle) {
+        // Get all of the exercises from the database and create the item list
+        Cursor exercises = db.getExercisesByMuscle(muscle);
+        startManagingCursor(exercises);
+        // Create an array to specify the fields we want to display in the list (only NAME)
+        String[] from = new String[] {GymnasioDBAdapter.KEY_EX_NAME,GymnasioDBAdapter.KEY_EX_TAG};
+        // and an array of the fields we want to bind those fields to (in this case just text1)
+        int[] to = new int[] { R.id.ex_row,R.id.ex_row2};
+        // Now create an array adapter and set it to display using our row
+        SimpleCursorAdapter notes =
+                new SimpleCursorAdapter(this, R.layout.exercises_row, exercises, from, to,0);
+        l.setAdapter(notes);
     }
+
+    private void fillDataByTag(String tag) {
+        // Get all of the exercises from the database and create the item list
+        Cursor exercises = db.getExercisesByTag(tag);
+        startManagingCursor(exercises);
+        // Create an array to specify the fields we want to display in the list (only NAME)
+        String[] from = new String[] {GymnasioDBAdapter.KEY_EX_NAME,GymnasioDBAdapter.KEY_EX_TAG};
+        // and an array of the fields we want to bind those fields to (in this case just text1)
+        int[] to = new int[] { R.id.ex_row,R.id.ex_row2};
+        // Now create an array adapter and set it to display using our row
+        SimpleCursorAdapter notes =
+                new SimpleCursorAdapter(this, R.layout.exercises_row, exercises, from, to,0);
+        l.setAdapter(notes);
+    }
+
+    private void fillDataByName(String name) {
+        // Get all of the exercises from the database and create the item list
+        Cursor exercises = db.getExerciseByName(name);
+        startManagingCursor(exercises);
+        // Create an array to specify the fields we want to display in the list (only NAME)
+        String[] from = new String[] {GymnasioDBAdapter.KEY_EX_NAME,GymnasioDBAdapter.KEY_EX_TAG};
+        // and an array of the fields we want to bind those fields to (in this case just text1)
+        int[] to = new int[] { R.id.ex_row,R.id.ex_row2};
+        // Now create an array adapter and set it to display using our row
+        SimpleCursorAdapter notes =
+                new SimpleCursorAdapter(this, R.layout.exercises_row, exercises, from, to,0);
+        l.setAdapter(notes);
+    }
+
+
+    public void Touch (View v){
+        String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
+        String search = busqueda.getText().toString(); //Para saber que se esta buscando
+        if (!search.isEmpty()){
+            if(text.equals("Muscle")) fillDataByMuscle(search);
+            else if (text.equals("Tag")) fillDataByTag(search);
+            else if (text.equals("Name")) fillDataByName(search);
+        }
+    }
+
+    public void onReset (View v){
+        fillData();
+    }
+
 }
