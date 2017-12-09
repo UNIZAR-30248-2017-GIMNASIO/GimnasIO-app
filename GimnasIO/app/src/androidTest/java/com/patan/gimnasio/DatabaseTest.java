@@ -9,13 +9,11 @@ import java.util.Calendar;
 import java.util.Date;
 
 import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ActivityInstrumentationTestCase2;
-import android.view.WindowManager;
+import android.util.Log;
 
 import com.patan.gimnasio.activities.ExerciseListActivity;
-import com.patan.gimnasio.activities.MainActivity;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Exercise;
@@ -24,7 +22,6 @@ import com.patan.gimnasio.domain.Routine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,25 +49,12 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         assertEquals("com.patan.gimnasio", appContext.getPackageName());
     }
 
-    @Rule
-    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(
-            MainActivity.class);
-
     @Before
     public void setUp() throws Exception{
         injectInstrumentation(InstrumentationRegistry.getInstrumentation());
         exerciseList = getActivity();
         db = exerciseList.getGymnasioDbAdapter();
         ExercisesList.add((long)1);
-        final MainActivity activity = mActivityRule.getActivity();
-        Runnable wakeUpDevice = new Runnable() {
-            public void run() {
-                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
-                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            }
-        };
-        activity.runOnUiThread(wakeUpDevice);
     }
 
     /*Test que simula una actualización de la  BD*/
@@ -291,7 +275,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     /*Test que comprueba que la bd saca rutinas correctamente*/
 
     @Test
-    public void getRoutineTest() throws Exception{
+    public void getFreemiumRoutineTest() throws Exception{
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
         ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
@@ -338,7 +322,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd modifica el campo gimnasio de una rutina freemium*/
     @Test
-    public void updateNameGymRuotineFreemium() throws Exception{
+    public void updateNameGymRoutineFreemium() throws Exception{
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
         ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
@@ -348,6 +332,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         db.updateFreemiumRoutine(idr1,r1,efrArray);
 
         Cursor c = db.fetchRoutine(idr1);
+        c.moveToFirst();
         int gym_row = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_GYM);
         String gym_name = c.getString(gym_row);
 
@@ -413,6 +398,28 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         db.deleteRoutine(idr1);
 
         assertTrue(n2 == 1);
+    }
+
+    /*Test que comprueba que la bd devuelve todas las rutinas premium correctamente*/
+    @Test
+    public void fetchAllPremiumRoutinesTest() throws Exception {
+        Routine r1 = new Routine("GymTest","Rutina1","Objetivo1");
+        Routine r2 = new Routine("GymTest","Rutina2","Objetivo2");
+        Routine r3 = new Routine("GymTest","Rutina3","Objetivo3");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
+
+        idr1 = db.createPremiumRoutine(r1,efrArray);
+        idr2 = db.createPremiumRoutine(r2,efrArray);
+        idr3 = db.createPremiumRoutine(r3,efrArray);
+
+        Cursor c = db.fetchPremiumRoutines("GymTest");
+        int size = c.getCount();
+
+        db.deleteRoutine(idr1);
+        db.deleteRoutine(idr2);
+        db.deleteRoutine(idr3);
+
+        assertEquals( size,3);
     }
 
     /*Test que comprueba que el método getNumberOfRoutines devuelve el numero correcto*/

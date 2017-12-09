@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,7 +37,7 @@ public class RoutineListActivity extends AppCompatActivity {
 
     private static final int DELETE_ID = 1;
     private String user_type;
-    private String gym_name;
+    private String gym_name = "Rutina gratuita";
     private FloatingActionButton fab;
     private Spinner spinner;
     private Button boton;
@@ -60,8 +61,8 @@ public class RoutineListActivity extends AppCompatActivity {
         busqueda = (EditText) (findViewById(R.id.busqueda));
         spinner = (Spinner) findViewById(R.id.spinner);
         ArrayList<String> categories = new ArrayList<String>();
-        categories.add("Objective");
-        categories.add("Name");
+        categories.add("Nombre");
+        categories.add("Objetivo");
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
         spinner.setAdapter(dataAdapter);
@@ -76,6 +77,7 @@ public class RoutineListActivity extends AppCompatActivity {
                 Intent intent = new Intent(v.getContext(), RoutineEditActivity.class);
                 intent.putExtra("MODE","view");
                 intent.putExtra("USERTYPE", user_type);
+                intent.putExtra("GYMNAME",gym_name);
                 intent.putExtra("ID",id_rut);
                 startActivity(intent);
             }
@@ -136,6 +138,7 @@ public class RoutineListActivity extends AppCompatActivity {
             routines = db.fetchPremiumRoutines(gym_name);
             startManagingCursor(routines);
         } else if (user_type.equals("trainer")) {
+            getSupportActionBar().setTitle("Rutinas " + gym_name);
             routines = db.fetchPremiumRoutines(gym_name);
             startManagingCursor(routines);
         }
@@ -189,6 +192,7 @@ public class RoutineListActivity extends AppCompatActivity {
             routines = db.fetchPremiumRoutines(gym_name);
             startManagingCursor(routines);
         } else if (user_type.equals("trainer")) {
+            getSupportActionBar().setTitle("Rutinas " + gym_name);
             routines = db.fetchPremiumRoutines(gym_name);
             startManagingCursor(routines);
         }
@@ -211,6 +215,8 @@ public class RoutineListActivity extends AppCompatActivity {
         Intent intent = new Intent(this, RoutineEditActivity.class);
         intent.putExtra("MODE","new");
         intent.putExtra("ID",0);
+        intent.putExtra("USERTYPE", user_type);
+        intent.putExtra("GYMNAME",gym_name);
         startActivity(intent);
     }
 
@@ -249,12 +255,13 @@ public class RoutineListActivity extends AppCompatActivity {
         String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
         String search = busqueda.getText().toString(); //Para saber que se esta buscando
         if (!search.isEmpty()){
-            if(text.equals("Objective")) fillDataByObj(search);
-            else if (text.equals("Name")) fillDataByName(search);
+            if(text.equals("Objetivo")) fillDataByObj(search);
+            else if (text.equals("Nombre")) fillDataByName(search);
         }
     }
 
     public void onReset (View v){
+        busqueda.setText("");
         fillData();
     }
 
