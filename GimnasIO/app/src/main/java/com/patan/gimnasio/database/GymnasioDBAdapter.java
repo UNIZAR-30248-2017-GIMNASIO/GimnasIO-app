@@ -256,10 +256,8 @@ public class GymnasioDBAdapter {
      */
     public Cursor getExerciseByName(String name) throws SQLException {
         String[] consulta = {name};
-        Cursor mCursor;
-        mCursor = Db.query( Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
-                        KEY_EX_IMG, KEY_EX_TAG}, KEY_EX_NAME+"='"+name+"'", null,
-                null, null, null, null);
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_NAME
+                + " LIKE '" + name + "%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -274,12 +272,8 @@ public class GymnasioDBAdapter {
      * @throws SQLException if exercise could not be found/retrieved
      */
     public Cursor getExercisesByMuscle(String muscle) throws SQLException {
-
-        Cursor mCursor =
-
-                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
-                                KEY_EX_IMG,  KEY_EX_TAG}, KEY_EX_MUSCLE + "='" + muscle+"'", null,
-                        null, null, null, null);
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_MUSCLE
+                + " LIKE '" + muscle + "%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -490,11 +484,8 @@ public class GymnasioDBAdapter {
      * @throws SQLException if exercise could not be found/retrieved
      */
     public Cursor getRoutineByName(String name) throws SQLException {
-
-        Cursor mCursor =
-
-                Db.query(Table_Routine, RO_ROWS, KEY_RO_NAME + "='" + name+"'", null,
-                        null, null, null, null);
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_NAME
+                + " LIKE '" + name + "%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -512,11 +503,8 @@ public class GymnasioDBAdapter {
      * @throws SQLException if exercise could not be found/retrieved
      */
     public Cursor getRoutineByObj(String obj) throws SQLException {
-
-        Cursor mCursor =
-
-                Db.query(Table_Routine, RO_ROWS, KEY_RO_OBJ + "='" + obj+"'", null,
-                        null, null, null, null);
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_OBJ
+                + " LIKE '" + obj + "%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }

@@ -441,6 +441,29 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         assertTrue(c.getCount() == 0);
     }
 
+
+    /*Test que comprueba que la bd devuelve la rutina bien según su objetivo*/
+    @Test
+    public void getRoutineByObjectiveTest() throws Exception{
+
+        Routine r1 = new Routine("Gym1","Rutina1","Buscame!");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
+
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
+
+        Cursor c = db.getRoutineByObj(r1.getObjective());
+
+        assertTrue(c.getCount() == 1);
+    }
+
+    /*Test que comprueba que la bd devuelve la rutina bien según su objetivo*/
+    @Test
+    public void dontGetRoutineByObjectiveTest() throws Exception{
+
+        Cursor c = db.getRoutineByObj("No existe");
+
+        assertTrue(c.getCount() == 0);
+    }
      /*End tests of routines*/
 
     @After
