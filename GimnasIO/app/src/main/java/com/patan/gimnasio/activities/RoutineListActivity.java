@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -214,6 +215,8 @@ public class RoutineListActivity extends AppCompatActivity {
         Intent intent = new Intent(this, RoutineEditActivity.class);
         intent.putExtra("MODE","new");
         intent.putExtra("ID",0);
+        intent.putExtra("USERTYPE", user_type);
+        intent.putExtra("GYMNAME",gym_name);
         startActivity(intent);
     }
 
@@ -258,6 +261,7 @@ public class RoutineListActivity extends AppCompatActivity {
     }
 
     public void onReset (View v){
+        busqueda.setText("");
         fillData();
     }
 
