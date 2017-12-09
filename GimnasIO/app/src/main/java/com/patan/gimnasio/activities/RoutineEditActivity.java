@@ -31,6 +31,9 @@ public class RoutineEditActivity extends AppCompatActivity {
 
     private String mode_in;
     private long id_in;
+    private String user_type;
+    private String gym_name;
+
     private EditText textName;
     private EditText textGym;
     private EditText textObjetivo;
@@ -81,12 +84,17 @@ public class RoutineEditActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         mode_in = intent.getStringExtra("MODE");
+        gym_name = intent.getStringExtra("GYMNAME");
+        user_type = intent.getStringExtra("USERTYPE");
 
-        // TODO: SI ENTRAMOS EN MODO FREE, EL CAMPO GYM NO SERA TOCABLE Y TENDRA VALOR RUTINA FREEMIUM
-        // TODO: SI ENTRAMOS EN MODO PREMIUM O TRAINER EL CAMPO GYM NO SERA TOCABLE Y TENDRA VALOR GYM
+        // Descativamos el campo Gym para que nunca sea editable
+        textGym.setEnabled(false);
+        textGym.setKeyListener(null);
+        textGym.setTextColor(getResources().getColor(R.color.labelColor));
+
         if (mode_in.equals("new")) {
             ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
-            Routine r = new Routine("","","");
+            Routine r = new Routine(gym_name,"","");
             id_in = db.createFreemiumRoutine(r,efrArray);
             populateFields();
             goToEditMode();
@@ -271,12 +279,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         textName.setFocusableInTouchMode(true);
         textName.setClickable(true);
 
-        // ESTO NUNCA SERA EDITABLE
-        textGym.setFocusable(true);
-        textGym.setEnabled(true);
-        textGym.setFocusableInTouchMode(true);
-        textGym.setClickable(true);
-
         textObjetivo.setFocusable(true);
         textObjetivo.setEnabled(true);
         textObjetivo.setFocusableInTouchMode(true);
@@ -291,10 +293,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         textName.setFocusable(false);
         textName.setEnabled(false);
         textName.setTextColor(getResources().getColor(R.color.labelColor));
-
-        textGym.setFocusable(false);
-        textGym.setEnabled(false);
-        textGym.setTextColor(getResources().getColor(R.color.labelColor));
 
         textObjetivo.setFocusable(false);
         textObjetivo.setEnabled(false);
