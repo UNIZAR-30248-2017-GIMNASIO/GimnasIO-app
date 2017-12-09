@@ -306,7 +306,7 @@ public class GymnasioDBAdapter {
     public long createFreemiumRoutine(Routine r, ArrayList<ExFromRoutine> ex) {
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
-        v.put(KEY_RO_GYM, "null");
+        v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
         //Introducimos la rutina
@@ -364,10 +364,9 @@ public class GymnasioDBAdapter {
      * @return true if success or false if failure
      */
     public boolean updateFreemiumRoutine(long id, Routine r, ArrayList<ExFromRoutine> ex) {
-        Log.d("UPDT: ", "Entro al updato");
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
-        v.put(KEY_RO_GYM, "null");
+        v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
         boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;

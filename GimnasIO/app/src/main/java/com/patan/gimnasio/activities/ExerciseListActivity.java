@@ -205,6 +205,7 @@ public class ExerciseListActivity extends AppCompatActivity {
     }
 
     public void onReset (View v){
+        busqueda.setText("");
         fillData();
     }
 

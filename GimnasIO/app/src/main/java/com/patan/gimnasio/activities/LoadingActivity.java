@@ -133,6 +133,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
             if (status == total) {
                 state.setText("Descarga finalizada");
                 Log.d("DWL", "DOWNLOAD AND STORAGE FINISHED");
+                finish();
             }
 
         } catch (Exception e) {
