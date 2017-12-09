@@ -505,6 +505,10 @@ public class RoutineEditActivity extends AppCompatActivity {
             textName.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)));
         } else textName.setText("");
 
+        if (routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)) != null) {
+            textObjetivo.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)));
+        } else textObjetivo.setText("");
+
         if (!mode_in.equals("new")) {
             populateExerciseList();
         }
