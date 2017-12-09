@@ -17,14 +17,13 @@ before_install:
 install:
   - echo yes | sdkmanager "tools"
   - echo yes | sdkmanager "platforms;android-25" # Latest platform required by SDK tools
-  - echo yes | sdkmanager "platforms;android-25" # Android platform required by emulator
   - echo yes | sdkmanager "extras;android;m2repository"
-  - echo yes | sdkmanager "extras;google;m2repository"
+  #- echo yes | sdkmanager "extras;google;m2repository"
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
 before_script:
   #- adb shell input keyevent 82 &
-  - yes | sdkmanager --licenses
+  - echo yes | sdkmanager --licenses
 
 script:
   - "./gradlew clean build -PdisablePreDex --stacktrace"
