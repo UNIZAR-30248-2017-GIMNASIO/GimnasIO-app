@@ -3,18 +3,26 @@ package com.patan.gimnasio.activities;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+
+import java.util.ArrayList;
 
 // En esta actividad se mostrara una lista de rutinas creadas ademas de la opcion de crear una nueva rutina
 //  - Crear rutina (boton flotante) llevara a una RoutineEditActivity vacia
@@ -27,6 +35,13 @@ public class RoutineListActivity extends AppCompatActivity {
     private GymnasioDBAdapter db;
 
     private static final int DELETE_ID = 1;
+    private String user_type;
+    private String gym_name;
+    private FloatingActionButton fab;
+    private Spinner spinner;
+    private Button boton;
+    private EditText busqueda;
+
 
     public GymnasioDBAdapter getGymnasioDBAdapter(){
         return db;
@@ -41,6 +56,15 @@ public class RoutineListActivity extends AppCompatActivity {
         db.open();
 
         l = (ListView)findViewById(R.id.dbRoutinesList);
+        fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+        busqueda = (EditText) (findViewById(R.id.busqueda));
+        spinner = (Spinner) findViewById(R.id.spinner);
+        ArrayList<String> categories = new ArrayList<String>();
+        categories.add("Objective");
+        categories.add("Name");
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+        spinner.setAdapter(dataAdapter);
 
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -51,20 +75,123 @@ public class RoutineListActivity extends AppCompatActivity {
                 long id_rut = item.getLong(pos);
                 Intent intent = new Intent(v.getContext(), RoutineEditActivity.class);
                 intent.putExtra("MODE","view");
+                intent.putExtra("USERTYPE", user_type);
                 intent.putExtra("ID",id_rut);
                 startActivity(intent);
             }
         });
+        Intent intent = getIntent();
+        user_type = intent.getStringExtra("USERTYPE");
+
+        // Si es modo premium o trainer cogemos ademas el nombre del gym
+        if (user_type.equals("premium") || user_type.equals("trainer")) {
+            gym_name = intent.getStringExtra("GYMNAME");
+        }
 
         // Rellenamos la lista
         fillData();
     }
 
+    // Menu que se crea unicamente en modo premium o trainer
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (user_type.equals("premium") || user_type.equals("trainer")) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.routine_list_menu, menu);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        if (item.getItemId() == R.id.logout) {
+            db.logout();
+            // Esto nos hara volver al menu principal directamente limpiando las actividades que tenga por encima (identificate)
+            Intent intent = new Intent(this,MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        return true;
+    }
+
+    // Si pulsa el boton de volver atras y esta en modo premium o trainer volvera al menu principal
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(this,MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
 
     private void fillData() {
-        // Get all of the routines from the database and create the item list
-        Cursor routines = db.fetchRoutines();
-        startManagingCursor(routines);
+        Cursor routines = null ;
+        if (user_type.equals("free")) {
+            // Get all of the routines from the database and create the item list
+            routines = db.fetchFreemiumRoutines();
+            startManagingCursor(routines);
+        } else if (user_type.equals("premium")) {
+            fab.hide();
+            getSupportActionBar().setTitle("Rutinas " + gym_name);
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        } else if (user_type.equals("trainer")) {
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        }
+        // Create an array to specify the fields we want to display in the list (only NAME)
+        String[] from = new String[] {GymnasioDBAdapter.KEY_RO_NAME};
+        // and an array of the fields we want to bind those fields to (in this case just text1)
+        int[] to = new int[] { R.id.ro_row };
+        // Now create an array adapter and set it to display using our row
+        SimpleCursorAdapter notes =
+                new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
+        l.setAdapter(notes);
+        registerForContextMenu(l);
+    }
+
+
+    private void fillDataByName(String name) {
+        Cursor routines = null ;
+        if (user_type.equals("free")) {
+            // Get all of the routines from the database and create the item list
+            routines = db.getRoutineByName(name);
+            startManagingCursor(routines);
+        } else if (user_type.equals("premium")) {
+            fab.hide();
+            getSupportActionBar().setTitle("Rutinas " + gym_name);
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        } else if (user_type.equals("trainer")) {
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        }
+        // Create an array to specify the fields we want to display in the list (only NAME)
+        String[] from = new String[] {GymnasioDBAdapter.KEY_RO_NAME};
+        // and an array of the fields we want to bind those fields to (in this case just text1)
+        int[] to = new int[] { R.id.ro_row };
+        // Now create an array adapter and set it to display using our row
+        SimpleCursorAdapter notes =
+                new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
+        l.setAdapter(notes);
+        registerForContextMenu(l);
+    }
+
+    private void fillDataByObj(String obj) {
+        Cursor routines = null ;
+        if (user_type.equals("free")) {
+            // Get all of the routines from the database and create the item list
+            routines = db.getRoutineByObj(obj);
+            startManagingCursor(routines);
+        } else if (user_type.equals("premium")) {
+            fab.hide();
+            getSupportActionBar().setTitle("Rutinas " + gym_name);
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        } else if (user_type.equals("trainer")) {
+            routines = db.fetchPremiumRoutines(gym_name);
+            startManagingCursor(routines);
+        }
         // Create an array to specify the fields we want to display in the list (only NAME)
         String[] from = new String[] {GymnasioDBAdapter.KEY_RO_NAME};
         // and an array of the fields we want to bind those fields to (in this case just text1)
@@ -89,8 +216,10 @@ public class RoutineListActivity extends AppCompatActivity {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu,v,menuInfo);
-        menu.add(Menu.NONE, DELETE_ID, Menu.NONE, R.string.menu_delete);
+        if (!user_type.equals("premium")) {
+            super.onCreateContextMenu(menu,v,menuInfo);
+            menu.add(Menu.NONE, DELETE_ID, Menu.NONE, R.string.menu_delete);
+        }
     }
 
     @Override
@@ -114,4 +243,19 @@ public class RoutineListActivity extends AppCompatActivity {
         super.onResume();
         fillData();
     }
+
+
+    public void Touch (View v){
+        String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
+        String search = busqueda.getText().toString(); //Para saber que se esta buscando
+        if (!search.isEmpty()){
+            if(text.equals("Objective")) fillDataByObj(search);
+            else if (text.equals("Name")) fillDataByName(search);
+        }
+    }
+
+    public void onReset (View v){
+        fillData();
+    }
+
 }

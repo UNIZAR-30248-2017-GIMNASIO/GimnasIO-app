@@ -82,6 +82,8 @@ public class RoutineEditActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mode_in = intent.getStringExtra("MODE");
 
+        // TODO: SI ENTRAMOS EN MODO FREE, EL CAMPO GYM NO SERA TOCABLE Y TENDRA VALOR RUTINA FREEMIUM
+        // TODO: SI ENTRAMOS EN MODO PREMIUM O TRAINER EL CAMPO GYM NO SERA TOCABLE Y TENDRA VALOR GYM
         if (mode_in.equals("new")) {
             ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
             Routine r = new Routine("","","");
