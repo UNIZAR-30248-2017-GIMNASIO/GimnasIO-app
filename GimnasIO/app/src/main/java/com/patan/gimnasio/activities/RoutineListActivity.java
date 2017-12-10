@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -66,6 +68,44 @@ public class RoutineListActivity extends AppCompatActivity {
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
         spinner.setAdapter(dataAdapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                busqueda.setText("");
+                fillData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
+        busqueda.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
+                if (s.length() == 0) {
+                    fillData();
+                } else if (text.equals("Nombre")) {
+                    fillDataByName(s.toString());
+                } else if (text.equals("Objetivo")) {
+                    fillDataByObj(s.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -158,15 +198,10 @@ public class RoutineListActivity extends AppCompatActivity {
         Cursor routines = null ;
         if (user_type.equals("free")) {
             // Get all of the routines from the database and create the item list
-            routines = db.getRoutineByName(name);
+            routines = db.getFreemiumRoutineByName(name);
             startManagingCursor(routines);
-        } else if (user_type.equals("premium")) {
-            fab.hide();
-            getSupportActionBar().setTitle("Rutinas " + gym_name);
-            routines = db.fetchPremiumRoutines(gym_name);
-            startManagingCursor(routines);
-        } else if (user_type.equals("trainer")) {
-            routines = db.fetchPremiumRoutines(gym_name);
+        } else if (user_type.equals("premium") || user_type.equals("trainer")) {
+            routines = db.getPremiumRoutineByName(name,gym_name);
             startManagingCursor(routines);
         }
         // Create an array to specify the fields we want to display in the list (only NAME)
@@ -184,16 +219,10 @@ public class RoutineListActivity extends AppCompatActivity {
         Cursor routines = null ;
         if (user_type.equals("free")) {
             // Get all of the routines from the database and create the item list
-            routines = db.getRoutineByObj(obj);
+            routines = db.getFreemiumRoutineByObj(obj);
             startManagingCursor(routines);
-        } else if (user_type.equals("premium")) {
-            fab.hide();
-            getSupportActionBar().setTitle("Rutinas " + gym_name);
-            routines = db.fetchPremiumRoutines(gym_name);
-            startManagingCursor(routines);
-        } else if (user_type.equals("trainer")) {
-            getSupportActionBar().setTitle("Rutinas " + gym_name);
-            routines = db.fetchPremiumRoutines(gym_name);
+        } else if (user_type.equals("premium") || user_type.equals("trainer")) {
+            routines = db.getPremiumRoutineByObj(obj,gym_name);
             startManagingCursor(routines);
         }
         // Create an array to specify the fields we want to display in the list (only NAME)
@@ -247,21 +276,6 @@ public class RoutineListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        fillData();
-    }
-
-
-    public void Touch (View v){
-        String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
-        String search = busqueda.getText().toString(); //Para saber que se esta buscando
-        if (!search.isEmpty()){
-            if(text.equals("Objetivo")) fillDataByObj(search);
-            else if (text.equals("Nombre")) fillDataByName(search);
-        }
-    }
-
-    public void onReset (View v){
-        busqueda.setText("");
         fillData();
     }
 

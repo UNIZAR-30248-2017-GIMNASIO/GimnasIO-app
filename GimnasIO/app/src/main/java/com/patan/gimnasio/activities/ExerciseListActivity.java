@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -50,16 +52,12 @@ public class ExerciseListActivity extends AppCompatActivity {
 
         //We declare the search options
         ArrayList<String> categories = new ArrayList<String>();
-        categories.add("Muscle");
+        categories.add("Nombre");
+        categories.add("Musculo");
         categories.add("Tag");
-        categories.add("Name");
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
         spinner.setAdapter(dataAdapter);
-
-
-
-
 
         l = (ListView)findViewById(R.id.dbExercisesList);
 
@@ -73,6 +71,46 @@ public class ExerciseListActivity extends AppCompatActivity {
                 Intent intent = new Intent(v.getContext(), ExerciseViewActivity.class);
                 intent.putExtra("ID",id_ex);
                 startActivity(intent);
+            }
+        });
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                busqueda.setText("");
+                fillData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
+        busqueda.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
+                if (s.length() == 0) {
+                    fillData();
+                } else if (text.equals("Musculo")) {
+                    fillDataByMuscle(s.toString());
+                } else if (text.equals("Tag")) {
+                    fillDataByTag(s.toString());
+                } else if (text.equals("Nombre")) {
+                    fillDataByName(s.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
 
@@ -192,21 +230,4 @@ public class ExerciseListActivity extends AppCompatActivity {
                 new SimpleCursorAdapter(this, R.layout.exercises_row, exercises, from, to,0);
         l.setAdapter(notes);
     }
-
-
-    public void Touch (View v){
-        String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
-        String search = busqueda.getText().toString(); //Para saber que se esta buscando
-        if (!search.isEmpty()){
-            if(text.equals("Muscle")) fillDataByMuscle(search);
-            else if (text.equals("Tag")) fillDataByTag(search);
-            else if (text.equals("Name")) fillDataByName(search);
-        }
-    }
-
-    public void onReset (View v){
-        busqueda.setText("");
-        fillData();
-    }
-
 }
