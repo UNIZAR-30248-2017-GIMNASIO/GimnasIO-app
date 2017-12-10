@@ -257,7 +257,7 @@ public class GymnasioDBAdapter {
     public Cursor getExerciseByName(String name) throws SQLException {
         String[] consulta = {name};
         Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_NAME
-                + " LIKE '" + name + "%';", null);
+                + " LIKE '%" + name + "%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -273,7 +273,7 @@ public class GymnasioDBAdapter {
      */
     public Cursor getExercisesByMuscle(String muscle) throws SQLException {
         Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_MUSCLE
-                + " LIKE '" + muscle + "%';", null);
+                + " LIKE '%" + muscle + "%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -482,16 +482,23 @@ public class GymnasioDBAdapter {
      * @return Cursor positioned to matching routine, if found
      * @throws SQLException if exercise could not be found/retrieved
      */
-    public Cursor getRoutineByName(String name) throws SQLException {
+    public Cursor getFreemiumRoutineByName(String name) throws SQLException {
         Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_NAME
-                + " LIKE '" + name + "%';", null);
+                + " LIKE '%" + name + "%' AND " + KEY_RO_PREMIUM + " = " + 0 + ";", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
         return mCursor;
-
     }
 
+    public Cursor getPremiumRoutineByName(String name, String gymName) throws SQLException {
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_NAME
+                + " LIKE '%" + name + "%' AND " + KEY_RO_PREMIUM + " = " + 1 + " AND " + KEY_RO_GYM + " = " + "'"+ gymName +"';", null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
 
 
     /**
@@ -501,14 +508,22 @@ public class GymnasioDBAdapter {
      * @return Cursor positioned to matching routine, if found
      * @throws SQLException if exercise could not be found/retrieved
      */
-    public Cursor getRoutineByObj(String obj) throws SQLException {
+    public Cursor getFreemiumRoutineByObj(String obj) throws SQLException {
         Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_OBJ
-                + " LIKE '" + obj + "%';", null);
+                + " LIKE '%" + obj + "%' AND " + KEY_RO_PREMIUM + " = " + 0 +";", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
         return mCursor;
+    }
 
+    public Cursor getPremiumRoutineByObj(String obj, String gymName) throws SQLException {
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_OBJ
+                + " LIKE '%" + obj + "%' AND " + KEY_RO_PREMIUM + " = " + 1 + " AND " + KEY_RO_GYM + " = " + "'"+ gymName +"';", null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
     }
 
 
