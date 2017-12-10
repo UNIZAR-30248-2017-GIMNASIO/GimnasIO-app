@@ -23,7 +23,7 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 30;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
@@ -256,10 +256,8 @@ public class GymnasioDBAdapter {
      */
     public Cursor getExerciseByName(String name) throws SQLException {
         String[] consulta = {name};
-        Cursor mCursor;
-        mCursor = Db.query( Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
-                        KEY_EX_IMG, KEY_EX_TAG}, KEY_EX_NAME+"='"+name+"'", null,
-                null, null, null, null);
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_NAME
+                + " LIKE '%" + name + "%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -274,12 +272,8 @@ public class GymnasioDBAdapter {
      * @throws SQLException if exercise could not be found/retrieved
      */
     public Cursor getExercisesByMuscle(String muscle) throws SQLException {
-
-        Cursor mCursor =
-
-                Db.query(true, Table_Exercise, new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,KEY_EX_MUSCLE,
-                                KEY_EX_IMG,  KEY_EX_TAG}, KEY_EX_MUSCLE + "='" + muscle+"'", null,
-                        null, null, null, null);
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_MUSCLE
+                + " LIKE '%" + muscle + "%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -312,7 +306,7 @@ public class GymnasioDBAdapter {
     public long createFreemiumRoutine(Routine r, ArrayList<ExFromRoutine> ex) {
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
-        v.put(KEY_RO_GYM, "null");
+        v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
         //Introducimos la rutina
@@ -370,10 +364,9 @@ public class GymnasioDBAdapter {
      * @return true if success or false if failure
      */
     public boolean updateFreemiumRoutine(long id, Routine r, ArrayList<ExFromRoutine> ex) {
-        Log.d("UPDT: ", "Entro al updato");
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
-        v.put(KEY_RO_GYM, "null");
+        v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
         boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
@@ -422,17 +415,26 @@ public class GymnasioDBAdapter {
         return updateRo;
     }
 
-
+    /**
+     * Return a Cursor over the list of all freemium routines in the database
+     *
+     * @return Cursor over all freemium routines.
+     */
+    public Cursor fetchFreemiumRoutines() {
+        return Db.query(Table_Routine, RO_ROWS, KEY_RO_PREMIUM + "=" + 0, null,
+                null, null, null, null);
+    }
 
     /**
-     * Return a Cursor over the list of all routines in the database
+     * Return a Cursor over the list of all premium routines in the database of the concrete Gym
      *
-     * @return Cursor over all routines.
+     * @return Cursor over all premium routines concrete Gym
      */
-    public Cursor fetchRoutines() {
-        return Db.query(Table_Routine, RO_ROWS, null,
-                        null, null, null, null);
+    public Cursor fetchPremiumRoutines(String gym_name) {
+        return Db.query(Table_Routine, RO_ROWS, KEY_RO_PREMIUM + "=" + 1 + " AND " + KEY_RO_GYM + "=" + "'"+ gym_name +"'", null,
+                null, null, null, null);
     }
+
 
     /**
      * Returns the number of routines that exist in the database
@@ -480,21 +482,68 @@ public class GymnasioDBAdapter {
      * @return Cursor positioned to matching routine, if found
      * @throws SQLException if exercise could not be found/retrieved
      */
-    public Cursor getRoutineByName(String name) throws SQLException {
-
-        Cursor mCursor =
-
-                Db.query(Table_Routine, RO_ROWS, KEY_RO_NAME + "='" + name+"'", null,
-                        null, null, null, null);
+    public Cursor getFreemiumRoutineByName(String name) throws SQLException {
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_NAME
+                + " LIKE '%" + name + "%' AND " + KEY_RO_PREMIUM + " = " + 0 + ";", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
         return mCursor;
-
     }
+
+    public Cursor getPremiumRoutineByName(String name, String gymName) throws SQLException {
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_NAME
+                + " LIKE '%" + name + "%' AND " + KEY_RO_PREMIUM + " = " + 1 + " AND " + KEY_RO_GYM + " = " + "'"+ gymName +"';", null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+
+    /**
+     * Return a Cursor positioned at the routines which match the given objetive
+     *
+     * @param obj objective of exercises to retrieve
+     * @return Cursor positioned to matching routine, if found
+     * @throws SQLException if exercise could not be found/retrieved
+     */
+    public Cursor getFreemiumRoutineByObj(String obj) throws SQLException {
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_OBJ
+                + " LIKE '%" + obj + "%' AND " + KEY_RO_PREMIUM + " = " + 0 +";", null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    public Cursor getPremiumRoutineByObj(String obj, String gymName) throws SQLException {
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_OBJ
+                + " LIKE '%" + obj + "%' AND " + KEY_RO_PREMIUM + " = " + 1 + " AND " + KEY_RO_GYM + " = " + "'"+ gymName +"';", null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+
+    public Cursor getExercisesFromRoutine(long id) {
+        String selectQuery = "SELECT * FROM "+ Table_Exercise+" AS ex, "+
+                Table_ExOfRoutine+" AS exro WHERE exro."+KEY_EXRO_IDR+"="+id+" AND exro."
+                + KEY_EXRO_IDE + "= ex."+KEY_EX_ID;
+        Log.w("TAG",selectQuery);
+        Cursor c = Db.rawQuery(selectQuery,null);
+        if (c.moveToFirst()) {
+            return c;
+        } else {
+            return null;
+        }
+    }
+
     public boolean deleteExercise (long id) {
         return Db.delete(Table_Exercise,KEY_EX_ID+"="+id,null)>0;
     }
+
     public boolean logged () {
         boolean logged = false;
         Cursor mCursor  = Db.query(Table_Gyms, GY_ROWS, null,null,
@@ -506,7 +555,7 @@ public class GymnasioDBAdapter {
         return logged;
     }
     public long loginAsUser(String nameGym) {
-        if (this.logged()) {
+        if (!this.logged()) {
             Log.d("TAG", "Insertando " + nameGym);
             ContentValues v = new ContentValues();
             v.put(KEY_GYM_NAME, nameGym);
@@ -516,7 +565,7 @@ public class GymnasioDBAdapter {
         } else return -1;
     }
     public long loginAsAdmin(String nameGym){
-        if (this.logged()) {
+        if (!this.logged()) {
             Log.d("TAG", "Insertando " + nameGym);
             ContentValues v = new ContentValues();
             v.put(KEY_GYM_NAME, nameGym);
@@ -525,25 +574,18 @@ public class GymnasioDBAdapter {
             return Db.insert(Table_Gyms, null, v);
         } else return -1;
     }
-    public Cursor getRoutinesByGym(String nameGym) {
-        Cursor mCursor =
-                Db.query(Table_Routine, RO_ROWS, KEY_RO_GYM + "='" + nameGym+"'", null,
-                null, null, null, null);
-        if (mCursor != null) {
-            mCursor.moveToFirst();
-        }
-        return mCursor;
-    }
 
     public boolean logout() {
         return Db.delete(Table_Gyms,null,null)>0;
     }
-    public Cursor getExercisesFromRoutine(long id) {
-        String selectQuery = "SELECT * FROM "+ Table_Exercise+" AS ex, "+
-                Table_ExOfRoutine+" AS exro WHERE exro."+KEY_EXRO_IDR+"="+id+" AND exro."
-                + KEY_EXRO_IDE + "= ex."+KEY_EX_ID;
-        Log.w("TAG",selectQuery);
-        Cursor c = Db.rawQuery(selectQuery,null);
+
+
+    public Cursor getLoginData() {
+        Cursor c =  Db.query(Table_Gyms, GY_ROWS, null,null,
+                null,null,null);
+        if (c.getCount() != 0 ) {
+            Log.d("INSIDE", "");
+        }
         if (c.moveToFirst()) {
             return c;
         } else {

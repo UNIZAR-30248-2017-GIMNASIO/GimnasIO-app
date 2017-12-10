@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
     private void goToLoadingActivity() {
         Intent intent = new Intent(this, LoadingActivity.class);
         startActivity(intent);
@@ -145,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void goToRoutine(View v) {
         Intent intent = new Intent(this, RoutineListActivity.class);
+        intent.putExtra("USERTYPE","free");
         startActivity(intent);
     }
 

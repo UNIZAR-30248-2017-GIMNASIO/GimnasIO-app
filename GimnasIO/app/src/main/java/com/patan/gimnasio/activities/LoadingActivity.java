@@ -115,29 +115,30 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
         //this.finish();
     }
     private void SaveImage(Bitmap finalBitmap, String s) {
-            File myDir = new File(ruta);
-            Log.w("ImgSave",ruta);
-            myDir.mkdirs();
-            String fname = s+".jpg";
-            File file = new File (myDir, fname);
-            if (file.exists ()) file.delete ();
-            try {
-                FileOutputStream out = new FileOutputStream(file);
-                finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-                out.flush();
-                out.close();
-                Log.d("SAVED","Image with name "+s+" saved on filesystem");
-                status++;
-                texto.setText("Descargando ejercicio "+status+"...");
-                barra.setProgress(status);
-                if (status == total) {
-                    state.setText("Descarga finalizada");
-                    Log.d("DWL", "DOWNLOAD AND STORAGE FINISHED");
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
+        File myDir = new File(ruta);
+        Log.w("ImgSave",ruta);
+        myDir.mkdirs();
+        String fname = s+".jpg";
+        File file = new File (myDir, fname);
+        if (file.exists ()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+            Log.d("SAVED","Image with name "+s+" saved on filesystem");
+            status++;
+            texto.setText("Descargando ejercicio "+status+"...");
+            barra.setProgress(status);
+            if (status == total) {
+                state.setText("Descarga finalizada");
+                Log.d("DWL", "DOWNLOAD AND STORAGE FINISHED");
+                finish();
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
     /**

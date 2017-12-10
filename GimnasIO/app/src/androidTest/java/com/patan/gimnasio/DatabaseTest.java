@@ -11,6 +11,7 @@ import java.util.Date;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 
 import com.patan.gimnasio.activities.ExerciseListActivity;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
@@ -231,14 +232,14 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         Routine r2 = new Routine("Gym2","Rutina2","Objetivo2");
         Routine r3 = new Routine("Gym3","Rutina3","Objetivo3");
 
-        int nRoutinesPre = db.fetchRoutines().getCount();
+        int nRoutinesPre = db.getNumberOfRoutines();
         ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
         idr1 = db.createFreemiumRoutine(r1,efrArray);
         idr2 = db.createFreemiumRoutine(r2,efrArray);
         idr3 = db.createFreemiumRoutine(r3,efrArray);
 
-        int nRoutinesPost = db.fetchRoutines().getCount();
+        int nRoutinesPost = db.getNumberOfRoutines();
 
         db.deleteRoutine(idr1);
         db.deleteRoutine(idr2);
@@ -255,14 +256,14 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         Routine r2 = new Routine("Gym2","Rutina2","Objetivo2");
         Routine r3 = new Routine("Gym3","Rutina3","Objetivo3");
 
-        int nRoutinesPre = db.fetchRoutines().getCount();
+        int nRoutinesPre = db.getNumberOfRoutines();
         ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
         idr1 = db.createPremiumRoutine(r1,efrArray);
         idr2 = db.createPremiumRoutine(r2,efrArray);
         idr3 = db.createPremiumRoutine(r3,efrArray);
 
-        int nRoutinesPost = db.fetchRoutines().getCount();
+        int nRoutinesPost = db.getNumberOfRoutines();
 
        db.deleteRoutine(idr1);
        db.deleteRoutine(idr2);
@@ -274,7 +275,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     /*Test que comprueba que la bd saca rutinas correctamente*/
 
     @Test
-    public void getRoutineTest() throws Exception{
+    public void getFreemiumRoutineTest() throws Exception{
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
         ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
@@ -293,7 +294,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     @Test
     public void deleteRoutineTest_existe() throws Exception {
 
-        int nRoutinesPre = db.fetchRoutines().getCount();
+        int nRoutinesPre = db.getNumberOfRoutines();
 
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
 
@@ -302,7 +303,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         idr1 = db.createFreemiumRoutine(r1,efrArray);
         db.deleteRoutine(idr1);
 
-        int nRoutinesPost = db.fetchRoutines().getCount();
+        int nRoutinesPost = db.getNumberOfRoutines();
 
         assertEquals( nRoutinesPre, nRoutinesPost);
     }
@@ -321,7 +322,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd modifica el campo gimnasio de una rutina freemium*/
     @Test
-    public void updateNameGymRuotineFreemium() throws Exception{
+    public void updateNameGymRoutineFreemium() throws Exception{
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
         ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 
@@ -331,6 +332,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         db.updateFreemiumRoutine(idr1,r1,efrArray);
 
         Cursor c = db.fetchRoutine(idr1);
+        c.moveToFirst();
         int gym_row = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_GYM);
         String gym_name = c.getString(gym_row);
 
@@ -398,11 +400,33 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         assertTrue(n2 == 1);
     }
 
+    /*Test que comprueba que la bd devuelve todas las rutinas premium correctamente*/
+    @Test
+    public void fetchAllPremiumRoutinesTest() throws Exception {
+        Routine r1 = new Routine("GymTest","Rutina1","Objetivo1");
+        Routine r2 = new Routine("GymTest","Rutina2","Objetivo2");
+        Routine r3 = new Routine("GymTest","Rutina3","Objetivo3");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
+
+        idr1 = db.createPremiumRoutine(r1,efrArray);
+        idr2 = db.createPremiumRoutine(r2,efrArray);
+        idr3 = db.createPremiumRoutine(r3,efrArray);
+
+        Cursor c = db.fetchPremiumRoutines("GymTest");
+        int size = c.getCount();
+
+        db.deleteRoutine(idr1);
+        db.deleteRoutine(idr2);
+        db.deleteRoutine(idr3);
+
+        assertEquals( size,3);
+    }
+
     /*Test que comprueba que el método getNumberOfRoutines devuelve el numero correcto*/
     @Test
     public void getNumberOfRoutinesTest() throws Exception{
 
-        Cursor c1 = db.fetchRoutines();
+        Cursor c1 = db.fetchFreemiumRoutines();
         int n1 = c1.getCount();
 
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
@@ -410,7 +434,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
         idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        Cursor c2 = db.fetchRoutines();
+        Cursor c2 = db.fetchFreemiumRoutines();
         int n2 = c2.getCount();
 
         assertTrue(n1 +1 == n2);
@@ -441,6 +465,29 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
         assertTrue(c.getCount() == 0);
     }
 
+
+    /*Test que comprueba que la bd devuelve la rutina bien según su objetivo*/
+    @Test
+    public void getRoutineByObjectiveTest() throws Exception{
+
+        Routine r1 = new Routine("Gym1","Rutina1","Buscame!");
+        ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
+
+        idr1 = db.createFreemiumRoutine(r1,efrArray);
+
+        Cursor c = db.getRoutineByObj(r1.getObjective());
+
+        assertTrue(c.getCount() == 1);
+    }
+
+    /*Test que comprueba que la bd devuelve la rutina bien según su objetivo*/
+    @Test
+    public void dontGetRoutineByObjectiveTest() throws Exception{
+
+        Cursor c = db.getRoutineByObj("No existe");
+
+        assertTrue(c.getCount() == 0);
+    }
      /*End tests of routines*/
 
     @After

@@ -31,6 +31,9 @@ public class RoutineEditActivity extends AppCompatActivity {
 
     private String mode_in;
     private long id_in;
+    private String user_type;
+    private String gym_name;
+
     private EditText textName;
     private EditText textGym;
     private EditText textObjetivo;
@@ -81,11 +84,25 @@ public class RoutineEditActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         mode_in = intent.getStringExtra("MODE");
+        gym_name = intent.getStringExtra("GYMNAME");
+        user_type = intent.getStringExtra("USERTYPE");
+
+        // Descativamos el campo Gym para que nunca sea editable
+
+        textGym.setKeyListener(null);
+        textGym.setText(gym_name);
+        textGym.setTextColor(getResources().getColor(R.color.labelColor));
+        textGym.setEnabled(false);
 
         if (mode_in.equals("new")) {
             ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
-            Routine r = new Routine("","","");
-            id_in = db.createFreemiumRoutine(r,efrArray);
+            Routine r = new Routine(gym_name,"","");
+            if (user_type.equals("free")) {
+                id_in = db.createFreemiumRoutine(r,efrArray);
+            } else {
+                id_in = db.createPremiumRoutine(r,efrArray);
+            }
+
             populateFields();
             goToEditMode();
         } else if (mode_in.equals("view")) {
@@ -154,7 +171,12 @@ public class RoutineEditActivity extends AppCompatActivity {
                 }
                 // Update de la rutina
                 Routine r = getRoutineFields();
-                db.updateFreemiumRoutine(id_in,r,efrArray);
+                // Actualizamos la rutina
+                if (user_type.equals("free")) {
+                    db.updateFreemiumRoutine(id_in,r,efrArray);
+                } else if (user_type.equals("trainer")) {
+                    db.updatePremiumRoutine(id_in,r,efrArray);
+                }
                 populateFields();
                 return true;
             case MOVE_EX_UP :
@@ -181,7 +203,13 @@ public class RoutineEditActivity extends AppCompatActivity {
                     ExFromRoutine exercise2_up = ex_up.get(index_up -1);
                     ex_up.set(index_up, exercise2_up);
                     ex_up.set(index_up -1, exercise1_up);
-                    db.updateFreemiumRoutine(id_in,r_up,ex_up);
+
+                    // Actualizamos la rutina
+                    if (user_type.equals("free")) {
+                        db.updateFreemiumRoutine(id_in,r_up,ex_up);
+                    } else if (user_type.equals("trainer")) {
+                        db.updatePremiumRoutine(id_in,r_up,ex_up);
+                    }
                     populateFields();
                 }
                 return true;
@@ -208,8 +236,14 @@ public class RoutineEditActivity extends AppCompatActivity {
                     ExFromRoutine exercise1_down = ex_down.get(index_down);
                     ExFromRoutine exercise2_down = ex_down.get(index_down + 1);
                     ex_down.set(index_down, exercise2_down);
-                    ex_down.set(index_down + 1, exercise1_down);;
-                    db.updateFreemiumRoutine(id_in, r_down,ex_down);
+                    ex_down.set(index_down + 1, exercise1_down);
+
+                    // Actualizamos la rutina
+                    if (user_type.equals("free")) {
+                        db.updateFreemiumRoutine(id_in,r_down,ex_down);
+                    } else if (user_type.equals("trainer")) {
+                        db.updatePremiumRoutine(id_in,r_down,ex_down);
+                    }
                     populateFields();
                 }
                 return true;
@@ -221,7 +255,9 @@ public class RoutineEditActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        if (mode_in.equals("new")) {
+        if (user_type.equals("premium")) {
+            inflater.inflate(R.menu.routine_edit_menu_viewonly, menu);
+        } else if (mode_in.equals("new")) {
             inflater.inflate(R.menu.routine_edit_menu_2, menu);
         } else inflater.inflate(R.menu.routine_edit_menu_1, menu);
         optionsMenu = menu;
@@ -269,12 +305,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         textName.setFocusableInTouchMode(true);
         textName.setClickable(true);
 
-        // ESTO NUNCA SERA EDITABLE
-        textGym.setFocusable(true);
-        textGym.setEnabled(true);
-        textGym.setFocusableInTouchMode(true);
-        textGym.setClickable(true);
-
         textObjetivo.setFocusable(true);
         textObjetivo.setEnabled(true);
         textObjetivo.setFocusableInTouchMode(true);
@@ -289,10 +319,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         textName.setFocusable(false);
         textName.setEnabled(false);
         textName.setTextColor(getResources().getColor(R.color.labelColor));
-
-        textGym.setFocusable(false);
-        textGym.setEnabled(false);
-        textGym.setTextColor(getResources().getColor(R.color.labelColor));
 
         textObjetivo.setFocusable(false);
         textObjetivo.setEnabled(false);
@@ -375,7 +401,12 @@ public class RoutineEditActivity extends AppCompatActivity {
                 Routine r = getRoutineFields();
 
                 // Actualizamos la rutina
-                db.updateFreemiumRoutine(id_in,r,efrArray);
+                if (user_type.equals("free")) {
+                    db.updateFreemiumRoutine(id_in,r,efrArray);
+                } else if (user_type.equals("trainer")) {
+                    db.updatePremiumRoutine(id_in,r,efrArray);
+                }
+
                 populateFields();
 
             }
@@ -455,7 +486,11 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (mode_in.equals("new")) {
             mode_in = "view";   // Cambiamos a modo view para que no se cree la rutina multiples veces
         }
-        db.updateFreemiumRoutine(id_in,r,efrArray);
+        if (user_type.equals("free")) {
+            db.updateFreemiumRoutine(id_in,r,efrArray);
+        } else if (user_type.equals("trainer")) {
+            db.updatePremiumRoutine(id_in,r,efrArray);
+        }
     }
 
     @Override
@@ -469,10 +504,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)) != null) {
             textName.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_NAME)));
         } else textName.setText("");
-
-        if (routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)) != null) {
-            textGym.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_GYM)));
-        } else textGym.setText("");
 
         if (routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)) != null) {
             textObjetivo.setText(routine.getString(routine.getColumnIndex(db.KEY_RO_OBJ)));
