@@ -220,7 +220,7 @@ public class ApiHandler {
     }
 
     public boolean updatePremiumRoutine(Routine r, ArrayList<ExFromRoutine> exercises) {
-        String urlNewRoutine = urlRoutine + "newRoutine";
+        String urlNewRoutine = urlRoutine + "update";
         String[] names = new String[exercises.size()];
         int[] repetitions = new int[exercises.size()];
         int[] series = new int[exercises.size()];
