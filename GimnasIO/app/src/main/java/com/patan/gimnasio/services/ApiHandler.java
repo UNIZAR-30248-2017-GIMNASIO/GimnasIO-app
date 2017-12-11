@@ -189,19 +189,24 @@ public class ApiHandler {
             rT[i] = exercise.getRelxTime();
             i++;
         }
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name",r.getName());
+            json.put("nameGym", r.getNameGym());
+            json.put("objective",r.getObjective());
+            json.put("exercises", names);
+            json.put("repetitions",repetitions);
+            json.put("series",series);
+            json.put("relaxTime",rT);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         ANRequest request = AndroidNetworking.post(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
-                .addBodyParameter("name",r.getName())
-                .addBodyParameter("nameGym", r.getNameGym())
-                .addBodyParameter("objective",r.getObjective())
-                .addBodyParameter("exercises", names.toString())
-                .addBodyParameter("repetitions",repetitions.toString())
-                .addBodyParameter("series",series.toString())
-                .addBodyParameter("relaxTime",rT.toString())
+                .addJSONObjectBody(json)
                 .build();
-
-        ANResponse<JSONObject> response = request.executeForJSONObject();
 
         if (response.isSuccess()) {
             JSONObject jsonObject = response.getResult();
@@ -233,16 +238,23 @@ public class ApiHandler {
             rT[i] = exercise.getRelxTime();
             i++;
         }
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name",r.getName());
+            json.put("nameGym", r.getNameGym());
+            json.put("objective",r.getObjective());
+            json.put("exercises", names);
+            json.put("repetitions",repetitions);
+            json.put("series",series);
+            json.put("relaxTime",rT);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         ANRequest request = AndroidNetworking.post(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
-                .addBodyParameter("name",r.getName())
-                .addBodyParameter("nameGym", r.getNameGym())
-                .addBodyParameter("objective",r.getObjective())
-                .addBodyParameter("exercises", names.toString())
-                .addBodyParameter("repetitions",repetitions.toString())
-                .addBodyParameter("series",series.toString())
-                .addBodyParameter("relaxTime",rT.toString())
+                .addJSONObjectBody(json)
                 .build();
 
         ANResponse<JSONObject> response = request.executeForJSONObject();
