@@ -208,6 +208,8 @@ public class ApiHandler {
                 .addJSONObjectBody(json)
                 .build();
 
+        ANResponse<JSONObject> response = request.executeForJSONObject();
+
         if (response.isSuccess()) {
             JSONObject jsonObject = response.getResult();
             boolean res = false;
