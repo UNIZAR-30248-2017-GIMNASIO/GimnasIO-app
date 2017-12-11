@@ -11,6 +11,7 @@ import android.util.Log;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Exercise;
 import com.patan.gimnasio.domain.Routine;
+import com.patan.gimnasio.services.ApiHandler;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -265,6 +266,22 @@ public class GymnasioDBAdapter {
 
     }
     /**
+     * Return a Cursor positioned at the exercise that matches the given id
+     *
+     *
+     * @param id name of exercise to retrieve
+     * @return Cursor positioned to matching exercise, if found
+     * @throws SQLException if exercise could not be found/retrieved
+     */
+    public String getExerciseNameById(long id) throws SQLException {
+        //String[] consulta = {id};
+        Cursor mCursor =  Db.query(Table_Exercise,EX_ROWS,KEY_EX_ID +"="+id,null,null,null,null,null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+            return mCursor.getString(mCursor.getColumnIndex(KEY_EX_NAME));
+        } else return null;
+    }
+    /**
      * Return a Cursor positioned at the exercise that matches the given muscle
      *
      * @param muscle id of exercise to retrieve
@@ -350,6 +367,7 @@ public class GymnasioDBAdapter {
             v2.put(KEY_EXRO_EXREP, e.getRep());
             Db.insert(Table_ExOfRoutine,null,v2);
         }
+
         Log.d("DBInsertion", "Inserting Premium routine to database");
         return id;
     }
@@ -500,7 +518,14 @@ public class GymnasioDBAdapter {
         return mCursor;
     }
 
+    public String getRoutineNameById(long id){
+        Cursor mCursor =  Db.query(Table_Routine,RO_ROWS,KEY_RO_ID +"="+id,null,null,null,null,null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+            return mCursor.getString(mCursor.getColumnIndex(KEY_RO_NAME));
+        } else return null;
 
+    }
     /**
      * Return a Cursor positioned at the routines which match the given objetive
      *

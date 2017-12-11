@@ -1,7 +1,9 @@
 package com.patan.gimnasio.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -10,6 +12,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,9 +24,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.ExFromRoutine;
+import com.patan.gimnasio.domain.Routine;
+import com.patan.gimnasio.services.ApiHandler;
 
 import java.util.ArrayList;
 
@@ -44,6 +51,7 @@ public class RoutineListActivity extends AppCompatActivity {
     private Spinner spinner;
     private Button boton;
     private EditText busqueda;
+    private DeleteRoutineTask task;
 
 
     public GymnasioDBAdapter getGymnasioDBAdapter(){
@@ -266,6 +274,7 @@ public class RoutineListActivity extends AppCompatActivity {
             int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
             long id = c.getLong(pos);
             db.deleteRoutine(id);
+            //task=new DeleteRoutineTask(id, this);
             fillData();
             return true;
         } else {
@@ -277,6 +286,46 @@ public class RoutineListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         fillData();
+    }
+
+    public class DeleteRoutineTask extends AsyncTask<Void, Void, Boolean> {
+
+        private Context mCtx;
+        private long id;
+        private ApiHandler api;
+
+        DeleteRoutineTask(long id,Context ctx) {
+            this.mCtx = ctx;
+            this.id = id;
+            api = new ApiHandler(mCtx);
+        }
+
+        @Override
+        protected Boolean doInBackground (Void... params) {
+
+            boolean ok = api.deletePremiumRoutine(id);
+            Log.d("Premium", "Deleting premium routine on remote server with id " + id);
+            if (ok) {
+                return true;
+            } return false;
+        }
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            CharSequence text;
+            if (success) {
+                text = "Rutina eliminada en el servidor correctamente";
+            } else {
+                text = "Algo ha ido mal, comprueba tu conexión a internet";
+            }
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(mCtx, text, duration);
+            toast.setGravity(Gravity.TOP, 0, 100);
+            toast.show();
+        }
+        @Override
+        protected void onCancelled() {
+            task = null;
+        }
     }
 
 }
