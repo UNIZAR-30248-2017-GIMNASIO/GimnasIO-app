@@ -2,6 +2,7 @@ package com.patan.gimnasio.services;
 
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -60,11 +61,11 @@ public class ApiHandler {
                     String type = respuesta.getString("type");
                     if (type.equals("user")) {
                         login = true;
-                        db.loginAsUser(nameGym);
+                        db.loginAsUser(nameGym,key);
                         Log.d("Premium", "Logged as normal user of gym: " + nameGym);
                     } else if (type.equals("admin")) {
                         login = true;
-                        db.loginAsAdmin(nameGym);
+                        db.loginAsAdmin(nameGym,key);
                         Log.d("Premium", "Logged as admin of gym: " + nameGym);
                     } else {
                         login = false;
@@ -176,6 +177,11 @@ public class ApiHandler {
      * @param exercises
      */
     public boolean createPremiumRoutine(Routine r, ArrayList<ExFromRoutine> exercises) {
+        Cursor c = db.getLoginData();
+        String key ="";
+        if (c!=null){
+            key = c.getString(c.getColumnIndex("key"));
+        }
         String urlNewRoutine = urlRoutine + "newRoutine";
         String[] names = new String[exercises.size()];
         int[] repetitions = new int[exercises.size()];
@@ -192,7 +198,6 @@ public class ApiHandler {
         JSONObject json = new JSONObject();
         try {
             json.put("name",r.getName());
-            json.put("nameGym", r.getNameGym());
             json.put("objective",r.getObjective());
             json.put("exercises", names);
             json.put("repetitions",repetitions);
@@ -205,6 +210,8 @@ public class ApiHandler {
         ANRequest request = AndroidNetworking.post(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
+                .addHeaders("nameGym",r.getNameGym())
+                .addHeaders("key",key)
                 .addJSONObjectBody(json)
                 .build();
 
@@ -227,7 +234,12 @@ public class ApiHandler {
     }
 
     public boolean updatePremiumRoutine(Routine r, ArrayList<ExFromRoutine> exercises) {
-        String urlNewRoutine = urlRoutine + "update";
+        Cursor c = db.getLoginData();
+        String key ="";
+        if (c!=null){
+            key = c.getString(c.getColumnIndex("key"));
+        }
+        String urlNewRoutine = urlRoutine + "newRoutine";
         String[] names = new String[exercises.size()];
         int[] repetitions = new int[exercises.size()];
         int[] series = new int[exercises.size()];
@@ -243,7 +255,6 @@ public class ApiHandler {
         JSONObject json = new JSONObject();
         try {
             json.put("name",r.getName());
-            json.put("nameGym", r.getNameGym());
             json.put("objective",r.getObjective());
             json.put("exercises", names);
             json.put("repetitions",repetitions);
@@ -256,8 +267,11 @@ public class ApiHandler {
         ANRequest request = AndroidNetworking.post(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
+                .addHeaders("nameGym",r.getNameGym())
+                .addHeaders("key",key)
                 .addJSONObjectBody(json)
                 .build();
+
 
         ANResponse<JSONObject> response = request.executeForJSONObject();
 
@@ -279,11 +293,19 @@ public class ApiHandler {
 
     public boolean deletePremiumRoutine(long id) {
         String name = db.getRoutineNameById(id);
+        Cursor c = db.getLoginData();
+        String key ="";
+        String gymName ="";
+        if (c!=null){
+            key = c.getString(c.getColumnIndex(GymnasioDBAdapter.KEY_GYM_KEY));
+            gymName = c.getString(c.getColumnIndex( GymnasioDBAdapter.KEY_GYM_NAME));
+        }
         String urlNewRoutine = urlRoutine + "deleteRoutine";
         ANRequest request = AndroidNetworking.post(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
-                .addBodyParameter("name", name)
+                .addHeaders("nameGym", gymName)
+                .addHeaders("key",key)
                 .build();
 
         ANResponse<JSONObject> response = request.executeForJSONObject();
