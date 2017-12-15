@@ -304,6 +304,8 @@ public class RoutineEditActivity extends AppCompatActivity {
         textName.setEnabled(true);
         textName.setFocusableInTouchMode(true);
         textName.setClickable(true);
+        FloatingActionButton executeButton = (FloatingActionButton) findViewById(R.id.executeButton) ;
+        executeButton.setVisibility(View.INVISIBLE);
 
         textObjetivo.setFocusable(true);
         textObjetivo.setEnabled(true);
@@ -319,6 +321,8 @@ public class RoutineEditActivity extends AppCompatActivity {
         textName.setFocusable(false);
         textName.setEnabled(false);
         textName.setTextColor(getResources().getColor(R.color.labelColor));
+        FloatingActionButton executeButton = (FloatingActionButton) findViewById(R.id.executeButton) ;
+        executeButton.setVisibility(View.VISIBLE);
 
         textObjetivo.setFocusable(false);
         textObjetivo.setEnabled(false);
@@ -359,6 +363,12 @@ public class RoutineEditActivity extends AppCompatActivity {
         Intent intent = new Intent(v.getContext(), ExerciseListActivity.class);
         intent.putExtra("MODE","routine");
         startActivityForResult(intent,1);
+    }
+
+    public void goToExecuteRoutine(View v) {
+        Intent intent = new Intent(this, ExecuteRoutineActivity.class);
+        intent.putExtra("Routine", id_in);
+        startActivity(intent);
     }
 
     protected void onActivityResult(int requestCode, int resultCode,
@@ -541,4 +551,5 @@ public class RoutineEditActivity extends AppCompatActivity {
             registerForContextMenu(l);
         }
     }
+
 }

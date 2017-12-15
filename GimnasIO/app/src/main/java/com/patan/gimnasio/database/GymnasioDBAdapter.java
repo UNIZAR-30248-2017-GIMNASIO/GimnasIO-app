@@ -265,6 +265,22 @@ public class GymnasioDBAdapter {
 
     }
     /**
+     * Return a Cursor positioned at the exercise that matches the given id
+     *
+     * @param id of exercise to retrieve
+     * @return Cursor positioned to matching exercise, if found
+     * @throws SQLException if exercise could not be found/retrieved
+     */
+    public Cursor getExerciseByID(long id) throws SQLException {
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_ID
+                + " LIKE '%" + id + "%';", null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+
+    }
+    /**
      * Return a Cursor positioned at the exercise that matches the given muscle
      *
      * @param muscle id of exercise to retrieve
