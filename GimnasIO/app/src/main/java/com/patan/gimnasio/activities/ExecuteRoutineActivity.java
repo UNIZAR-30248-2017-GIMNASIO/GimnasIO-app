@@ -56,6 +56,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
     private ViewPager mViewPager;
 
     private Chronometer mChronometer;
+    private boolean mChronoStarted;
 
     private GymnasioDBAdapter db;
 
@@ -106,6 +107,22 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onPause() {
+
+        super.onPause();
+        mChronometer.stop();
+    }
+
+    @Override
+    public void onResume() {
+
+        super.onResume();
+        if(mChronoStarted){
+            mChronometer.start();
+        }
+    }
+
     public ArrayList<ExerciseFull> getRoutineExercisesDB(Long id_in) {
         ArrayList<ExerciseFull> efrArray = new ArrayList<>();
         // Cogemos los ejercicios de la rutina
@@ -143,6 +160,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
 
     public void startChrono(View v) {
         mChronometer.start();
+        mChronoStarted = true;
         startButton.setVisibility(View.INVISIBLE);
         stopButton.setVisibility(View.VISIBLE);
     }
@@ -355,24 +373,25 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
 
             mCountdownTv = (TextView) rootView.findViewById(R.id.relaxTimeCountdown) ;
 
-            return rootView;
-        }
-
-        public void startCountdown(View v) {
-            System.out.println("VAMO A VE");
             new CountDownTimer((long)getArguments().getDouble("relaxTime") * 1000, 1000) {
 
                 public void onTick(long millisUntilFinished) {
-                    System.out.println("progress");
                     mProgressBar.incrementProgressBy(1);
                     mCountdownTv.setText(Long.toString(millisUntilFinished / 1000));
                 }
 
                 public void onFinish() {
                     mProgressBar.incrementProgressBy(1);
-                    mCountdownTv.setText(0);
+                    mCountdownTv.setText("0");
                 }
             }.start();
+
+            return rootView;
+        }
+
+        public void startCountdown(View v) {
+            System.out.println("VAMO A VE");
+
         }
 
     }
