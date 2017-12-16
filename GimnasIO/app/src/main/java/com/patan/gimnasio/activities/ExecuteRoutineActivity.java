@@ -1,8 +1,11 @@
 package com.patan.gimnasio.activities;
 
+import android.app.Activity;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +26,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Chronometer;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
@@ -194,6 +198,9 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         finish();
     }
 
+    public void startCountdown(View view) {
+        //getFragmentManager().findFragmentByTag("rt" + )
+    }
 
 
     /**
@@ -259,7 +266,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
             args.putString("description", ex.getDescription());
             args.putStringArrayList("tags", ex.getTags());
             args.putInt("series", ex.getSeries());
-            args.putInt("rep", ex.getRepetitions());
+            args.putInt("reps", ex.getRepetitions());
             args.putDouble("relax", ex.getRelaxTime());
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             fragment.setArguments(args);
@@ -271,17 +278,33 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             //TODO: colocar aqui el resto de info del ejercicio
             View rootView = inflater.inflate(R.layout.fragment_execute_routine_exercise, container, false);
+
             TextView nameTv = (TextView) rootView.findViewById(R.id.ex_name);
             nameTv.setText(getArguments().getString("name"));
+
             ImageView imageView = (ImageView) rootView.findViewById(R.id.ex_image);
             File path = new File(getArguments().getString("image", "gym1.jpg"));
             Bitmap myBitmap = BitmapFactory.decodeFile(path.getAbsolutePath());
             imageView.setImageBitmap(myBitmap);
             imageView.setAdjustViewBounds(true);
+
             TextView descriptionTv = (TextView) rootView.findViewById(R.id.ex_description);
             descriptionTv.setText(getArguments().getString("description"));
-            TextView tagsTv = (TextView) rootView.findViewById(R.id.ex_tags);
-            tagsTv.setText(getArguments().getStringArrayList("tags").toString());
+
+//            TextView tagsTv = (TextView) rootView.findViewById(R.id.ex_tags);
+//            tagsTv.setText(getArguments().getStringArrayList("tags").toString());
+
+            TextView muscleTv = (TextView) rootView.findViewById(R.id.ex_muscle);
+            muscleTv.setText(getArguments().getString("muscle"));
+
+            TextView repsTv = (TextView) rootView.findViewById(R.id.ex_reps);
+            String repsText = "Repeticiones: " + Integer.toString(getArguments().getInt("reps"));
+            repsTv.setText(repsText);
+
+            TextView seriesTv = (TextView) rootView.findViewById(R.id.ex_series);
+            String seriesText = "Series: " + Integer.toString(getArguments().getInt("series"));
+            seriesTv.setText(seriesText);
+
             return rootView;
         }
     }
@@ -296,6 +319,10 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
 
+        private ProgressBar mProgressBar;
+
+        private TextView mCountdownTv;
+
         public RelaxFragment() {
         }
 
@@ -303,11 +330,16 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static RelaxFragment newInstance(int sectionNumber) {
+        public static RelaxFragment newInstance(int sectionNumber, ArrayList<ExerciseFull> exercises) {
             RelaxFragment fragment = new RelaxFragment();
             Bundle args = new Bundle();
+            sectionNumber += -2;
+            ExerciseFull ex = exercises.get(sectionNumber/2);
+            args.putString("name", ex.getName());
+            args.putDouble("relaxTime", ex.getRelaxTime());
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             fragment.setArguments(args);
+
             return fragment;
         }
 
@@ -315,10 +347,34 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_execute_routine_relax, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format_relax, getArguments().getInt(ARG_SECTION_NUMBER)));
+
+            mProgressBar = (ProgressBar) rootView.findViewById(R.id.relaxTimeProgress);
+
+            System.out.println("tiempo: " + (int) getArguments().getDouble("relaxTime"));
+            mProgressBar.setMax((int)getArguments().getDouble("relaxTime"));
+
+            mCountdownTv = (TextView) rootView.findViewById(R.id.relaxTimeCountdown) ;
+
             return rootView;
         }
+
+        public void startCountdown(View v) {
+            System.out.println("VAMO A VE");
+            new CountDownTimer((long)getArguments().getDouble("relaxTime") * 1000, 1000) {
+
+                public void onTick(long millisUntilFinished) {
+                    System.out.println("progress");
+                    mProgressBar.incrementProgressBy(1);
+                    mCountdownTv.setText(Long.toString(millisUntilFinished / 1000));
+                }
+
+                public void onFinish() {
+                    mProgressBar.incrementProgressBy(1);
+                    mCountdownTv.setText(0);
+                }
+            }.start();
+        }
+
     }
 
     /**
@@ -378,7 +434,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
             } else if(position < getCount() && (position % 2 != 1)) {
                 return ExerciseFragment.newInstance(position, mExercises);
             } else if(position < getCount() && (position % 2 == 1)) {
-                return RelaxFragment.newInstance(position);
+                return RelaxFragment.newInstance(position, mExercises);
             } else {
                 return EndFragment.newInstance(position);
             }
