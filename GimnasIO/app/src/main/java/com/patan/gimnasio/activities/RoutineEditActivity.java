@@ -366,12 +366,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         saveState();
     }
 
-    // Metodo que cambia a la actividad de AddExerciseToRoutineActivity en modo edit
-    public void goToEditExercise(View v) {
-
-    }
-
-
     // Metodo que cambia a la actividad de ExercisesListActivity en modo routine par añadir ejercicios
     public void goToListOfExercises(View v) {
         saveState();
@@ -519,6 +513,7 @@ public class RoutineEditActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        populateFields();
     }
 
     public void populateFields() {
