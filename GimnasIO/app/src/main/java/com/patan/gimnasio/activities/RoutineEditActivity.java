@@ -28,6 +28,9 @@ import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 // Aqui se mostrara toda la informacion de una rutina con ejercicios, etc. Mediante el boton flotante se podran añadir nuevos ejercicios
@@ -110,6 +113,7 @@ public class RoutineEditActivity extends AppCompatActivity {
             } else {
                 id_in = db.createPremiumRoutine(r,efrArray);
                 task = new RoutineTask(0, r, efrArray,this);
+                task.execute((Void) null);
             }
 
             populateFields();
@@ -186,6 +190,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                 } else if (user_type.equals("trainer")) {
                     db.updatePremiumRoutine(id_in,r,efrArray);
                     task = new RoutineTask(1, r, efrArray,this);
+                    task.execute((Void) null);
                 }
                 populateFields();
                 return true;
@@ -220,6 +225,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                     } else if (user_type.equals("trainer")) {
                         db.updatePremiumRoutine(id_in,r_up,ex_up);
                         task = new RoutineTask(1, r_up, ex_up,this);
+                        task.execute((Void) null);
                     }
                     populateFields();
                 }
@@ -255,6 +261,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                     } else if (user_type.equals("trainer")) {
                         db.updatePremiumRoutine(id_in,r_down,ex_down);
                         task = new RoutineTask(1, r_down, ex_down,this);
+                        task.execute((Void) null);
                     }
                     populateFields();
                 }
@@ -418,6 +425,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                 } else if (user_type.equals("trainer")) {
                     db.updatePremiumRoutine(id_in,r,efrArray);
                     task = new RoutineTask(1, r, efrArray,this);
+                    task.execute((Void) null);
                 }
 
                 populateFields();
@@ -504,6 +512,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         } else if (user_type.equals("trainer")) {
             db.updatePremiumRoutine(id_in,r,efrArray);
             task = new RoutineTask(1, r, efrArray,this);
+            task.execute((Void) null);
         }
     }
 
@@ -578,12 +587,41 @@ public class RoutineEditActivity extends AppCompatActivity {
         protected Boolean doInBackground (Void... params) {
 
             boolean ok = false;
+            Cursor c = db.getLoginData();
+            String key ="";
+            if (c!=null){
+                key = c.getString(c.getColumnIndex("key"));
+             }
+            String nameGym = routine.getNameGym();
+            String[] names = new String[exercises.size()];
+            int[] repetitions = new int[exercises.size()];
+            int[] series = new int[exercises.size()];
+            double[] rT = new double[exercises.size()];
+            int i = 0;
+            for (ExFromRoutine exercise: exercises){
+                names[i] = db.getExerciseNameById(exercise.getId());
+                repetitions[i] = exercise.getRep();
+                series[i] = exercise.getSeries();
+                rT[i] = exercise.getRelxTime();
+                i++;
+            }
+            JSONObject json = new JSONObject();
+            try {
+                json.put("name",routine.getName());
+                json.put("objective",routine.getObjective());
+                json.put("exercises", names);
+                json.put("repetitions",repetitions);
+                json.put("series",series);
+                json.put("relaxTime",rT);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             if (type == 0) {
                 Log.d("Premium", "Creating new premium routine on remote server");
-                ok = api.createPremiumRoutine(routine,exercises);
+                ok = api.createPremiumRoutine(key,nameGym,json);
             } else if (type == 1) {
                 Log.d("Premium", "Updating premium routine on remote server");
-                ok = api.updatePremiumRoutine(routine,exercises);
+                ok = api.updatePremiumRoutine(key,nameGym,json);
             } else {
                 Log.d("Premium", "Wrong type in call");
             }
@@ -595,6 +633,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final Boolean success) {
             CharSequence text;
+            task = null;
             if (success) {
                 if (type == 0) {
                     text = "Rutina creada en el servidor correctamente";
