@@ -131,6 +131,26 @@ public class ApiHandler {
         }
     }
 
+    public JSONObject updatePremiumDB(String nameGym, String key) {
+        ANRequest request = AndroidNetworking.get(urlRoutine)
+                .addHeaders("user", u)
+                .addHeaders("pwd", p)
+                .addHeaders("key",key)
+                .addHeaders("nameGym",nameGym)
+                .build();
+        ANResponse<JSONObject> response = request.executeForJSONObject();
+
+        Log.w("DBData", response.toString());
+        if (response.isSuccess()) {
+            return response.getResult();
+        } else {
+            ANError error = response.getError();
+            // Handle Error
+            Log.e("Premium", error.getErrorBody());
+            return null;
+        }
+    }
+
     public Bitmap downloadIMG(String imgName) {
         ANRequest request = AndroidNetworking.get(urlImg)
                 .addHeaders("user", u)
@@ -172,48 +192,21 @@ public class ApiHandler {
     }
 
     /**
-     * This API method sends to server a request for creating a new Premium Routine.
-     * @param r
-     * @param exercises
+     *
+     * @param key
+     * @param json
+     * @return
      */
-    public boolean createPremiumRoutine(Routine r, ArrayList<ExFromRoutine> exercises) {
-        Cursor c = db.getLoginData();
-        String key ="";
-        if (c!=null){
-            key = c.getString(c.getColumnIndex("key"));
-        }
+    public boolean createPremiumRoutine(String key, String nameGym, JSONObject json) {
         String urlNewRoutine = urlRoutine + "newRoutine";
-        String[] names = new String[exercises.size()];
-        int[] repetitions = new int[exercises.size()];
-        int[] series = new int[exercises.size()];
-        double[] rT = new double[exercises.size()];
-        int i = 0;
-        for (ExFromRoutine exercise: exercises){
-            names[i] = db.getExerciseNameById(exercise.getId());
-            repetitions[i] = exercise.getRep();
-            series[i] = exercise.getSeries();
-            rT[i] = exercise.getRelxTime();
-            i++;
-        }
-        JSONObject json = new JSONObject();
-        try {
-            json.put("name",r.getName());
-            json.put("objective",r.getObjective());
-            json.put("exercises", names);
-            json.put("repetitions",repetitions);
-            json.put("series",series);
-            json.put("relaxTime",rT);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        Log.d("PRUEBA", json.toString());
         ANRequest request = AndroidNetworking.post(urlNewRoutine)
-                .addHeaders("user", u)
-                .addHeaders("pwd", p)
-                .addHeaders("nameGym",r.getNameGym())
-                .addHeaders("key",key)
-                .addJSONObjectBody(json)
-                .build();
+                    .addHeaders("user", u)
+                    .addHeaders("pwd", p)
+                    .addHeaders("nameGym",nameGym)
+                    .addHeaders("key",key)
+                    .addJSONObjectBody(json)
+                    .build();
 
         ANResponse<JSONObject> response = request.executeForJSONObject();
 
@@ -221,6 +214,7 @@ public class ApiHandler {
             JSONObject jsonObject = response.getResult();
             boolean res = false;
             try {
+                Log.d("CREACIONROUTINE",jsonObject.toString());
                 res = jsonObject.getBoolean("success");
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -233,41 +227,13 @@ public class ApiHandler {
         return false;
     }
 
-    public boolean updatePremiumRoutine(Routine r, ArrayList<ExFromRoutine> exercises) {
-        Cursor c = db.getLoginData();
-        String key ="";
-        if (c!=null){
-            key = c.getString(c.getColumnIndex("key"));
-        }
-        String urlNewRoutine = urlRoutine + "newRoutine";
-        String[] names = new String[exercises.size()];
-        int[] repetitions = new int[exercises.size()];
-        int[] series = new int[exercises.size()];
-        double[] rT = new double[exercises.size()];
-        int i = 0;
-        for (ExFromRoutine exercise: exercises){
-            names[i] = db.getExerciseNameById(exercise.getId());
-            repetitions[i] = exercise.getRep();
-            series[i] = exercise.getSeries();
-            rT[i] = exercise.getRelxTime();
-            i++;
-        }
-        JSONObject json = new JSONObject();
-        try {
-            json.put("name",r.getName());
-            json.put("objective",r.getObjective());
-            json.put("exercises", names);
-            json.put("repetitions",repetitions);
-            json.put("series",series);
-            json.put("relaxTime",rT);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public boolean updatePremiumRoutine(String key, String nameGym, JSONObject json) {
 
+        String urlNewRoutine = urlRoutine + "newRoutine";
         ANRequest request = AndroidNetworking.post(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
-                .addHeaders("nameGym",r.getNameGym())
+                .addHeaders("nameGym",nameGym)
                 .addHeaders("key",key)
                 .addJSONObjectBody(json)
                 .build();
@@ -301,11 +267,12 @@ public class ApiHandler {
             gymName = c.getString(c.getColumnIndex( GymnasioDBAdapter.KEY_GYM_NAME));
         }
         String urlNewRoutine = urlRoutine + "deleteRoutine";
-        ANRequest request = AndroidNetworking.post(urlNewRoutine)
+        ANRequest request = AndroidNetworking.delete(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
                 .addHeaders("nameGym", gymName)
                 .addHeaders("key",key)
+                .addBodyParameter("name",name)
                 .build();
 
         ANResponse<JSONObject> response = request.executeForJSONObject();

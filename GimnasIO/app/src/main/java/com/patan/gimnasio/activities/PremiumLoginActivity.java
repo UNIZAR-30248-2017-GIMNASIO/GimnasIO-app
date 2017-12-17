@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,22 +32,14 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.common.ANRequest;
-import com.androidnetworking.common.ANResponse;
-import com.androidnetworking.error.ANError;
-import com.google.gson.JsonObject;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Exercise;
+import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
 
 import org.json.JSONException;
@@ -72,6 +65,7 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+    private UpdateDbWithPremiumTask task = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -341,16 +335,80 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         }
 
     }
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+    public class UpdateDbWithPremiumTask extends AsyncTask<Void, Void, Boolean> {
 
+        private final String nameGym;
+        private final String key;
+        private JSONObject data;
+        private Context mCtx;
+
+        UpdateDbWithPremiumTask(String email, String password, Context ctx) {
+            nameGym = email;
+            key = password;
+            mCtx = ctx;
+        }
+
+        @Override
+        protected Boolean doInBackground (Void... params) {
+            // TODO: attempt authentication against a network service.
+            ApiHandler api = new ApiHandler(mCtx);
+            JSONObject respuesta = api.updatePremiumDB(nameGym,key);
+            Log.d("PRUEBA",respuesta.toString());
+            if (respuesta != null) {
+                data = respuesta;
+                return true;
+            } return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            task = null;
+            CharSequence text;
+            if (success) {
+                text = "Incluyendo rutinas de " + nameGym;
+                int duration = Toast.LENGTH_LONG;
+                Toast toast = Toast.makeText(mCtx, text, duration);
+                toast.setGravity(Gravity.TOP, 0, 100);
+                toast.show();
+                try {
+                    updateDatabase(data);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                text = "Algo ha ido mal, comprueba tu conexión a internet";
+                int duration = Toast.LENGTH_LONG;
+                Toast toast = Toast.makeText(mCtx, text, duration);
+                toast.setGravity(Gravity.TOP, 0, 100);
+                toast.show();
+            }
+
+        }
+
+        @Override
+        protected void onCancelled() {
+            task = null;
+            showProgress(false);
+        }
+
+    }
     // Metodo que nos lleva a la actividad de lista de rutinas
     public void goToRoutineListActivity(){
+
         Cursor cursor = db.getLoginData();
         startManagingCursor(cursor);
         int pos_type = cursor.getColumnIndex(GymnasioDBAdapter.KEY_GYM_TYPE);
         String type = cursor.getString(pos_type);
         int pos_name = cursor.getColumnIndex(GymnasioDBAdapter.KEY_GYM_NAME);
         String name = cursor.getString(pos_name);
-
+        String key = cursor.getString(cursor.getColumnIndex(GymnasioDBAdapter.KEY_GYM_KEY));
+        cursor.close();
+        task = new UpdateDbWithPremiumTask(name, key, this);
+        task.execute((Void) null);
         if (type.equals("user")) {
             Intent intent = new Intent(this, RoutineListActivity.class);
             intent.putExtra("USERTYPE","premium");
@@ -364,6 +422,43 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         }
 
 
+    }
+
+    private void updateDatabase(JSONObject listaRutinas) throws JSONException {
+        db = new GymnasioDBAdapter(this);
+        db.open();
+        if (listaRutinas.length() == 0) {
+            for (int i = 0; i < listaRutinas.length(); i++) {
+                JSONObject rutina = listaRutinas.getJSONObject(i + "");
+                String name = rutina.getString("name");
+                String nameGym = rutina.getString("nameGym");
+                String objective = rutina.getString("objective");
+                JSONObject exercises = rutina.getJSONObject("exercises");
+                Routine r = new Routine(nameGym,name,objective);
+                ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
+                for ( int j = 0; i < exercises.length(); j++ ) {
+                    JSONObject ejercicio = exercises.getJSONObject(j + "");
+                    String nameEj = ejercicio.getString("name");
+                    int rep = ejercicio.getInt("repetitions");
+                    int series = ejercicio.getInt("series");
+                    double relaxTime = ejercicio.getDouble("relaxTime");
+                    Cursor c = db.getExerciseByName(nameEj);
+                    if (c!= null) {
+                        long idEjercicio = c.getLong(c.getColumnIndex(GymnasioDBAdapter.KEY_EX_ID));
+                        ExFromRoutine ej = new ExFromRoutine(idEjercicio,series,rep,relaxTime);
+                        efrArray.add(ej);
+                    }
+                }
+                Cursor uOC = db.getPremiumRoutineByName(name,nameGym);
+                if (uOC.getCount() == 0){
+                    db.createPremiumRoutine(r,efrArray);
+                } else{
+                    long rId = uOC.getLong(uOC.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID));
+                    db.updatePremiumRoutine(rId,r,efrArray);
+                }
+            }
+        }
+        Log.d("Update", "Database updated");
     }
 }
 

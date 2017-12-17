@@ -56,6 +56,7 @@ public class GymnasioDBAdapter {
     public static final String KEY_GYM_ID = "_id";
     public static final String KEY_GYM_NAME = "nameGym";
     public static final String KEY_GYM_TYPE = "type";
+    public static final String KEY_GYM_KEY = "key";
 
     private static final String CREATE_TABLE_ROUTINES = "CREATE TABLE IF NOT EXISTS " + Table_Routine +
             " ("+ KEY_RO_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ KEY_RO_OBJ +" VARCHAR(20)"
@@ -73,14 +74,14 @@ public class GymnasioDBAdapter {
             " ( _id integer primary key autoincrement , lastUpdate VARCHAR(20) not null, firstInstalation int not null);";
     private static final String CREATE_TABLE_GYMS = "CREATE TABLE IF NOT EXISTS " + Table_Gyms +
             " ( "+KEY_GYM_ID+" integer primary key autoincrement,"+KEY_GYM_NAME+" VARCHAR(20) not null,"
-            +KEY_GYM_TYPE+" VARCHAR(5) not null)";
+            +KEY_GYM_TYPE+" VARCHAR(5) not null,"+KEY_GYM_KEY+" VARCHAR(10) not null)";
 
 
     private static final String[] RO_ROWS={KEY_RO_ID,KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,
             KEY_RO_GYM};
     private static final String[] EX_ROWS=new String[]{KEY_EX_ID, KEY_EX_NAME, KEY_EX_DESC,
             KEY_EX_MUSCLE, KEY_EX_IMG, KEY_EX_TAG};
-    private static final String[] GY_ROWS= new String[] {KEY_GYM_ID,KEY_GYM_NAME,KEY_GYM_TYPE};
+    private static final String[] GY_ROWS= new String[] {KEY_GYM_ID,KEY_GYM_NAME,KEY_GYM_TYPE,KEY_GYM_KEY};
 
     private final Context mCtx;
 
@@ -579,22 +580,24 @@ public class GymnasioDBAdapter {
         Log.w("Login", String.valueOf(logged));
         return logged;
     }
-    public long loginAsUser(String nameGym) {
+    public long loginAsUser(String nameGym, String key) {
         if (!this.logged()) {
             Log.d("TAG", "Insertando " + nameGym);
             ContentValues v = new ContentValues();
             v.put(KEY_GYM_NAME, nameGym);
             v.put(KEY_GYM_TYPE, "user");
+            v.put(KEY_GYM_KEY,key);
             Log.d("DBInsertion", "Inserting gym to database");
             return Db.insert(Table_Gyms, null, v);
         } else return -1;
     }
-    public long loginAsAdmin(String nameGym){
+    public long loginAsAdmin(String nameGym, String key){
         if (!this.logged()) {
             Log.d("TAG", "Insertando " + nameGym);
             ContentValues v = new ContentValues();
             v.put(KEY_GYM_NAME, nameGym);
             v.put(KEY_GYM_TYPE, "admin");
+            v.put(KEY_GYM_KEY,key);
             Log.d("DBInsertion", "Inserting gym to database");
             return Db.insert(Table_Gyms, null, v);
         } else return -1;
@@ -606,8 +609,8 @@ public class GymnasioDBAdapter {
 
 
     public Cursor getLoginData() {
-        Cursor c =  Db.query(Table_Gyms, GY_ROWS, null,null,
-                null,null,null);
+        Cursor c =  Db.query(Table_Gyms, GY_ROWS,
+                null,null,null,null,null);
         if (c.getCount() != 0 ) {
             Log.d("INSIDE", "");
         }
