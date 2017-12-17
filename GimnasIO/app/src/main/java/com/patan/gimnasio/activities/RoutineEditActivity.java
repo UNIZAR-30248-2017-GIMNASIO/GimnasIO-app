@@ -1,13 +1,17 @@
 package com.patan.gimnasio.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,11 +20,16 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
+import com.patan.gimnasio.services.ApiHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -44,6 +53,8 @@ public class RoutineEditActivity extends AppCompatActivity {
     private final int DELETE_EX = 2;
     private final int MOVE_EX_UP = 3;
     private final int MOVE_EX_DOWN = 4;
+
+    private RoutineTask task;
 
 
     private GymnasioDBAdapter db;
@@ -101,6 +112,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                 id_in = db.createFreemiumRoutine(r,efrArray);
             } else {
                 id_in = db.createPremiumRoutine(r,efrArray);
+                task = new RoutineTask(0, r, efrArray,this);
+                task.execute((Void) null);
             }
 
             populateFields();
@@ -176,6 +189,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                     db.updateFreemiumRoutine(id_in,r,efrArray);
                 } else if (user_type.equals("trainer")) {
                     db.updatePremiumRoutine(id_in,r,efrArray);
+                    task = new RoutineTask(1, r, efrArray,this);
+                    task.execute((Void) null);
                 }
                 populateFields();
                 return true;
@@ -209,6 +224,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                         db.updateFreemiumRoutine(id_in,r_up,ex_up);
                     } else if (user_type.equals("trainer")) {
                         db.updatePremiumRoutine(id_in,r_up,ex_up);
+                        task = new RoutineTask(1, r_up, ex_up,this);
+                        task.execute((Void) null);
                     }
                     populateFields();
                 }
@@ -243,6 +260,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                         db.updateFreemiumRoutine(id_in,r_down,ex_down);
                     } else if (user_type.equals("trainer")) {
                         db.updatePremiumRoutine(id_in,r_down,ex_down);
+                        task = new RoutineTask(1, r_down, ex_down,this);
+                        task.execute((Void) null);
                     }
                     populateFields();
                 }
@@ -351,12 +370,6 @@ public class RoutineEditActivity extends AppCompatActivity {
         saveState();
     }
 
-    // Metodo que cambia a la actividad de AddExerciseToRoutineActivity en modo edit
-    public void goToEditExercise(View v) {
-
-    }
-
-
     // Metodo que cambia a la actividad de ExercisesListActivity en modo routine par añadir ejercicios
     public void goToListOfExercises(View v) {
         saveState();
@@ -415,6 +428,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                     db.updateFreemiumRoutine(id_in,r,efrArray);
                 } else if (user_type.equals("trainer")) {
                     db.updatePremiumRoutine(id_in,r,efrArray);
+                    task = new RoutineTask(1, r, efrArray,this);
+                    task.execute((Void) null);
                 }
 
                 populateFields();
@@ -500,12 +515,15 @@ public class RoutineEditActivity extends AppCompatActivity {
             db.updateFreemiumRoutine(id_in,r,efrArray);
         } else if (user_type.equals("trainer")) {
             db.updatePremiumRoutine(id_in,r,efrArray);
+            task = new RoutineTask(1, r, efrArray,this);
+            task.execute((Void) null);
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        populateFields();
     }
 
     public void populateFields() {
@@ -549,6 +567,98 @@ public class RoutineEditActivity extends AppCompatActivity {
                     new SimpleCursorAdapter(this, R.layout.exfromroutine_row, ejercicios, from, to,0);
             l.setAdapter(notes);
             registerForContextMenu(l);
+        }
+    }
+
+
+    public class RoutineTask extends AsyncTask<Void, Void, Boolean> {
+
+        private Context mCtx;
+        private int type;
+        private Routine routine;
+        private ArrayList<ExFromRoutine> exercises;
+        private ApiHandler api;
+        //private int count;
+
+        RoutineTask(int type, Routine r, ArrayList<ExFromRoutine> exercises, Context ctx) {
+            this.mCtx = ctx;
+            this.type = type;
+            this.routine = r;
+            this.exercises = exercises;
+            api = new ApiHandler(mCtx);
+        }
+
+        @Override
+        protected Boolean doInBackground (Void... params) {
+
+            boolean ok = false;
+            Cursor c = db.getLoginData();
+            String key ="";
+            if (c!=null){
+                key = c.getString(c.getColumnIndex("key"));
+             }
+            String nameGym = routine.getNameGym();
+            String[] names = new String[exercises.size()];
+            int[] repetitions = new int[exercises.size()];
+            int[] series = new int[exercises.size()];
+            double[] rT = new double[exercises.size()];
+            int i = 0;
+            for (ExFromRoutine exercise: exercises){
+                names[i] = db.getExerciseNameById(exercise.getId());
+                repetitions[i] = exercise.getRep();
+                series[i] = exercise.getSeries();
+                rT[i] = exercise.getRelxTime();
+                i++;
+            }
+            JSONObject json = new JSONObject();
+            try {
+                json.put("name",routine.getName());
+                json.put("objective",routine.getObjective());
+                json.put("exercises", names);
+                json.put("repetitions",repetitions);
+                json.put("series",series);
+                json.put("relaxTime",rT);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if (type == 0) {
+                Log.d("Premium", "Creating new premium routine on remote server");
+                ok = api.createPremiumRoutine(key,nameGym,json);
+            } else if (type == 1) {
+                Log.d("Premium", "Updating premium routine on remote server");
+                ok = api.updatePremiumRoutine(key,nameGym,json);
+            } else {
+                Log.d("Premium", "Wrong type in call");
+            }
+
+            if (ok) {
+                return true;
+            } return false;
+        }
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            CharSequence text;
+            task = null;
+            if (success) {
+                if (type == 0) {
+                    text = "Rutina creada en el servidor correctamente";
+                } else if (type == 1) {
+                    text = "Rutina actualizada en el servidor correctamente";
+
+                } else {
+                    text = "Rutina eliminada en el servidor correctamente";
+                }
+            } else {
+                text = "Algo ha ido mal, comprueba tu conexión a internet";
+            }
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(mCtx, text, duration);
+            toast.setGravity(Gravity.TOP, 0, 100);
+            toast.show();
+        }
+        @Override
+        protected void onCancelled() {
+            task = null;
         }
     }
 
