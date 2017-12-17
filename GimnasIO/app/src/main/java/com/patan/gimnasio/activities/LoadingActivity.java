@@ -218,7 +218,6 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
             } else {
                 CharSequence text = "Error en la descarga de " + imgName;
                 int duration = Toast.LENGTH_LONG;
-
                 Toast toast = Toast.makeText(mCtx, text, duration);
                 toast.setGravity(Gravity.TOP, 0, 100);
                 toast.show();
