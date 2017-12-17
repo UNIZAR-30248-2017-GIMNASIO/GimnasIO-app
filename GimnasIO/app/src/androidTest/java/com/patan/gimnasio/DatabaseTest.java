@@ -449,7 +449,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
         idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        Cursor c = db.getRoutineByName("Rutina1");
+        Cursor c = db.getFreemiumRoutineByName("Rutina1");
 
         db.deleteRoutine(idr1);
 
@@ -460,7 +460,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     @Test
     public void dontGetRoutineByNameTest() throws Exception{
 
-        Cursor c = db.getRoutineByName("nothing");
+        Cursor c = db.getFreemiumRoutineByName("nothing");
 
         assertTrue(c.getCount() == 0);
     }
@@ -475,7 +475,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
         idr1 = db.createFreemiumRoutine(r1,efrArray);
 
-        Cursor c = db.getRoutineByObj(r1.getObjective());
+        Cursor c = db.getFreemiumRoutineByObj(r1.getObjective());
 
         assertTrue(c.getCount() == 1);
     }
@@ -484,7 +484,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
     @Test
     public void dontGetRoutineByObjectiveTest() throws Exception{
 
-        Cursor c = db.getRoutineByObj("No existe");
+        Cursor c = db.getFreemiumRoutineByObj("No existe");
 
         assertTrue(c.getCount() == 0);
     }
