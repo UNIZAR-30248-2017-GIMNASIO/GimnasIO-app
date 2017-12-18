@@ -1,0 +1,65 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/activity_horizontal_margin"
+    tools:context="com.patan.gimnasio.activities.ExecuteRoutineActivity$StartFragment">
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/StartDisplay"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:gravity="center"
+            android:text="Comienzo de la rutina"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Para avanzar desliza la pantalla a la derecha.\nEn cualquier momento puedes volver atrás arrastrando a la izquierda."
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+        <ViewAnimator
+            android:id="@+id/viewanimator"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:animateFirstView="true"
+            android:onClick="playAnimation">
+
+            <ImageView
+                android:id="@+id/swipe"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/swipe" />
+
+            <ImageView
+                android:id="@+id/swipe2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/swipe"
+                android:visibility="invisible" />
+
+            <ImageView
+                android:id="@+id/swipe3"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/swipe" />
+        </ViewAnimator>
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

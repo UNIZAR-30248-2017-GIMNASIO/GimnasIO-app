@@ -43,6 +43,7 @@ dependencies {
     //compile files('libs/gson-2.2.4.jar')
     testCompile 'junit:junit:4.12'
     compile 'junit:junit:4.12'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.+'
 
     compile 'com.amitshekhar.android:android-networking:1.0.0'
 
