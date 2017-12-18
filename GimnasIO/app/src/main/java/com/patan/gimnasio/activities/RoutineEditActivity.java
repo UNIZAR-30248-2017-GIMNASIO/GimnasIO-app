@@ -107,15 +107,14 @@ public class RoutineEditActivity extends AppCompatActivity {
 
         if (mode_in.equals("new")) {
             ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
-            Routine r = new Routine(gym_name,"","");
+            Routine r = new Routine(gym_name,"Rutina sin nombre","");
             if (user_type.equals("free")) {
                 id_in = db.createFreemiumRoutine(r,efrArray);
             } else {
                 id_in = db.createPremiumRoutine(r,efrArray);
-                task = new RoutineTask(0, r, efrArray,this);
+                task = new RoutineTask(0, r, efrArray,this,null,-1);
                 task.execute((Void) null);
             }
-
             populateFields();
             goToEditMode();
         } else if (mode_in.equals("view")) {
@@ -189,7 +188,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                     db.updateFreemiumRoutine(id_in,r,efrArray);
                 } else if (user_type.equals("trainer")) {
                     db.updatePremiumRoutine(id_in,r,efrArray);
-                    task = new RoutineTask(1, r, efrArray,this);
+                    task = new RoutineTask(1, r, efrArray,this,"",id_in);
                     task.execute((Void) null);
                 }
                 populateFields();
@@ -224,7 +223,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                         db.updateFreemiumRoutine(id_in,r_up,ex_up);
                     } else if (user_type.equals("trainer")) {
                         db.updatePremiumRoutine(id_in,r_up,ex_up);
-                        task = new RoutineTask(1, r_up, ex_up,this);
+                        task = new RoutineTask(1, r_up, ex_up,this,"",id_in);
                         task.execute((Void) null);
                     }
                     populateFields();
@@ -260,7 +259,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                         db.updateFreemiumRoutine(id_in,r_down,ex_down);
                     } else if (user_type.equals("trainer")) {
                         db.updatePremiumRoutine(id_in,r_down,ex_down);
-                        task = new RoutineTask(1, r_down, ex_down,this);
+                        task = new RoutineTask(1, r_down, ex_down,this,"",id_in);
                         task.execute((Void) null);
                     }
                     populateFields();
@@ -428,7 +427,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                     db.updateFreemiumRoutine(id_in,r,efrArray);
                 } else if (user_type.equals("trainer")) {
                     db.updatePremiumRoutine(id_in,r,efrArray);
-                    task = new RoutineTask(1, r, efrArray,this);
+                    task = new RoutineTask(1, r, efrArray,this,"",id_in);
                     task.execute((Void) null);
                 }
 
@@ -515,7 +514,7 @@ public class RoutineEditActivity extends AppCompatActivity {
             db.updateFreemiumRoutine(id_in,r,efrArray);
         } else if (user_type.equals("trainer")) {
             db.updatePremiumRoutine(id_in,r,efrArray);
-            task = new RoutineTask(1, r, efrArray,this);
+            task = new RoutineTask(1, r, efrArray,this,"",id_in);
             task.execute((Void) null);
         }
     }
@@ -578,62 +577,44 @@ public class RoutineEditActivity extends AppCompatActivity {
         private Routine routine;
         private ArrayList<ExFromRoutine> exercises;
         private ApiHandler api;
+        private String oldName;
+        private long idL;
         //private int count;
 
-        RoutineTask(int type, Routine r, ArrayList<ExFromRoutine> exercises, Context ctx) {
+        RoutineTask(int type, Routine r, ArrayList<ExFromRoutine> exercises, Context ctx,String oldName, long idL) {
             this.mCtx = ctx;
             this.type = type;
             this.routine = r;
             this.exercises = exercises;
             api = new ApiHandler(mCtx);
+            this.idL = idL;
+            this.oldName = oldName;
         }
 
         @Override
         protected Boolean doInBackground (Void... params) {
 
-            boolean ok = false;
-            Cursor c = db.getLoginData();
-            String key ="";
-            if (c!=null){
-                key = c.getString(c.getColumnIndex("key"));
-             }
-            String nameGym = routine.getNameGym();
-            String[] names = new String[exercises.size()];
-            int[] repetitions = new int[exercises.size()];
-            int[] series = new int[exercises.size()];
-            double[] rT = new double[exercises.size()];
-            int i = 0;
-            for (ExFromRoutine exercise: exercises){
-                names[i] = db.getExerciseNameById(exercise.getId());
-                repetitions[i] = exercise.getRep();
-                series[i] = exercise.getSeries();
-                rT[i] = exercise.getRelxTime();
-                i++;
-            }
             JSONObject json = new JSONObject();
-            try {
-                json.put("name",routine.getName());
-                json.put("objective",routine.getObjective());
-                json.put("exercises", names);
-                json.put("repetitions",repetitions);
-                json.put("series",series);
-                json.put("relaxTime",rT);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
             if (type == 0) {
                 Log.d("Premium", "Creating new premium routine on remote server");
-                ok = api.createPremiumRoutine(key,nameGym,json);
+                json = api.createPremiumRoutine(routine,exercises);
             } else if (type == 1) {
+                long idR = db.getPremiumIdr(idL);
                 Log.d("Premium", "Updating premium routine on remote server");
-                ok = api.updatePremiumRoutine(key,nameGym,json);
+                json = api.updatePremiumRoutine(oldName,idL,routine,exercises);
             } else {
                 Log.d("Premium", "Wrong type in call");
             }
-
-            if (ok) {
-                return true;
-            } return false;
+            try {
+                if (json.getBoolean("success")) {
+                    routine.setIdR(json.getLong("id"));
+                    db.updatePremiumRoutine(idL,routine,exercises);
+                    return true;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return false;
         }
         @Override
         protected void onPostExecute(final Boolean success) {

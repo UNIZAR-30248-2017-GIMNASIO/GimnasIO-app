@@ -392,7 +392,6 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         @Override
         protected void onCancelled() {
             task = null;
-            showProgress(false);
         }
 
     }
@@ -427,6 +426,7 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
     private void updateDatabase(JSONObject listaRutinas) throws JSONException {
         db = new GymnasioDBAdapter(this);
         db.open();
+        Log.d("UpdPrem",listaRutinas.toString());
         if (listaRutinas.length() == 0) {
             for (int i = 0; i < listaRutinas.length(); i++) {
                 JSONObject rutina = listaRutinas.getJSONObject(i + "");
@@ -451,8 +451,10 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                 }
                 Cursor uOC = db.getPremiumRoutineByName(name,nameGym);
                 if (uOC.getCount() == 0){
+                    Log.d("CrtPrRouLoc","Creating premium routine with name " + r.getName());
                     db.createPremiumRoutine(r,efrArray);
                 } else{
+                    Log.d("UpdPrRouLoc","Updating premium routine with name " + r.getName());
                     long rId = uOC.getLong(uOC.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID));
                     db.updatePremiumRoutine(rId,r,efrArray);
                 }

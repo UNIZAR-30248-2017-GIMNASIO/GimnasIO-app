@@ -302,8 +302,8 @@ public class RoutineListActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground (Void... params) {
-
-            boolean ok = api.deletePremiumRoutine(id);
+            long idR = db.getPremiumIdr(id);
+            boolean ok = api.deletePremiumRoutine(null,id,idR);
             Log.d("Premium", "Deleting premium routine on remote server with id " + id);
             if (ok) {
                 return true;
