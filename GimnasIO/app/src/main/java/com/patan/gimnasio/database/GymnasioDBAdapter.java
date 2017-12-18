@@ -559,11 +559,10 @@ public class GymnasioDBAdapter {
                 + KEY_EXRO_IDE + "= ex."+KEY_EX_ID;
         Log.w("TAG",selectQuery);
         Cursor c = Db.rawQuery(selectQuery,null);
-        if (c.moveToFirst()) {
-            return c;
-        } else {
-            return null;
+        if (c != null) {
+            c.moveToFirst();
         }
+        return c;
     }
 
     public boolean deleteExercise (long id) {
