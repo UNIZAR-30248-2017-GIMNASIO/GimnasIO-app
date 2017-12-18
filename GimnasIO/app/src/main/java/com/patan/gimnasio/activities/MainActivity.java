@@ -110,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.update:
                 goToStartApp();
                 return true;
+            case R.id.swipetest:
+                goToSwipe();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -137,7 +139,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    public void goToSwipe() {
+        Intent intent = new Intent(this, ExecuteRoutineActivity.class);
+        startActivity(intent);
+    }
     public void goToExercise(View v) {
         Intent intent = new Intent(this, ExerciseListActivity.class);
         intent.putExtra("MODE","view");

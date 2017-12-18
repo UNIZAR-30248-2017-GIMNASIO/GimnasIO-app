@@ -383,7 +383,7 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListA
 
     /*Test que comprueba que la bd modifica el campo ejercicios de una rutina freemium*/
     @Test
-    public void updateExsRuotineFreemium() throws Exception{
+    public void updateExsRoutineFreemium() throws Exception{
         Routine r1 = new Routine("Gym1","Rutina1","Objetivo1");
         ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
 

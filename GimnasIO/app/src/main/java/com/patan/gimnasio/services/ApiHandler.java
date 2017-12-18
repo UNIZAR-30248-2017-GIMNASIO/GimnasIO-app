@@ -175,7 +175,7 @@ public class ApiHandler {
     /**
      * Función que elimina acentos y caracteres especiales de
      * una cadena de texto.
-     * @param input
+     * @param input: Cadena de entrada
      * @return cadena de texto limpia de acentos y caracteres especiales.
      */
     private static String remove1(String input) {
