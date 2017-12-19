@@ -107,9 +107,9 @@ public class ApiTest extends ActivityInstrumentationTestCase2<MainActivity> {
         assertEquals( nRoutinesPre , nRoutinesPost);
         json = api.updatePremiumDB("EINAGym", "ZpJ5KG");
         nRoutinesPre = json.length();
-        api.deletePremiumRoutine("Rutina1", -1,id1);
-        api.deletePremiumRoutine("Rutina2", -1,id2);
-        api.deletePremiumRoutine("Rutina3", -1,id3);
+        api.deletePremiumRoutine("Rutina11", -1,id1);
+        api.deletePremiumRoutine("Rutina12", -1,id2);
+        api.deletePremiumRoutine("Rutina13", -1,id3);
         json = api.updatePremiumDB("EINAGym", "ZpJ5KG");
         nRoutinesPost = json.length();
         assertEquals( nRoutinesPre - 3, nRoutinesPost);
