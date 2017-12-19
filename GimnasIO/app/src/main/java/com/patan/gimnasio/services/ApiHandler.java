@@ -265,7 +265,7 @@ public class ApiHandler {
      * @param exercises
      * @return
      */
-    public JSONObject updatePremiumRoutine(String oldName, long idR, Routine r, ArrayList<ExFromRoutine> exercises) {
+    public JSONObject updatePremiumRoutine(String oldName, String idR, Routine r, ArrayList<ExFromRoutine> exercises) {
         String urlUpdRoutine = urlRoutine + "update";
         db.open();
         Cursor c = db.getLoginData();
@@ -294,6 +294,8 @@ public class ApiHandler {
             json.put("repetitions",repetitions);
             json.put("series",series);
             json.put("relaxTime",rT);
+            json.put("id",idR);
+            json.put("oldname",oldName);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -302,8 +304,6 @@ public class ApiHandler {
                 .addHeaders("pwd", p)
                 .addHeaders("nameGym",nameGym)
                 .addHeaders("key",key)
-                .addBodyParameter("id",idR+"")
-                .addBodyParameter("name",oldName)
                 .addJSONObjectBody(json)
                 .build();
 
@@ -321,6 +321,7 @@ public class ApiHandler {
             if (res)return jsonObject;
         } else {
             ANError error = response.getError();
+            Log.e("UpdPrRou", error.getErrorBody().toString());
             // Handle Error
         }
         db.close();
@@ -334,7 +335,7 @@ public class ApiHandler {
      * @param idR
      * @return
      */
-    public boolean deletePremiumRoutine(String name, long idL, long idR) {
+    public boolean deletePremiumRoutine(String name, long idL, String idR) {
         db.open();
         if (name == null) {
             name = db.getRoutineNameById(idL);
@@ -346,14 +347,21 @@ public class ApiHandler {
             key = c.getString(c.getColumnIndex(GymnasioDBAdapter.KEY_GYM_KEY));
             gymName = c.getString(c.getColumnIndex( GymnasioDBAdapter.KEY_GYM_NAME));
         }
-        String urlNewRoutine = urlRoutine + "deleteRoutine";
+        String urlNewRoutine = urlRoutine + "delete";
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", name);
+            json.put("id", idR);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         ANRequest request = AndroidNetworking.delete(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
                 .addHeaders("nameGym", gymName)
                 .addHeaders("key",key)
-                .addBodyParameter("name",name)
-                .addBodyParameter("id",idR+"")
+                .addJSONObjectBody(json)
                 .build();
 
         ANResponse<JSONObject> response = request.executeForJSONObject();
@@ -369,6 +377,7 @@ public class ApiHandler {
             if (res) return true;
         } else {
             ANError error = response.getError();
+            Log.e("DelPrRou", error.getErrorBody().toString());
             // Handle Error
         }
         db.close();
