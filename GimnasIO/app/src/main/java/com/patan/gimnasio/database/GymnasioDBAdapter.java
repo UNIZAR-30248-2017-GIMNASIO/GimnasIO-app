@@ -535,12 +535,12 @@ public class GymnasioDBAdapter {
         return mCursor;
     }
 
-    public long getPremiumIdr (long id) {
+    public String getPremiumIdr (long id) {
         Cursor mCursor =  Db.query(Table_Routine,RO_ROWS,KEY_RO_ID +"="+id,null,null,null,null,null);
         if (mCursor != null) {
             mCursor.moveToFirst();
-            return mCursor.getLong(mCursor.getColumnIndex(KEY_RO_IDR));
-        } else return -1;
+            return mCursor.getString(mCursor.getColumnIndex(KEY_RO_IDR));
+        } else return null;
     }
 
     public String getRoutineNameById(long id){
