@@ -21,6 +21,8 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -28,6 +30,7 @@ import android.widget.Toast;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.CustomAdapterRoutine;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
@@ -50,6 +53,7 @@ public class RoutineListActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private Spinner spinner;
     private Button boton;
+    private CheckBox check;
     private EditText busqueda;
     private DeleteRoutineTask task;
 
@@ -65,11 +69,14 @@ public class RoutineListActivity extends AppCompatActivity {
 
         db = new GymnasioDBAdapter(this);
         db.open();
-
         l = (ListView)findViewById(R.id.dbRoutinesList);
         fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         busqueda = (EditText) (findViewById(R.id.busqueda));
         spinner = (Spinner) findViewById(R.id.spinner);
+        //check = (CheckBox) findViewById(R.id.checkBox);
+        //Mio
+
+
         ArrayList<String> categories = new ArrayList<String>();
         categories.add("Nombre");
         categories.add("Objetivo");
@@ -156,7 +163,7 @@ public class RoutineListActivity extends AppCompatActivity {
         // Handle item selection
         if (item.getItemId() == R.id.logout) {
             db.logout();
-            // Esto nos hara volver al menu principal directamente limpiando las actividades que tenga por encima (identificate)
+            // Esto nos hara volver al menu principal difab.setImageResource(R.drawable.ic_shopping_cart_white);rectamente limpiando las actividades que tenga por encima (identificate)
             Intent intent = new Intent(this,MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
@@ -176,6 +183,7 @@ public class RoutineListActivity extends AppCompatActivity {
 
     private void fillData() {
         Cursor routines = null ;
+        //fab.setImageResource(R.drawable.ic_shopping_cart_white);
         if (user_type.equals("free")) {
             // Get all of the routines from the database and create the item list
             routines = db.fetchFreemiumRoutines();
@@ -197,6 +205,20 @@ public class RoutineListActivity extends AppCompatActivity {
         // Now create an array adapter and set it to display using our row
         SimpleCursorAdapter notes =
                 new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
+
+        /*TODO: Check box con lista de rutinas*/
+        //ArrayList<Routine> listOfRoutines = new ArrayList<>();
+        //Como necesitamos una lista de rutinas, pasamos del cursor a esta lista
+
+        /*routines.moveToFirst();
+        for(int i = 0; i < routines.getCount();i++){
+            //KEY_RO_ID,KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,
+            //KEY_RO_GYM
+            // public Routine(String nameGym,String name,String objective){
+            listOfRoutines.add(new Routine(routines.getString(4),routines.getString(2),routines.getString(1)));
+        }*/
+
+       //l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));
         l.setAdapter(notes);
         registerForContextMenu(l);
     }
@@ -327,6 +349,25 @@ public class RoutineListActivity extends AppCompatActivity {
         protected void onCancelled() {
             task = null;
         }
+    }
+
+
+    /*Todo lo que tenga ver sobre el boton*/
+    public void checkbox_clicked(View v)
+    {
+
+        if(check.isChecked())
+        {
+            // true,do the task
+            fab.setImageResource(R.drawable.ic_menu_delete);
+
+
+        }
+        else
+        {
+
+        }
+
     }
 
 }

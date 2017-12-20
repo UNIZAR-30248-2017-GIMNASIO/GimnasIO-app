@@ -1,11 +1,14 @@
 package com.patan.gimnasio.activities;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,6 +47,7 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     private int status = 0;
     private int total = 0;
     private TextView state;
+    private int id = 1;
     /**
      * Id to identify a contacts permission request.
      */
@@ -56,6 +60,8 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
     private View mLayout;
     private TextView texto;
     private ProgressBar barra;
+    NotificationManager mNotifyManager;
+    NotificationCompat.Builder mBuilder;
 
     private UpdateTask task = null;
     private DownloadingImgTask task2 = null;
@@ -74,6 +80,10 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
         barra = (ProgressBar) findViewById(R.id.progressBar);
         texto = (TextView) findViewById(R.id.descargando);
         state = (TextView) findViewById(R.id.descargando);
+        mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mBuilder = new NotificationCompat.Builder(this).setContentTitle("Descarga de ejercicios")
+                .setContentText("Descargando imagenes")
+                .setSmallIcon(R.drawable.small_icon_download);
         state.setText("Descargando");
         ApiHandler api = new ApiHandler(this);
         task = new UpdateTask(this);
@@ -130,8 +140,16 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
             status++;
             texto.setText("Descargando ejercicio "+status+"...");
             barra.setProgress(status);
+            mBuilder.setProgress(total, status, false);
+            mBuilder.setContentText("Descargando ejercicio "+status+"...");
+            // Displays the progress bar for the first time.
+            mNotifyManager.notify(id,mBuilder.build());
             if (status == total) {
                 state.setText("Descarga finalizada");
+                mBuilder.setContentText("Download complete")
+                        // Removes the progress bar
+                        .setProgress(0,0,false);
+                mNotifyManager.notify(id, mBuilder.build());
                 Log.d("DWL", "DOWNLOAD AND STORAGE FINISHED");
                 finish();
             }
