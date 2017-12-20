@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.CustomAdapterRoutine;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
@@ -68,12 +69,11 @@ public class RoutineListActivity extends AppCompatActivity {
 
         db = new GymnasioDBAdapter(this);
         db.open();
-
         l = (ListView)findViewById(R.id.dbRoutinesList);
         fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         busqueda = (EditText) (findViewById(R.id.busqueda));
         spinner = (Spinner) findViewById(R.id.spinner);
-        check = (CheckBox) findViewById(R.id.checkBox);
+        //check = (CheckBox) findViewById(R.id.checkBox);
         //Mio
 
 
@@ -204,8 +204,21 @@ public class RoutineListActivity extends AppCompatActivity {
         int[] to = new int[] { R.id.ro_row };
         // Now create an array adapter and set it to display using our row
         SimpleCursorAdapter notes =
-                new SimpleCursorAdapter(this, R.layout.routines_row_checkbox, routines, from, to,0);
-        //TODO: ver como va esto
+                new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
+
+        /*TODO: Check box con lista de rutinas*/
+        //ArrayList<Routine> listOfRoutines = new ArrayList<>();
+        //Como necesitamos una lista de rutinas, pasamos del cursor a esta lista
+
+        /*routines.moveToFirst();
+        for(int i = 0; i < routines.getCount();i++){
+            //KEY_RO_ID,KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,
+            //KEY_RO_GYM
+            // public Routine(String nameGym,String name,String objective){
+            listOfRoutines.add(new Routine(routines.getString(4),routines.getString(2),routines.getString(1)));
+        }*/
+
+       //l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));
         l.setAdapter(notes);
         registerForContextMenu(l);
     }
