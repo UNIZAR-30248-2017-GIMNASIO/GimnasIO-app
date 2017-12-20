@@ -200,61 +200,59 @@ public class ApiHandler {
     public JSONObject createPremiumRoutine(Routine r, ArrayList<ExFromRoutine> exercises) {
         String urlNewRoutine = urlRoutine + "newRoutine";
         db.open();
-        if (!r.getName().equals("")) {
-            Cursor c = db.getLoginData();
-            String key = "";
-            if (c != null) {
-                key = c.getString(c.getColumnIndex("key"));
-            }
-            String nameGym = r.getNameGym();
-            ArrayList<String> names = new ArrayList<>();
-            ArrayList<Integer> repetitions = new ArrayList<>();
-            ArrayList<Integer> series = new ArrayList<>();
-            ArrayList<Double> rT = new ArrayList<>();
-            for (ExFromRoutine exercise : exercises) {
-                names.add(db.getExerciseNameById(exercise.getId()));
-                repetitions.add(exercise.getRep());
-                series.add(exercise.getSeries());
-                rT.add(exercise.getRelxTime());
-            }
-            JSONObject json = new JSONObject();
+        Cursor c = db.getLoginData();
+        String key = "";
+        if (c != null) {
+            key = c.getString(c.getColumnIndex("key"));
+        }
+        String nameGym = r.getNameGym();
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Integer> repetitions = new ArrayList<>();
+        ArrayList<Integer> series = new ArrayList<>();
+        ArrayList<Double> rT = new ArrayList<>();
+        for (ExFromRoutine exercise : exercises) {
+            names.add(db.getExerciseNameById(exercise.getId()));
+            repetitions.add(exercise.getRep());
+            series.add(exercise.getSeries());
+            rT.add(exercise.getRelxTime());
+        }
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", r.getName());
+            json.put("objective", r.getObjective());
+            json.put("exercises", names);
+            json.put("repetitions", repetitions);
+            json.put("series", series);
+            json.put("relaxTime", rT);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("CrtPrRou", json.toString());
+        ANRequest request = AndroidNetworking.post(urlNewRoutine)
+                .addHeaders("user", u)
+                .addHeaders("pwd", p)
+                .addHeaders("nameGym", nameGym)
+                .addHeaders("key", key)
+                .addJSONObjectBody(json)
+                .build();
+
+        ANResponse<JSONObject> response = request.executeForJSONObject();
+
+        if (response.isSuccess()) {
+            JSONObject jsonObject = response.getResult();
+            boolean res = false;
             try {
-                json.put("name", r.getName());
-                json.put("objective", r.getObjective());
-                json.put("exercises", names);
-                json.put("repetitions", repetitions);
-                json.put("series", series);
-                json.put("relaxTime", rT);
+                Log.d("CrtPrRou", jsonObject.toString());
+                res = jsonObject.getBoolean("success");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Log.d("CrtPrRou", json.toString());
-            ANRequest request = AndroidNetworking.post(urlNewRoutine)
-                    .addHeaders("user", u)
-                    .addHeaders("pwd", p)
-                    .addHeaders("nameGym", nameGym)
-                    .addHeaders("key", key)
-                    .addJSONObjectBody(json)
-                    .build();
-
-            ANResponse<JSONObject> response = request.executeForJSONObject();
-
-            if (response.isSuccess()) {
-                JSONObject jsonObject = response.getResult();
-                boolean res = false;
-                try {
-                    Log.d("CrtPrRou", jsonObject.toString());
-                    res = jsonObject.getBoolean("success");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                if (res) return jsonObject;
-            } else {
-                ANError error = response.getError();
-                Log.e("CrtPrRou", error.getErrorBody().toString());
-                // Handle Error
-            }
-        } else Log.d("CrtPrRou","Field name can't be null, aborting...");
+            if (res) return jsonObject;
+        } else {
+            ANError error = response.getError();
+            Log.e("CrtPrRou", error.getErrorBody().toString());
+            // Handle Error
+        }
         db.close();
         return null;
     }
@@ -265,60 +263,59 @@ public class ApiHandler {
      * @param exercises
      * @return
      */
-    public JSONObject updatePremiumRoutine(String oldName, String idR, Routine r, ArrayList<ExFromRoutine> exercises) {
+    public JSONObject updatePremiumRoutine(String idR, Routine r, ArrayList<ExFromRoutine> exercises) {
         String urlUpdRoutine = urlRoutine + "update";
         db.open();
         Cursor c = db.getLoginData();
-        String key ="";
-        if (c!=null){
+        String key = "";
+        if (c != null) {
             key = c.getString(c.getColumnIndex("key"));
         }
         String nameGym = r.getNameGym();
-        String[] names = new String[exercises.size()];
-        int[] repetitions = new int[exercises.size()];
-        int[] series = new int[exercises.size()];
-        double[] rT = new double[exercises.size()];
-        int i = 0;
-        for (ExFromRoutine exercise: exercises){
-            names[i] = db.getExerciseNameById(exercise.getId());
-            repetitions[i] = exercise.getRep();
-            series[i] = exercise.getSeries();
-            rT[i] = exercise.getRelxTime();
-            i++;
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Integer> repetitions = new ArrayList<>();
+        ArrayList<Integer> series = new ArrayList<>();
+        ArrayList<Double> rT = new ArrayList<>();
+        for (ExFromRoutine exercise : exercises) {
+            names.add(db.getExerciseNameById(exercise.getId()));
+            repetitions.add(exercise.getRep());
+            series.add(exercise.getSeries());
+            rT.add(exercise.getRelxTime());
         }
         JSONObject json = new JSONObject();
         try {
-            json.put("name",r.getName());
-            json.put("objective",r.getObjective());
+            json.put("name", r.getName());
+            json.put("objective", r.getObjective());
             json.put("exercises", names);
-            json.put("repetitions",repetitions);
-            json.put("series",series);
-            json.put("relaxTime",rT);
-            json.put("id",idR);
-            json.put("oldname",oldName);
+            json.put("repetitions", repetitions);
+            json.put("series", series);
+            json.put("relaxTime", rT);
+            json.put("id", idR);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d("UpdPrRou", json.toString());
         ANRequest request = AndroidNetworking.put(urlUpdRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
-                .addHeaders("nameGym",nameGym)
-                .addHeaders("key",key)
+                .addHeaders("nameGym", nameGym)
+                .addHeaders("key", key)
                 .addJSONObjectBody(json)
                 .build();
 
-
         ANResponse<JSONObject> response = request.executeForJSONObject();
+
 
         if (response.isSuccess()) {
             JSONObject jsonObject = response.getResult();
+            Log.d("UpdPrRou", jsonObject.toString());
             boolean res = false;
             try {
                 res = jsonObject.getBoolean("success");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            if (res)return jsonObject;
+            if (res) return jsonObject;
         } else {
             ANError error = response.getError();
             Log.e("UpdPrRou", error.getErrorBody().toString());
@@ -326,20 +323,16 @@ public class ApiHandler {
         }
         db.close();
         return null;
+
     }
 
     /**
      * Función que sirve de pasarela enter la aplicacion y el servidor para el borrado de rutinas
-     * @param name
-     * @param idL
      * @param idR
      * @return
      */
-    public boolean deletePremiumRoutine(String name, long idL, String idR) {
+    public boolean deletePremiumRoutine(String idR) {
         db.open();
-        if (name == null) {
-            name = db.getRoutineNameById(idL);
-        }
         Cursor c = db.getLoginData();
         String key ="";
         String gymName ="";
@@ -351,7 +344,6 @@ public class ApiHandler {
 
         JSONObject json = new JSONObject();
         try {
-            json.put("name", name);
             json.put("id", idR);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -368,6 +360,7 @@ public class ApiHandler {
 
         if (response.isSuccess()) {
             JSONObject jsonObject = response.getResult();
+            Log.d("DelPrRou", jsonObject.toString());
             boolean res = false;
             try {
                 res = jsonObject.getBoolean("success");

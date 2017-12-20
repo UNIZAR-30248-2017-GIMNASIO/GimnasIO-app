@@ -24,7 +24,7 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 30;
+    private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
@@ -41,7 +41,6 @@ public class GymnasioDBAdapter {
 
     public static final String KEY_RO_ID= "_id";
     public static final String KEY_RO_NAME = "name";
-
     public static final String KEY_RO_PREMIUM = "premium";
     public static final String KEY_RO_GYM = "gym";
     public static final String KEY_RO_OBJ = "objective";
@@ -62,7 +61,7 @@ public class GymnasioDBAdapter {
     private static final String CREATE_TABLE_ROUTINES = "CREATE TABLE IF NOT EXISTS " + Table_Routine +
             " ("+ KEY_RO_ID +" INTEGER PRIMARY KEY AUTOINCREMENT ,"+ KEY_RO_OBJ +" VARCHAR(20)"
             + " not null,"+ KEY_RO_NAME +" VARCHAR(20) not null,"+KEY_RO_PREMIUM
-            + " boolean not null,"+ KEY_RO_GYM +"varchar(20),"+KEY_RO_IDR+" integer)";
+            + " boolean not null,"+ KEY_RO_GYM +" varchar(20), "+KEY_RO_IDR+" varchar(20))";
     private static final String CREATE_TABLE_EXERCISES="CREATE TABLE IF NOT EXISTS " + Table_Exercise +
             " (" + KEY_EX_ID + " integer primary key autoincrement," + KEY_EX_NAME + " VARCHAR(20) not null," +
     KEY_EX_DESC + " not null," + KEY_EX_MUSCLE + " VARCHAR(20) not null, " + KEY_EX_IMG +
@@ -373,6 +372,7 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, true);
+        v.put(KEY_RO_IDR,"");
         //Introducimos la rutina
         long id = Db.insert(Table_Routine,null,v);
         //Añadimos los ejercicios de la rutina
@@ -404,7 +404,8 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, false);
-        boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+        long res = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null);
+        boolean updateRo =  res > 0;
         Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"=" + id,null);
         if (ex != null || ex.size() != 0) {
             for (ExFromRoutine e : ex) {
@@ -417,6 +418,7 @@ public class GymnasioDBAdapter {
                 Db.insert(Table_ExOfRoutine,null,v2);
             }
         }
+
         return updateRo;
     }
     /**
@@ -434,7 +436,8 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, true);
-        boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null) > 0;
+        v.put(KEY_RO_IDR,r.getIdR());
+        boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null)>0;
         Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"="+id,null);
         if (ex != null || ex.size() != 0) {
             for (ExFromRoutine e : ex) {
@@ -540,7 +543,7 @@ public class GymnasioDBAdapter {
         if (mCursor != null) {
             mCursor.moveToFirst();
             return mCursor.getString(mCursor.getColumnIndex(KEY_RO_IDR));
-        } else return null;
+        } else return "";
     }
 
     public String getRoutineNameById(long id){

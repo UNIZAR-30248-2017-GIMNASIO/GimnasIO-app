@@ -357,7 +357,7 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
             // TODO: attempt authentication against a network service.
             ApiHandler api = new ApiHandler(mCtx);
             JSONObject respuesta = api.updatePremiumDB(nameGym,key);
-            Log.d("PRUEBA",respuesta.toString());
+            Log.d("UpdPrRou",respuesta.toString());
             if (respuesta != null) {
                 data = respuesta;
                 return true;
@@ -430,11 +430,13 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         if (listaRutinas.length() == 0) {
             for (int i = 0; i < listaRutinas.length(); i++) {
                 JSONObject rutina = listaRutinas.getJSONObject(i + "");
+                String idR = rutina.getString("_id");
                 String name = rutina.getString("name");
                 String nameGym = rutina.getString("nameGym");
                 String objective = rutina.getString("objective");
                 JSONObject exercises = rutina.getJSONObject("exercises");
                 Routine r = new Routine(nameGym,name,objective);
+                r.setIdR(idR);
                 ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
                 for ( int j = 0; i < exercises.length(); j++ ) {
                     JSONObject ejercicio = exercises.getJSONObject(j + "");

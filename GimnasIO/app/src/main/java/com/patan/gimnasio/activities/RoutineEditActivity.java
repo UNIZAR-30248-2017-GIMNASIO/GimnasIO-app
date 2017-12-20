@@ -112,7 +112,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                 id_in = db.createFreemiumRoutine(r,efrArray);
             } else {
                 id_in = db.createPremiumRoutine(r,efrArray);
-                task = new RoutineTask(0, r, efrArray,this,null,-1);
+                task = new RoutineTask(0, r, efrArray,this,id_in);
                 task.execute((Void) null);
             }
             populateFields();
@@ -187,8 +187,8 @@ public class RoutineEditActivity extends AppCompatActivity {
                 if (user_type.equals("free")) {
                     db.updateFreemiumRoutine(id_in,r,efrArray);
                 } else if (user_type.equals("trainer")) {
-                    db.updatePremiumRoutine(id_in,r,efrArray);
-                    task = new RoutineTask(1, r, efrArray,this,"",id_in);
+
+                    task = new RoutineTask(1, r, efrArray,this,id_in);
                     task.execute((Void) null);
                 }
                 populateFields();
@@ -222,8 +222,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                     if (user_type.equals("free")) {
                         db.updateFreemiumRoutine(id_in,r_up,ex_up);
                     } else if (user_type.equals("trainer")) {
-                        db.updatePremiumRoutine(id_in,r_up,ex_up);
-                        task = new RoutineTask(1, r_up, ex_up,this,"",id_in);
+                        task = new RoutineTask(1, r_up, ex_up,this,id_in);
                         task.execute((Void) null);
                     }
                     populateFields();
@@ -258,8 +257,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                     if (user_type.equals("free")) {
                         db.updateFreemiumRoutine(id_in,r_down,ex_down);
                     } else if (user_type.equals("trainer")) {
-                        db.updatePremiumRoutine(id_in,r_down,ex_down);
-                        task = new RoutineTask(1, r_down, ex_down,this,"",id_in);
+                        task = new RoutineTask(1, r_down, ex_down,this,id_in);
                         task.execute((Void) null);
                     }
                     populateFields();
@@ -426,8 +424,7 @@ public class RoutineEditActivity extends AppCompatActivity {
                 if (user_type.equals("free")) {
                     db.updateFreemiumRoutine(id_in,r,efrArray);
                 } else if (user_type.equals("trainer")) {
-                    db.updatePremiumRoutine(id_in,r,efrArray);
-                    task = new RoutineTask(1, r, efrArray,this,"",id_in);
+                    task = new RoutineTask(1, r, efrArray,this,id_in);
                     task.execute((Void) null);
                 }
 
@@ -513,8 +510,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (user_type.equals("free")) {
             db.updateFreemiumRoutine(id_in,r,efrArray);
         } else if (user_type.equals("trainer")) {
-            db.updatePremiumRoutine(id_in,r,efrArray);
-            task = new RoutineTask(1, r, efrArray,this,"",id_in);
+            task = new RoutineTask(1, r, efrArray,this,id_in);
             task.execute((Void) null);
         }
     }
@@ -577,37 +573,40 @@ public class RoutineEditActivity extends AppCompatActivity {
         private Routine routine;
         private ArrayList<ExFromRoutine> exercises;
         private ApiHandler api;
-        private String oldName;
         private long idL;
-        //private int count;
 
-        RoutineTask(int type, Routine r, ArrayList<ExFromRoutine> exercises, Context ctx,String oldName, long idL) {
+        RoutineTask(int type, Routine r, ArrayList<ExFromRoutine> exercises, Context ctx, long idL) {
             this.mCtx = ctx;
             this.type = type;
             this.routine = r;
             this.exercises = exercises;
             api = new ApiHandler(mCtx);
             this.idL = idL;
-            this.oldName = oldName;
         }
 
         @Override
         protected Boolean doInBackground (Void... params) {
 
             JSONObject json = new JSONObject();
+            String idR = "";
             if (type == 0) {
-                Log.d("Premium", "Creating new premium routine on remote server");
+                Log.d("PrTask", "Creating new premium routine on remote server");
                 json = api.createPremiumRoutine(routine,exercises);
             } else if (type == 1) {
-                long idR = db.getPremiumIdr(idL);
-                Log.d("Premium", "Updating premium routine on remote server");
-                json = api.updatePremiumRoutine(oldName,idL,routine,exercises);
+                idR = db.getPremiumIdr(idL);
+                routine.setIdR(idR);
+                Log.d("PrTask", "Updating premium routine on remote server with remote id: " + idR);
+                json = api.updatePremiumRoutine(idR,routine,exercises);
             } else {
-                Log.d("Premium", "Wrong type in call");
+                Log.d("PrTask", "Wrong type in call");
             }
             try {
                 if (json.getBoolean("success")) {
-                    routine.setIdR(json.getLong("id"));
+                    if (type==0) {
+                        routine.setIdR(json.getString("id"));
+                    } else if (type==1) {
+                        routine.setIdR(idR);
+                    }
                     db.updatePremiumRoutine(idL,routine,exercises);
                     return true;
                 }
@@ -625,7 +624,6 @@ public class RoutineEditActivity extends AppCompatActivity {
                     text = "Rutina creada en el servidor correctamente";
                 } else if (type == 1) {
                     text = "Rutina actualizada en el servidor correctamente";
-
                 } else {
                     text = "Rutina eliminada en el servidor correctamente";
                 }

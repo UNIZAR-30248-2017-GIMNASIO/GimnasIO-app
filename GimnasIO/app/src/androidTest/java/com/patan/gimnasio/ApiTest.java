@@ -93,23 +93,21 @@ public class ApiTest extends ActivityInstrumentationTestCase2<MainActivity> {
         r2 = new Routine("EINAGym","Rutina12","Objetivo2");
         r3 = new Routine("EINAGym","Rutina13","Objetivo3");
 
-        json = api.updatePremiumDB("EINAGym", "ZpJ5KG");
-        nRoutinesPre = json.length();
         efrArray = new ArrayList<>();
 
-        api.updatePremiumRoutine("Rutina1",id1,r1,efrArray);
-        api.updatePremiumRoutine("Rutina2",id1,r1,efrArray);
-        api.updatePremiumRoutine("Rutina3",id1,r1,efrArray);
+        json1 = api.updatePremiumRoutine(id1,r1,efrArray);
+        json2 = api.updatePremiumRoutine(id1,r1,efrArray);
+        json3 = api.updatePremiumRoutine(id1,r1,efrArray);
 
-        json = api.updatePremiumDB("EINAGym", "ZpJ5KG");
+        assertEquals(true,json1.getBoolean("success"));
+        assertEquals(true,json2.getBoolean("success"));
+        assertEquals(true,json3.getBoolean("success"));
 
-        nRoutinesPost = json.length();
-        assertEquals( nRoutinesPre , nRoutinesPost);
         json = api.updatePremiumDB("EINAGym", "ZpJ5KG");
         nRoutinesPre = json.length();
-        api.deletePremiumRoutine("Rutina11", -1,id1);
-        api.deletePremiumRoutine("Rutina12", -1,id2);
-        api.deletePremiumRoutine("Rutina13", -1,id3);
+        api.deletePremiumRoutine(id1);
+        api.deletePremiumRoutine(id2);
+        api.deletePremiumRoutine(id3);
         json = api.updatePremiumDB("EINAGym", "ZpJ5KG");
         nRoutinesPost = json.length();
         assertEquals( nRoutinesPre - 3, nRoutinesPost);
