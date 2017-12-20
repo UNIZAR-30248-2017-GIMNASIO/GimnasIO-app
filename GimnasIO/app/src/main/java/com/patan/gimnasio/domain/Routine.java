@@ -8,6 +8,7 @@ public class Routine{
     private String nameGym;
     private String name;
     private String objective;
+    private String idR;
 
     private ArrayList<Long> exercises;
 
@@ -19,7 +20,12 @@ public class Routine{
 
 
 
-
+    public void setIdR(String idR){
+        this.idR = idR;
+    }
+    public String getIdR() {
+        return idR;
+    }
     public void setName(String name) {
         this.name = name;
     }

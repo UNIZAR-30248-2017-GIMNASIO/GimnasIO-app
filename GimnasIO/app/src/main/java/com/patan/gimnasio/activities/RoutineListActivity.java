@@ -273,8 +273,8 @@ public class RoutineListActivity extends AppCompatActivity {
             Cursor c = (Cursor) adapter.getItem(info.position);
             int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
             long id = c.getLong(pos);
-            db.deleteRoutine(id);
-            //task=new DeleteRoutineTask(id, this);
+            task=new DeleteRoutineTask(id, this);
+            task.execute((Void) null);
             fillData();
             return true;
         } else {
@@ -302,9 +302,9 @@ public class RoutineListActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground (Void... params) {
-
-            boolean ok = api.deletePremiumRoutine(id);
             Log.d("Premium", "Deleting premium routine on remote server with id " + id);
+            String idR = db.getPremiumIdr(id);
+            boolean ok = api.deletePremiumRoutine(idR);
             if (ok) {
                 return true;
             } return false;
@@ -314,6 +314,7 @@ public class RoutineListActivity extends AppCompatActivity {
             CharSequence text;
             if (success) {
                 text = "Rutina eliminada en el servidor correctamente";
+                db.deleteRoutine(id);
             } else {
                 text = "Algo ha ido mal, comprueba tu conexión a internet";
             }
