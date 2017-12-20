@@ -357,7 +357,7 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
             // TODO: attempt authentication against a network service.
             ApiHandler api = new ApiHandler(mCtx);
             JSONObject respuesta = api.updatePremiumDB(nameGym,key);
-            Log.d("PRUEBA",respuesta.toString());
+            Log.d("UpdPrRou",respuesta.toString());
             if (respuesta != null) {
                 data = respuesta;
                 return true;
@@ -392,7 +392,6 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         @Override
         protected void onCancelled() {
             task = null;
-            showProgress(false);
         }
 
     }
@@ -427,14 +426,17 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
     private void updateDatabase(JSONObject listaRutinas) throws JSONException {
         db = new GymnasioDBAdapter(this);
         db.open();
+        Log.d("UpdPrem",listaRutinas.toString());
         if (listaRutinas.length() == 0) {
             for (int i = 0; i < listaRutinas.length(); i++) {
                 JSONObject rutina = listaRutinas.getJSONObject(i + "");
+                String idR = rutina.getString("_id");
                 String name = rutina.getString("name");
                 String nameGym = rutina.getString("nameGym");
                 String objective = rutina.getString("objective");
                 JSONObject exercises = rutina.getJSONObject("exercises");
                 Routine r = new Routine(nameGym,name,objective);
+                r.setIdR(idR);
                 ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
                 for ( int j = 0; i < exercises.length(); j++ ) {
                     JSONObject ejercicio = exercises.getJSONObject(j + "");
@@ -451,8 +453,10 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                 }
                 Cursor uOC = db.getPremiumRoutineByName(name,nameGym);
                 if (uOC.getCount() == 0){
+                    Log.d("CrtPrRouLoc","Creating premium routine with name " + r.getName());
                     db.createPremiumRoutine(r,efrArray);
                 } else{
+                    Log.d("UpdPrRouLoc","Updating premium routine with name " + r.getName());
                     long rId = uOC.getLong(uOC.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID));
                     db.updatePremiumRoutine(rId,r,efrArray);
                 }

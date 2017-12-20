@@ -27,7 +27,6 @@ import okhttp3.Response;
  */
 public class ApiHandler {
 
-
     private final String urlDb = "http://54.171.225.70:32001/dbdata/";
     private final String urlLogin = "http://54.171.225.70:32001/gym/login";
     private final String urlUpdate ="http://54.171.225.70:32001/exercises/";
@@ -62,14 +61,14 @@ public class ApiHandler {
                     if (type.equals("user")) {
                         login = true;
                         db.loginAsUser(nameGym,key);
-                        Log.d("Premium", "Logged as normal user of gym: " + nameGym);
+                        Log.d("LogPr", "Logged as normal user of gym: " + nameGym);
                     } else if (type.equals("admin")) {
                         login = true;
                         db.loginAsAdmin(nameGym,key);
-                        Log.d("Premium", "Logged as admin of gym: " + nameGym);
+                        Log.d("LogPr", "Logged as admin of gym: " + nameGym);
                     } else {
                         login = false;
-                        Log.d("Premium", "Not Logged in gym: " + nameGym);
+                        Log.d("LogPr", "Not Logged in gym: " + nameGym);
                     }
                 }
             } catch (JSONException e) {
@@ -85,14 +84,14 @@ public class ApiHandler {
         return login;
     }
 
-    public DBRData dbData(String lastUpdateLocal, int firstInstallation) {
+    public DBRData dbData() {
         ANRequest request = AndroidNetworking.get(urlDb)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
                 .build();
         ANResponse<JSONObject> response = request.executeForJSONObject();
         JSONObject respuesta = response.getResult();
-        Log.w("DBData", response.toString());
+        Log.d("DBData", response.toString());
         if (response.isSuccess()) {
             try {
                 double imageSize = respuesta.getDouble("imageSize");
@@ -120,7 +119,7 @@ public class ApiHandler {
                 .build();
         ANResponse<JSONObject> response = request.executeForJSONObject();
 
-        Log.w("DBData", response.toString());
+        Log.d("DBData", response.toString());
         if (response.isSuccess()) {
             return response.getResult();
         } else {
@@ -140,13 +139,13 @@ public class ApiHandler {
                 .build();
         ANResponse<JSONObject> response = request.executeForJSONObject();
 
-        Log.w("DBData", response.toString());
+        //Log.d("UpdPre", response.toString());
         if (response.isSuccess()) {
             return response.getResult();
         } else {
             ANError error = response.getError();
             // Handle Error
-            Log.e("Premium", error.getErrorBody());
+            //Log.e("Premium", error.getErrorBody());
             return null;
         }
     }
@@ -191,53 +190,51 @@ public class ApiHandler {
         return output;
     }
 
+
     /**
-     *
-     * @param key
-     * @param json
+     * Función que sirve de pasarela enter la aplicacion y el servidor para la creacion de rutinas
+     * @param r
+     * @param exercises
      * @return
      */
-    public boolean createPremiumRoutine(String key, String nameGym, JSONObject json) {
+    public JSONObject createPremiumRoutine(Routine r, ArrayList<ExFromRoutine> exercises) {
         String urlNewRoutine = urlRoutine + "newRoutine";
-        Log.d("PRUEBA", json.toString());
-        ANRequest request = AndroidNetworking.post(urlNewRoutine)
-                    .addHeaders("user", u)
-                    .addHeaders("pwd", p)
-                    .addHeaders("nameGym",nameGym)
-                    .addHeaders("key",key)
-                    .addJSONObjectBody(json)
-                    .build();
-
-        ANResponse<JSONObject> response = request.executeForJSONObject();
-
-        if (response.isSuccess()) {
-            JSONObject jsonObject = response.getResult();
-            boolean res = false;
-            try {
-                Log.d("CREACIONROUTINE",jsonObject.toString());
-                res = jsonObject.getBoolean("success");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            if (res)return true;
-        } else {
-            ANError error = response.getError();
-            // Handle Error
+        db.open();
+        Cursor c = db.getLoginData();
+        String key = "";
+        if (c != null) {
+            key = c.getString(c.getColumnIndex("key"));
         }
-        return false;
-    }
-
-    public boolean updatePremiumRoutine(String key, String nameGym, JSONObject json) {
-
-        String urlNewRoutine = urlRoutine + "newRoutine";
+        String nameGym = r.getNameGym();
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Integer> repetitions = new ArrayList<>();
+        ArrayList<Integer> series = new ArrayList<>();
+        ArrayList<Double> rT = new ArrayList<>();
+        for (ExFromRoutine exercise : exercises) {
+            names.add(db.getExerciseNameById(exercise.getId()));
+            repetitions.add(exercise.getRep());
+            series.add(exercise.getSeries());
+            rT.add(exercise.getRelxTime());
+        }
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", r.getName());
+            json.put("objective", r.getObjective());
+            json.put("exercises", names);
+            json.put("repetitions", repetitions);
+            json.put("series", series);
+            json.put("relaxTime", rT);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("CrtPrRou", json.toString());
         ANRequest request = AndroidNetworking.post(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
-                .addHeaders("nameGym",nameGym)
-                .addHeaders("key",key)
+                .addHeaders("nameGym", nameGym)
+                .addHeaders("key", key)
                 .addJSONObjectBody(json)
                 .build();
-
 
         ANResponse<JSONObject> response = request.executeForJSONObject();
 
@@ -245,20 +242,97 @@ public class ApiHandler {
             JSONObject jsonObject = response.getResult();
             boolean res = false;
             try {
+                Log.d("CrtPrRou", jsonObject.toString());
                 res = jsonObject.getBoolean("success");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            if (res)return true;
+            if (res) return jsonObject;
         } else {
             ANError error = response.getError();
+            Log.e("CrtPrRou", error.getErrorBody().toString());
             // Handle Error
         }
-        return false;
+        db.close();
+        return null;
     }
 
-    public boolean deletePremiumRoutine(long id) {
-        String name = db.getRoutineNameById(id);
+    /**
+     * Función que sirve de pasarela enter la aplicacion y el servidor para la actualización de rutinas
+     * @param r
+     * @param exercises
+     * @return
+     */
+    public JSONObject updatePremiumRoutine(String idR, Routine r, ArrayList<ExFromRoutine> exercises) {
+        String urlUpdRoutine = urlRoutine + "update";
+        db.open();
+        Cursor c = db.getLoginData();
+        String key = "";
+        if (c != null) {
+            key = c.getString(c.getColumnIndex("key"));
+        }
+        String nameGym = r.getNameGym();
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Integer> repetitions = new ArrayList<>();
+        ArrayList<Integer> series = new ArrayList<>();
+        ArrayList<Double> rT = new ArrayList<>();
+        for (ExFromRoutine exercise : exercises) {
+            names.add(db.getExerciseNameById(exercise.getId()));
+            repetitions.add(exercise.getRep());
+            series.add(exercise.getSeries());
+            rT.add(exercise.getRelxTime());
+        }
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", r.getName());
+            json.put("objective", r.getObjective());
+            json.put("exercises", names);
+            json.put("repetitions", repetitions);
+            json.put("series", series);
+            json.put("relaxTime", rT);
+            json.put("id", idR);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("UpdPrRou", json.toString());
+        ANRequest request = AndroidNetworking.put(urlUpdRoutine)
+                .addHeaders("user", u)
+                .addHeaders("pwd", p)
+                .addHeaders("nameGym", nameGym)
+                .addHeaders("key", key)
+                .addJSONObjectBody(json)
+                .build();
+
+        ANResponse<JSONObject> response = request.executeForJSONObject();
+
+
+        if (response.isSuccess()) {
+            JSONObject jsonObject = response.getResult();
+            Log.d("UpdPrRou", jsonObject.toString());
+            boolean res = false;
+            try {
+                res = jsonObject.getBoolean("success");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if (res) return jsonObject;
+        } else {
+            ANError error = response.getError();
+            Log.e("UpdPrRou", error.getErrorBody().toString());
+            // Handle Error
+        }
+        db.close();
+        return null;
+
+    }
+
+    /**
+     * Función que sirve de pasarela enter la aplicacion y el servidor para el borrado de rutinas
+     * @param idR
+     * @return
+     */
+    public boolean deletePremiumRoutine(String idR) {
+        db.open();
         Cursor c = db.getLoginData();
         String key ="";
         String gymName ="";
@@ -266,19 +340,27 @@ public class ApiHandler {
             key = c.getString(c.getColumnIndex(GymnasioDBAdapter.KEY_GYM_KEY));
             gymName = c.getString(c.getColumnIndex( GymnasioDBAdapter.KEY_GYM_NAME));
         }
-        String urlNewRoutine = urlRoutine + "deleteRoutine";
+        String urlNewRoutine = urlRoutine + "delete";
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("id", idR);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         ANRequest request = AndroidNetworking.delete(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)
                 .addHeaders("nameGym", gymName)
                 .addHeaders("key",key)
-                .addBodyParameter("name",name)
+                .addJSONObjectBody(json)
                 .build();
 
         ANResponse<JSONObject> response = request.executeForJSONObject();
 
         if (response.isSuccess()) {
             JSONObject jsonObject = response.getResult();
+            Log.d("DelPrRou", jsonObject.toString());
             boolean res = false;
             try {
                 res = jsonObject.getBoolean("success");
@@ -288,8 +370,10 @@ public class ApiHandler {
             if (res) return true;
         } else {
             ANError error = response.getError();
+            Log.e("DelPrRou", error.getErrorBody().toString());
             // Handle Error
         }
+        db.close();
         return false;
     }
 }
