@@ -45,7 +45,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.Main2Activity" />
+        <!--activity android:name=".activities.Main2Activity" /-->
         <activity android:name=".activities.AddExerciseToRoutineActivity" />
         <activity
             android:name=".activities.ExecuteRoutineActivity"

@@ -80,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
         c.close();
     }
 
+    public GymnasioDBAdapter getGymnasioDbAdapter() {
+        return db;
+    }
+
     private void checkIfUserWantsDownload(String size){
         CharSequence options[] = new CharSequence[] {"De acuerdo", "En otro momento"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -242,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
         protected Boolean doInBackground (Void... params) {
             // TODO: attempt authentication against a network service.
             ApiHandler api = new ApiHandler(mCtx);
-            DBRData respuesta = api.dbData(lastUpdateLocal, firstInstallation);
+            DBRData respuesta = api.dbData();
             if (respuesta != null) {
                 String lastUpdateRemote = respuesta.getLastUpdate();
                 lastUpdateRemote = lastUpdateRemote.replace('T', '_');

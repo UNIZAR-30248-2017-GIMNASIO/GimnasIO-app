@@ -2,6 +2,7 @@ package com.patan.gimnasio.activities;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -32,7 +34,7 @@ public class ExerciseListActivity extends AppCompatActivity {
     private ListView l;
     private GymnasioDBAdapter db;
     private Spinner spinner;
-    private Button boton;
+    private FloatingActionButton boton;
     private EditText busqueda;
     private static final int ADD_ID = 1;
     private String mode_in;
@@ -49,7 +51,8 @@ public class ExerciseListActivity extends AppCompatActivity {
         db.open();
         busqueda = (EditText) (findViewById(R.id.busqueda));
         spinner = (Spinner) findViewById(R.id.spinner);
-
+        boton = (FloatingActionButton) findViewById(R.id.añadir);
+        boton.setVisibility(View.INVISIBLE);
         //We declare the search options
         ArrayList<String> categories = new ArrayList<String>();
         categories.add("Nombre");
@@ -132,6 +135,12 @@ public class ExerciseListActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == ADD_ID) {
+            //Log.d("SAVED","Dentro de añadir ejercicios");
+            //We set the button visible
+            //boton.setVisibility(View.VISIBLE);
+            //Quizas cambiar el layout de las columnas
+
+
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             Adapter adapter = l.getAdapter();
             Cursor c = (Cursor) adapter.getItem(info.position);
@@ -188,6 +197,23 @@ public class ExerciseListActivity extends AppCompatActivity {
                 new SimpleCursorAdapter(this, R.layout.exercises_row, exercises, from, to,0);
         l.setAdapter(notes);
     }
+
+
+    private void fillDataAddExercisesToRoutine(){
+        Cursor exercises = db.fetchExercises();
+        startManagingCursor(exercises);
+        // Create an array to specify the fields we want to display in the list (only NAME)
+        String[] from = new String[] {GymnasioDBAdapter.KEY_EX_NAME,GymnasioDBAdapter.KEY_EX_TAG};
+        // and an array of the fields we want to bind those fields to (in this case just text1)
+        int[] to = new int[] { R.id.ex_row,R.id.ex_row2};
+        // Now create an array adapter and set it to display using our row
+        SimpleCursorAdapter notes =
+                new SimpleCursorAdapter(this, R.layout.exercises_row_checkbox, exercises, from, to,0);
+        l.setAdapter(notes);
+
+
+    }
+
 
     private void fillDataByMuscle(String muscle) {
         // Get all of the exercises from the database and create the item list
