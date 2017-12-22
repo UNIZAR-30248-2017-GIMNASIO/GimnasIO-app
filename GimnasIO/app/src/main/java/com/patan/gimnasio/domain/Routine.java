@@ -9,6 +9,7 @@ public class Routine{
     private String name;
     private String objective;
     private String idR;
+    private boolean checked;
 
     private ArrayList<Long> exercises;
 
@@ -68,5 +69,15 @@ public class Routine{
         }
 
         return true;
+    }
+
+    public boolean isChecked()
+    {
+        return checked;
+    }
+
+    public void setChecked(boolean checked)
+    {
+        this.checked = checked;
     }
 }
