@@ -510,6 +510,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (user_type.equals("free")) {
             db.updateFreemiumRoutine(id_in,r,efrArray);
         } else if (user_type.equals("trainer")) {
+            Log.d("EXPre: ","" + efrArray.size());
             task = new RoutineTask(1, r, efrArray,this,id_in);
             task.execute((Void) null);
         }

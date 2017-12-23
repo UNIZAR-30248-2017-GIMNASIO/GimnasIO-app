@@ -30,7 +30,7 @@ import android.widget.Toast;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
-import com.patan.gimnasio.domain.CustomAdapterRoutine;
+//import com.patan.gimnasio.domain.CustomAdapterRoutine;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
@@ -198,6 +198,7 @@ public class RoutineListActivity extends AppCompatActivity {
             routines = db.fetchPremiumRoutines(gym_name);
             startManagingCursor(routines);
         }
+        Log.d("Tamanio: ", ""+routines.getCount());
         // Create an array to specify the fields we want to display in the list (only NAME)
         String[] from = new String[] {GymnasioDBAdapter.KEY_RO_NAME};
         // and an array of the fields we want to bind those fields to (in this case just text1)
@@ -295,8 +296,12 @@ public class RoutineListActivity extends AppCompatActivity {
             Cursor c = (Cursor) adapter.getItem(info.position);
             int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
             long id = c.getLong(pos);
-            task=new DeleteRoutineTask(id, this);
-            task.execute((Void) null);
+            if (user_type.equals("trainer")) {
+                task=new DeleteRoutineTask(id, this);
+                task.execute((Void) null);
+            } else {
+                db.deleteRoutine(id);
+            }
             fillData();
             return true;
         } else {
@@ -337,6 +342,7 @@ public class RoutineListActivity extends AppCompatActivity {
             if (success) {
                 text = "Rutina eliminada en el servidor correctamente";
                 db.deleteRoutine(id);
+                fillData();
             } else {
                 text = "Algo ha ido mal, comprueba tu conexión a internet";
             }

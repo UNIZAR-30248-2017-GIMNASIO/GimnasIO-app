@@ -374,6 +374,7 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                 Toast toast = Toast.makeText(mCtx, text, duration);
                 toast.setGravity(Gravity.TOP, 0, 100);
                 toast.show();
+                goNow();
                 try {
                     updateDatabase(data);
                 } catch (JSONException e) {
@@ -386,7 +387,6 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                 toast.setGravity(Gravity.TOP, 0, 100);
                 toast.show();
             }
-
         }
 
         @Override
@@ -397,17 +397,24 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
     }
     // Metodo que nos lleva a la actividad de lista de rutinas
     public void goToRoutineListActivity(){
-
         Cursor cursor = db.getLoginData();
         startManagingCursor(cursor);
-        int pos_type = cursor.getColumnIndex(GymnasioDBAdapter.KEY_GYM_TYPE);
-        String type = cursor.getString(pos_type);
         int pos_name = cursor.getColumnIndex(GymnasioDBAdapter.KEY_GYM_NAME);
         String name = cursor.getString(pos_name);
         String key = cursor.getString(cursor.getColumnIndex(GymnasioDBAdapter.KEY_GYM_KEY));
         cursor.close();
         task = new UpdateDbWithPremiumTask(name, key, this);
         task.execute((Void) null);
+    }
+
+    public void goNow() {
+        Cursor cursor = db.getLoginData();
+        startManagingCursor(cursor);
+        int pos_type = cursor.getColumnIndex(GymnasioDBAdapter.KEY_GYM_TYPE);
+        String type = cursor.getString(pos_type);
+        int pos_name = cursor.getColumnIndex(GymnasioDBAdapter.KEY_GYM_NAME);
+        String name = cursor.getString(pos_name);
+        cursor.close();
         if (type.equals("user")) {
             Intent intent = new Intent(this, RoutineListActivity.class);
             intent.putExtra("USERTYPE","premium");
@@ -419,8 +426,6 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
             intent.putExtra("GYMNAME",name);
             startActivity(intent);
         }
-
-
     }
 
     private void updateDatabase(JSONObject listaRutinas) throws JSONException {
@@ -436,6 +441,12 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                 String objective = rutina.getString("objective");
                 JSONObject exercises = rutina.getJSONObject("exercises");
                 Routine r = new Routine(nameGym,name,objective);
+                Log.d("id","" + idR);
+                Log.d("name","" + name);
+                Log.d("gym","" + nameGym);
+                Log.d("obj","" + objective);
+                Log.d("ej","" + exercises.toString());
+
                 r.setIdR(idR);
                 ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
                 for ( int j = 0; i < exercises.length(); j++ ) {
