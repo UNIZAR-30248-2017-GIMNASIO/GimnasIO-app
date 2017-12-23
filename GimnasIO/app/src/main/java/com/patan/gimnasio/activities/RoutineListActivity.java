@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -51,6 +52,7 @@ public class RoutineListActivity extends AppCompatActivity {
     private String user_type;
     private String gym_name = "Rutina gratuita";
     private FloatingActionButton fab;
+    private FloatingActionButton deleteAll;
     private Spinner spinner;
     private Button boton;
     private CheckBox check;
@@ -73,6 +75,7 @@ public class RoutineListActivity extends AppCompatActivity {
         fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         busqueda = (EditText) (findViewById(R.id.busqueda));
         spinner = (Spinner) findViewById(R.id.spinner);
+        deleteAll = (FloatingActionButton) findViewById(R.id.deletebutton);
         //check = (CheckBox) findViewById(R.id.checkBox);
         //Mio
 
@@ -126,9 +129,14 @@ public class RoutineListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 Adapter adapter = l.getAdapter();
-                Cursor item = (Cursor) adapter.getItem(position);
-                int pos = item.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
-                long id_rut = item.getLong(pos);
+                //Sin checkbox, guardarse esto por si acaso
+                //Cursor item = (Cursor) adapter.getItem(position);
+                //int pos = item.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
+                //long id_rut = item.getLong(pos);
+                //Con checkbox
+                Routine item = (Routine) adapter.getItem(position);
+                Cursor r = db.getFreemiumRoutineByName(item.getName());
+                long id_rut = r.getLong(0);
                 Intent intent = new Intent(v.getContext(), RoutineEditActivity.class);
                 intent.putExtra("MODE","view");
                 intent.putExtra("USERTYPE", user_type);
@@ -163,7 +171,7 @@ public class RoutineListActivity extends AppCompatActivity {
         // Handle item selection
         if (item.getItemId() == R.id.logout) {
             db.logout();
-            // Esto nos hara volver al menu principal difab.setImageResource(R.drawable.ic_shopping_cart_white);rectamente limpiando las actividades que tenga por encima (identificate)
+            // Esto nos hara volver al menu principal directamente limpiando las actividades que tenga por encima (identificate)
             Intent intent = new Intent(this,MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
@@ -208,19 +216,17 @@ public class RoutineListActivity extends AppCompatActivity {
                 new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
 
         /*TODO: Check box con lista de rutinas*/
-        //ArrayList<Routine> listOfRoutines = new ArrayList<>();
+        ArrayList<Routine> listOfRoutines = new ArrayList<>();
         //Como necesitamos una lista de rutinas, pasamos del cursor a esta lista
 
-        /*routines.moveToFirst();
+        routines.moveToFirst();
         for(int i = 0; i < routines.getCount();i++){
-            //KEY_RO_ID,KEY_RO_OBJ,KEY_RO_NAME,KEY_RO_PREMIUM,
-            //KEY_RO_GYM
-            // public Routine(String nameGym,String name,String objective){
             listOfRoutines.add(new Routine(routines.getString(4),routines.getString(2),routines.getString(1)));
-        }*/
+            routines.moveToNext();
+        }
 
-       //l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));
-        l.setAdapter(notes);
+       l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));//
+        // l.setAdapter(notes);
         registerForContextMenu(l);
     }
 
@@ -242,7 +248,18 @@ public class RoutineListActivity extends AppCompatActivity {
         // Now create an array adapter and set it to display using our row
         SimpleCursorAdapter notes =
                 new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
-        l.setAdapter(notes);
+        ArrayList<Routine> listOfRoutines = new ArrayList<>();
+        //Como necesitamos una lista de rutinas, pasamos del cursor a esta lista
+
+        routines.moveToFirst();
+        for(int i = 0; i < routines.getCount();i++){
+            listOfRoutines.add(new Routine(routines.getString(4),routines.getString(2),routines.getString(1)));
+            routines.moveToNext();
+        }
+
+        l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));//
+
+        //l.setAdapter(notes);
         registerForContextMenu(l);
     }
 
@@ -263,7 +280,18 @@ public class RoutineListActivity extends AppCompatActivity {
         // Now create an array adapter and set it to display using our row
         SimpleCursorAdapter notes =
                 new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
-        l.setAdapter(notes);
+
+        ArrayList<Routine> listOfRoutines = new ArrayList<>();
+        //Como necesitamos una lista de rutinas, pasamos del cursor a esta lista
+
+        routines.moveToFirst();
+        for(int i = 0; i < routines.getCount();i++){
+            listOfRoutines.add(new Routine(routines.getString(4),routines.getString(2),routines.getString(1)));
+            routines.moveToNext();
+        }
+
+        l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));//
+        //l.setAdapter(notes);
         registerForContextMenu(l);
     }
 
@@ -293,6 +321,7 @@ public class RoutineListActivity extends AppCompatActivity {
         if (item.getItemId() == DELETE_ID) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             Adapter adapter = l.getAdapter();
+
             Cursor c = (Cursor) adapter.getItem(info.position);
             int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
             long id = c.getLong(pos);
@@ -302,8 +331,10 @@ public class RoutineListActivity extends AppCompatActivity {
             } else {
                 db.deleteRoutine(id);
             }
+
             fillData();
             return true;
+
         } else {
             return false;
         }
@@ -358,22 +389,38 @@ public class RoutineListActivity extends AppCompatActivity {
     }
 
 
-    /*Todo lo que tenga ver sobre el boton*/
-    public void checkbox_clicked(View v)
-    {
-
-        if(check.isChecked())
-        {
-            // true,do the task
-            fab.setImageResource(R.drawable.ic_menu_delete);
-
-
+    /*Funcion que compruba cuantos checkboxes hay seleccionados, y borra las rutinas asociadas a ellos*/
+    public void countCheckMarks(View v) {
+        int total = 0 ;
+        int mListLength = l.getCount();
+        Adapter adapter = l.getAdapter();
+        for (int i = 0; i < mListLength ; i++) {
+            Routine item = (Routine) adapter.getItem(i);
+            if (item.isChecked()) {
+                total++ ;
+                Cursor c = db.getFreemiumRoutineByName(item.getName());
+                long id = c.getLong(0);
+                db.deleteRoutine(id);
+            }
         }
-        else
-        {
-
+        //Tenemos que mirar si el usuario borró mientras estaba buscando
+        if(TextUtils.isEmpty(busqueda.toString())) fillData();
+        else{
+            String s = busqueda.getText().toString();
+             if (spinner.getSelectedItem().toString().equals("Nombre")) {
+                 fillDataByName(s);
+             } else if (spinner.getSelectedItem().toString().equals("Objetivo")) {
+                 fillDataByObj(s);
+             }
         }
-
+        if (total == 0) {
+            Toast.makeText(
+                    this, "No hay rutinas seleccionadas para borrar",Toast.LENGTH_LONG).show();
+        }
+        else{
+            Toast.makeText(
+                    this, "Se han borrado " + total + " rutinas",Toast.LENGTH_LONG).show();
+        }
     }
-
 }
+
