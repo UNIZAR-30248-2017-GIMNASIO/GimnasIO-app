@@ -542,6 +542,7 @@ public class RoutineEditActivity extends AppCompatActivity {
     // Metodo que rellena la lista de ejercicios
     public void populateExerciseList() {
         Cursor ejercicios = db.getExercisesFromRoutine(id_in);
+        Log.d("CURSIRIO", "" + ejercicios.getCount());
         if (ejercicios != null) {
             startManagingCursor(ejercicios);
             // Create an array to specify the fields we want to display in the list (only NAME)
@@ -635,6 +636,7 @@ public class RoutineEditActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(mCtx, text, duration);
             toast.setGravity(Gravity.TOP, 0, 100);
             toast.show();
+            populateFields();
         }
         @Override
         protected void onCancelled() {

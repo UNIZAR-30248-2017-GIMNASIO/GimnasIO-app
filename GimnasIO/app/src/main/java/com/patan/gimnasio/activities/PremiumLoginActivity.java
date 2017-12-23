@@ -432,7 +432,7 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         db = new GymnasioDBAdapter(this);
         db.open();
         Log.d("UpdPrem",listaRutinas.toString());
-        if (listaRutinas.length() == 0) {
+        if (listaRutinas.length() != 0) {
             for (int i = 0; i < listaRutinas.length(); i++) {
                 JSONObject rutina = listaRutinas.getJSONObject(i + "");
                 String idR = rutina.getString("_id");

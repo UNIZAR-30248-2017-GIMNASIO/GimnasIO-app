@@ -431,6 +431,7 @@ public class GymnasioDBAdapter {
      * @return true if success or false if failure
      */
     public boolean updatePremiumRoutine(long id, Routine r, ArrayList<ExFromRoutine> ex) {
+        Log.d("TAGIRIO", "UPDATEANDO RUTINISKI");
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
         v.put(KEY_RO_GYM, r.getNameGym());
