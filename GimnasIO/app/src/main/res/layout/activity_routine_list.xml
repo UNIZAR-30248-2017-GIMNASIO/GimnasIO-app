@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/floatingActionButton"
         android:clickable="true"
-        android:onClick="goToRoutineEditCreate"
+        android:onClick="countCheckMarks"
         app:srcCompat="@drawable/ic_menu_delete" />
 
     <android.support.design.widget.FloatingActionButton
