@@ -510,6 +510,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         if (user_type.equals("free")) {
             db.updateFreemiumRoutine(id_in,r,efrArray);
         } else if (user_type.equals("trainer")) {
+            Log.d("EXPre: ","" + efrArray.size());
             task = new RoutineTask(1, r, efrArray,this,id_in);
             task.execute((Void) null);
         }
@@ -541,6 +542,7 @@ public class RoutineEditActivity extends AppCompatActivity {
     // Metodo que rellena la lista de ejercicios
     public void populateExerciseList() {
         Cursor ejercicios = db.getExercisesFromRoutine(id_in);
+        Log.d("CURSIRIO", "" + ejercicios.getCount());
         if (ejercicios != null) {
             startManagingCursor(ejercicios);
             // Create an array to specify the fields we want to display in the list (only NAME)
@@ -634,6 +636,7 @@ public class RoutineEditActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(mCtx, text, duration);
             toast.setGravity(Gravity.TOP, 0, 100);
             toast.show();
+            populateFields();
         }
         @Override
         protected void onCancelled() {
