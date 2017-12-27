@@ -8,8 +8,9 @@
     tools:context="com.patan.gimnasio.activities.ExecuteRoutineActivity$RelaxFragment">
 
     <LinearLayout
+        android:id="@+id/ll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <TextView
@@ -18,8 +19,8 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/descanso"
-            android:textStyle="bold"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/imageView5"
@@ -27,21 +28,15 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_menu_gallery" />
 
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
-
         <TextView
             android:id="@+id/relaxTimeCountdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Placeholder"
-            android:gravity="center"
+            android:layout_gravity="center"
             android:layout_marginBottom="6dp"
+            android:layout_marginTop="100dp"
+            android:gravity="center"
+            android:text="0"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
         <ProgressBar
@@ -50,18 +45,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+
     </LinearLayout>
+
     <LinearLayout
+        android:id="@+id/ll2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="bottom|center">
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:onClick="startCountdown"
-            android:text="@string/comenzar_descanso" />
-    </LinearLayout>
+        android:gravity="bottom|center"></LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

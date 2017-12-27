@@ -24,8 +24,11 @@ import android.view.ViewGroup;
 
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
@@ -57,6 +60,8 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
 
     private Chronometer mChronometer;
     private boolean mChronoStarted;
+    private long lastPause;
+    private boolean mChronoFirst;
 
     private GymnasioDBAdapter db;
 
@@ -95,6 +100,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         mChronometer = (Chronometer) findViewById(R.id.chronometer3);
+        mChronoFirst = true;
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -111,6 +117,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
     public void onPause() {
 
         super.onPause();
+        lastPause = SystemClock.elapsedRealtime();
         mChronometer.stop();
     }
 
@@ -119,6 +126,10 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
 
         super.onResume();
         if(mChronoStarted){
+            if(!mChronoFirst) {
+                mChronometer.setBase(mChronometer.getBase() + SystemClock.elapsedRealtime() - lastPause);
+            } else mChronometer.setBase(SystemClock.elapsedRealtime());
+            mChronoFirst = false;
             mChronometer.start();
         }
     }
@@ -159,6 +170,10 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
     }
 
     public void startChrono(View v) {
+        if(!mChronoFirst) {
+            mChronometer.setBase(mChronometer.getBase() + SystemClock.elapsedRealtime() - lastPause);
+        } else mChronometer.setBase(SystemClock.elapsedRealtime());
+        mChronoFirst = false;
         mChronometer.start();
         mChronoStarted = true;
         startButton.setVisibility(View.INVISIBLE);
@@ -166,6 +181,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
     }
     public void stopChrono(View view) {
         mChronometer.stop();
+        lastPause = SystemClock.elapsedRealtime();
         startButton.setVisibility(View.VISIBLE);
         stopButton.setVisibility(View.INVISIBLE);
     }
@@ -192,11 +208,22 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public class ReverseInterpolator implements Interpolator {
+        @Override
+        public float getInterpolation(float paramFloat) {
+            return Math.abs(paramFloat -1f);
+        }
+    }
+
     public void playAnimation(View view) {
         ImageView swipe1 = (ImageView) view.findViewById(R.id.swipe);
         ViewAnimator viewAnimator = (ViewAnimator) view.findViewById(R.id.viewanimator);
-        Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
-        Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
+//        Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
+//        Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
+        Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
+        in.setInterpolator(new ReverseInterpolator());
+        Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
+        out.setInterpolator(new ReverseInterpolator());
         in.setDuration(1000);
         out.setDuration(1000);
         if(swipe1.getVisibility() == View.INVISIBLE) {
@@ -215,11 +242,6 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
     public void closeActivity(View view) {
         finish();
     }
-
-    public void startCountdown(View view) {
-        //getFragmentManager().findFragmentByTag("rt" + )
-    }
-
 
     /**
      * A start fragment containing the start view of execute routine.
@@ -294,7 +316,6 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            //TODO: colocar aqui el resto de info del ejercicio
             View rootView = inflater.inflate(R.layout.fragment_execute_routine_exercise, container, false);
 
             TextView nameTv = (TextView) rootView.findViewById(R.id.ex_name);
@@ -341,6 +362,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
 
         private TextView mCountdownTv;
 
+        private CountDownTimer cdt;
         public RelaxFragment() {
         }
 
@@ -369,11 +391,37 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
             mProgressBar = (ProgressBar) rootView.findViewById(R.id.relaxTimeProgress);
 
             System.out.println("tiempo: " + (int) getArguments().getDouble("relaxTime"));
+            mProgressBar.setProgress(0);
             mProgressBar.setMax((int)getArguments().getDouble("relaxTime"));
 
-            mCountdownTv = (TextView) rootView.findViewById(R.id.relaxTimeCountdown) ;
+            final LinearLayout ll = (LinearLayout) rootView.findViewById(R.id.ll);
 
-            new CountDownTimer((long)getArguments().getDouble("relaxTime") * 1000, 1000) {
+            final Button startCountdownButton = new Button(rootView.getContext());
+            startCountdownButton.setText("Empezar Descanso");
+            startCountdownButton.setId(R.id.CdtButton);
+
+            final Button restartCountdownButton = new Button(rootView.getContext());
+            restartCountdownButton.setText("Reiniciar");
+            restartCountdownButton.setId(R.id.reCdtButton);
+
+            startCountdownButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startCountdown(v, ll, restartCountdownButton);
+                }
+            });
+
+            restartCountdownButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    restartCountdown(v, ll, startCountdownButton);
+                }
+            });
+            ll.addView(startCountdownButton);
+            mCountdownTv = (TextView) rootView.findViewById(R.id.relaxTimeCountdown);
+            mCountdownTv.setText(Integer.toString((int)getArguments().getDouble("relaxTime")));
+
+            cdt = new CountDownTimer((long)getArguments().getDouble("relaxTime") * 1000, 1000) {
 
                 public void onTick(long millisUntilFinished) {
                     mProgressBar.incrementProgressBy(1);
@@ -382,16 +430,27 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
 
                 public void onFinish() {
                     mProgressBar.incrementProgressBy(1);
-                    mCountdownTv.setText("0");
+                    mCountdownTv.setText("Fin del descanso.");
                 }
-            }.start();
+            };
 
             return rootView;
         }
 
-        public void startCountdown(View v) {
-            System.out.println("VAMO A VE");
+        public void startCountdown(View v, LinearLayout ll, View rst) {
+            cdt.start();
+            //v.setVisibility(View.INVISIBLE);
+            ll.removeView(v);
+            ll.addView(rst);
+        }
 
+        public void restartCountdown(View v, LinearLayout ll, View st) {
+            ll.removeView(v);
+            cdt.cancel();
+            mProgressBar.setProgress(0);
+            mCountdownTv.setText(Integer.toString((int)getArguments().getDouble("relaxTime")));
+            //cdt.start();
+            ll.addView(st);
         }
 
     }
@@ -443,10 +502,9 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            if(position == 2) {
-                mChronometer.setBase(SystemClock.elapsedRealtime());
-                startChrono(findViewById(R.id.activity_routine_execute));
-            }
+//            if(position == 2) {
+//                startChrono(findViewById(R.id.activity_routine_execute));
+//            }
             position = position + 1;
             if(position == 1) {
                 return StartFragment.newInstance(position);
