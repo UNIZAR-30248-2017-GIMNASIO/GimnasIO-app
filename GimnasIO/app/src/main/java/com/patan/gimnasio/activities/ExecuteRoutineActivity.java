@@ -243,11 +243,6 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         finish();
     }
 
-    public void startCountdown(View view) {
-        //getFragmentManager().findFragmentByTag("rt" + )
-    }
-
-
     /**
      * A start fragment containing the start view of execute routine.
      */
@@ -321,7 +316,6 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            //TODO: colocar aqui el resto de info del ejercicio
             View rootView = inflater.inflate(R.layout.fragment_execute_routine_exercise, container, false);
 
             TextView nameTv = (TextView) rootView.findViewById(R.id.ex_name);
