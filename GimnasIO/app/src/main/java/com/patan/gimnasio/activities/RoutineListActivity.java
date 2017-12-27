@@ -31,7 +31,7 @@ import android.widget.Toast;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
-//import com.patan.gimnasio.domain.CustomAdapterRoutine;
+import com.patan.gimnasio.domain.CustomAdapterRoutine;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
@@ -394,15 +394,28 @@ public class RoutineListActivity extends AppCompatActivity {
         int total = 0 ;
         int mListLength = l.getCount();
         Adapter adapter = l.getAdapter();
-        for (int i = 0; i < mListLength ; i++) {
-            Routine item = (Routine) adapter.getItem(i);
-            if (item.isChecked()) {
-                total++ ;
-                Cursor c = db.getFreemiumRoutineByName(item.getName());
-                long id = c.getLong(0);
-                db.deleteRoutine(id);
+        if (user_type.equals("free")) {
+            for (int i = 0; i < mListLength ; i++) {
+                Routine item = (Routine) adapter.getItem(i);
+                if (item.isChecked()) {
+                    total++ ;
+                    Cursor c = db.getFreemiumRoutineByName(item.getName());
+                    long id = c.getLong(0);
+                    db.deleteRoutine(id);
+                }
+            }
+        } else {
+            for (int i = 0; i < mListLength ; i++) {
+                Routine item = (Routine) adapter.getItem(i);
+                if (item.isChecked()) {
+                    total++ ;
+                    Cursor c = db.getPremiumRoutineByName(item.getName(),gym_name);
+                    long id = c.getLong(0);
+                    db.deleteRoutine(id);
+                }
             }
         }
+
         //Tenemos que mirar si el usuario borró mientras estaba buscando
         if(TextUtils.isEmpty(busqueda.toString())) fillData();
         else{
