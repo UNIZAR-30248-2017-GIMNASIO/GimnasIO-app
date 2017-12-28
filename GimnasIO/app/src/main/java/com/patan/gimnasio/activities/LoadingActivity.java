@@ -190,10 +190,10 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                 }
             } else {
                 CharSequence text = "Error en la descarga";
-                int duration = Toast.LENGTH_LONG;
+                int duration = Toast.LENGTH_SHORT;
 
                 Toast toast = Toast.makeText(mCtx, text, duration);
-                toast.setGravity(Gravity.TOP, 0, 100);
+                toast.setGravity(Gravity.BOTTOM, 0, 100);
                 toast.show();
             }
         }
@@ -235,9 +235,9 @@ public class LoadingActivity extends AppCompatActivity implements ActivityCompat
                 SaveImage(data,imgName);
             } else {
                 CharSequence text = "Error en la descarga de " + imgName;
-                int duration = Toast.LENGTH_LONG;
+                int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(mCtx, text, duration);
-                toast.setGravity(Gravity.TOP, 0, 100);
+                toast.setGravity(Gravity.BOTTOM, 0, 100);
                 toast.show();
             }
         }

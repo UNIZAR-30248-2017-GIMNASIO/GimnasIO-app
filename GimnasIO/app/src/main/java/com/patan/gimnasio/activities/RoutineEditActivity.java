@@ -632,9 +632,9 @@ public class RoutineEditActivity extends AppCompatActivity {
             } else {
                 text = "Algo ha ido mal, comprueba tu conexión a internet";
             }
-            int duration = Toast.LENGTH_LONG;
+            int duration = Toast.LENGTH_SHORT;
             Toast toast = Toast.makeText(mCtx, text, duration);
-            toast.setGravity(Gravity.TOP, 0, 100);
+            toast.setGravity(Gravity.BOTTOM, 0, 100);
             toast.show();
             populateFields();
         }

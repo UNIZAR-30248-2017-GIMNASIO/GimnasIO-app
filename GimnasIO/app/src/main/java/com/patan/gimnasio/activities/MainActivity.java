@@ -259,13 +259,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(final Boolean success) {
             if (success) {
                 checkIfUserWantsDownload(downloadSize);
-            } else {
-                CharSequence text = "No hay nada que descargar";
-                int duration = Toast.LENGTH_LONG;
-
-                Toast toast = Toast.makeText(mCtx, text, duration);
-                //toast.setGravity(Gravity.TOP, 0, 100);
-                toast.show();
             }
         }
 
