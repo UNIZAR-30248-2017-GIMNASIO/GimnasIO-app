@@ -427,9 +427,10 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
         db = new GymnasioDBAdapter(this);
         db.open();
         Log.d("UpdPrem",listaRutinas.toString());
-        if (listaRutinas.length() == 0) {
+        if (listaRutinas.length() != 0) {
             for (int i = 0; i < listaRutinas.length(); i++) {
                 JSONObject rutina = listaRutinas.getJSONObject(i + "");
+                Log.d("UpdPrem", "Including routine from json: " + rutina.toString());
                 String idR = rutina.getString("_id");
                 String name = rutina.getString("name");
                 String nameGym = rutina.getString("nameGym");
@@ -439,7 +440,9 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                 r.setIdR(idR);
                 ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
                 for ( int j = 0; i < exercises.length(); j++ ) {
+
                     JSONObject ejercicio = exercises.getJSONObject(j + "");
+                    Log.d("UpdPrem", "Including exercise from json: " + ejercicio.toString());
                     String nameEj = ejercicio.getString("name");
                     int rep = ejercicio.getInt("repetitions");
                     int series = ejercicio.getInt("series");
@@ -452,6 +455,8 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                     }
                 }
                 Cursor uOC = db.getPremiumRoutineByName(name,nameGym);
+                Log.d("PRUEBICA", name);
+                Log.d("PRUEBICA",uOC.getString(uOC.getColumnIndex("name")));
                 if (uOC.getCount() == 0){
                     Log.d("CrtPrRouLoc","Creating premium routine with name " + r.getName());
                     db.createPremiumRoutine(r,efrArray);
@@ -462,7 +467,8 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                 }
             }
         }
-        Log.d("Update", "Database updated");
+        db.close();
+        Log.d("UpdWithPreRoutines", "Database updated");
     }
 }
 
