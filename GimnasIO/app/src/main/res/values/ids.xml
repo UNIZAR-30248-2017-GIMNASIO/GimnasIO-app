@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="ex_row" type="id" />
+    <item name="CdtButton" type="id">43131231</item>
+    <item name="reCdtButton" type="id">58176374</item>
 </resources>

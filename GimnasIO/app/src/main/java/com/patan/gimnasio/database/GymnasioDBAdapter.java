@@ -24,7 +24,7 @@ public class GymnasioDBAdapter {
     private DatabaseHelper DbHelper;
     private SQLiteDatabase Db;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 33;
     private static final String DATABASE_NAME = "GymnasIOapp.db";
     private static final String Table_Routine = "Routine";
     private static final String Table_Exercise = "Exercise";
@@ -431,6 +431,7 @@ public class GymnasioDBAdapter {
      * @return true if success or false if failure
      */
     public boolean updatePremiumRoutine(long id, Routine r, ArrayList<ExFromRoutine> ex) {
+        Log.d("TAGIRIO", "UPDATEANDO RUTINISKI");
         ContentValues v = new ContentValues();
         v.put(KEY_RO_NAME, r.getName());
         v.put(KEY_RO_GYM, r.getNameGym());

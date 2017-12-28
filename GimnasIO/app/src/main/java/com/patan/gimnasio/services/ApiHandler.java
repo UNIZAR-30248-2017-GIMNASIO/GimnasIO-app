@@ -15,6 +15,7 @@ import com.patan.gimnasio.domain.DBRData;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -216,14 +217,20 @@ public class ApiHandler {
             series.add(exercise.getSeries());
             rT.add(exercise.getRelxTime());
         }
+
         JSONObject json = new JSONObject();
+        JSONArray jNames = new JSONArray(names);
+        JSONArray jRepetitions = new JSONArray(repetitions);
+        JSONArray jSeries = new JSONArray(series);
+        JSONArray jRT = new JSONArray(rT);
+
         try {
             json.put("name", r.getName());
             json.put("objective", r.getObjective());
-            json.put("exercises", names);
-            json.put("repetitions", repetitions);
-            json.put("series", series);
-            json.put("relaxTime", rT);
+            json.put("exercises", jNames);
+            json.put("repetitions", jRepetitions);
+            json.put("series", jSeries);
+            json.put("relaxTime", jRT);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -283,13 +290,19 @@ public class ApiHandler {
             rT.add(exercise.getRelxTime());
         }
         JSONObject json = new JSONObject();
+
+        JSONArray jNames = new JSONArray(names);
+        JSONArray jRepetitions = new JSONArray(repetitions);
+        JSONArray jSeries = new JSONArray(series);
+        JSONArray jRT = new JSONArray(rT);
+
         try {
             json.put("name", r.getName());
             json.put("objective", r.getObjective());
-            json.put("exercises", names);
-            json.put("repetitions", repetitions);
-            json.put("series", series);
-            json.put("relaxTime", rT);
+            json.put("exercises", jNames);
+            json.put("repetitions", jRepetitions);
+            json.put("series", jSeries);
+            json.put("relaxTime", jRT);
             json.put("id", idR);
         } catch (JSONException e) {
             e.printStackTrace();

@@ -114,8 +114,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.update:
                 goToStartApp();
                 return true;
-            case R.id.swipetest:
-                goToSwipe();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -143,10 +141,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void goToSwipe() {
-        Intent intent = new Intent(this, ExecuteRoutineActivity.class);
-        startActivity(intent);
-    }
     public void goToExercise(View v) {
         Intent intent = new Intent(this, ExerciseListActivity.class);
         intent.putExtra("MODE","view");
@@ -270,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
                 int duration = Toast.LENGTH_LONG;
 
                 Toast toast = Toast.makeText(mCtx, text, duration);
-                toast.setGravity(Gravity.TOP, 0, 100);
+                //toast.setGravity(Gravity.TOP, 0, 100);
                 toast.show();
             }
         }
