@@ -370,9 +370,9 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
             CharSequence text;
             if (success) {
                 text = "Incluyendo rutinas de " + nameGym;
-                int duration = Toast.LENGTH_LONG;
+                int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(mCtx, text, duration);
-                toast.setGravity(Gravity.TOP, 0, 100);
+                toast.setGravity(Gravity.BOTTOM, 0, 100);
                 toast.show();
                 goNow();
                 try {
@@ -382,9 +382,9 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                 }
             } else {
                 text = "Algo ha ido mal, comprueba tu conexión a internet";
-                int duration = Toast.LENGTH_LONG;
+                int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(mCtx, text, duration);
-                toast.setGravity(Gravity.TOP, 0, 100);
+                toast.setGravity(Gravity.BOTTOM, 0, 100);
                 toast.show();
             }
         }

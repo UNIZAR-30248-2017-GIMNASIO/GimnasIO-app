@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.CustomAdapterRoutine;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
@@ -376,9 +377,9 @@ public class RoutineListActivity extends AppCompatActivity {
             } else {
                 text = "Algo ha ido mal, comprueba tu conexión a internet";
             }
-            int duration = Toast.LENGTH_LONG;
+            int duration = Toast.LENGTH_SHORT;
             Toast toast = Toast.makeText(mCtx, text, duration);
-            toast.setGravity(Gravity.TOP, 0, 100);
+            toast.setGravity(Gravity.BOTTOM, 0, 100);
             toast.show();
         }
         @Override
@@ -426,12 +427,12 @@ public class RoutineListActivity extends AppCompatActivity {
              }
         }
         if (total == 0) {
-            Toast.makeText(
-                    this, "No hay rutinas seleccionadas para borrar",Toast.LENGTH_LONG).show();
+            //Toast.makeText(
+            //        this, "No hay rutinas seleccionadas para borrar",Toast.LENGTH_LONG).show();
         }
         else{
-            Toast.makeText(
-                    this, "Se han borrado " + total + " rutinas",Toast.LENGTH_LONG).show();
+            //Toast.makeText(
+            //        this, "Se han borrado " + total + " rutinas",Toast.LENGTH_LONG).show();
         }
     }
 }
