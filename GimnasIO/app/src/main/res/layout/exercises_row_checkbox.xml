@@ -6,22 +6,22 @@
     android:layout_height="match_parent">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants">
 
         <CheckBox
-            android:id="@+id/checkBox"
+            android:id="@+id/checkBoxExercise"
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"/>
+            android:layout_height="wrap_content"
+             />
 
         <TextView
             android:id="@+id/ex_row2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/ex_row"
             android:layout_below="@+id/ex_row"
+            android:layout_toRightOf="@+id/checkBoxExercise"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@android:color/black" />
 
@@ -29,8 +29,7 @@
             android:id="@+id/ex_row"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/checkBox"
-            android:layout_toRightOf="@+id/checkBox"
+            android:layout_toRightOf="@+id/checkBoxExercise"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@android:color/black" />
 

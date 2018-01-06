@@ -1,6 +1,9 @@
 package com.patan.gimnasio.activities;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -58,6 +61,7 @@ public class RoutineListActivity extends AppCompatActivity {
     private CheckBox check;
     private EditText busqueda;
     private DeleteRoutineTask task;
+    private Menu optionsMenu;
 
 
     public GymnasioDBAdapter getGymnasioDBAdapter(){
@@ -135,7 +139,9 @@ public class RoutineListActivity extends AppCompatActivity {
                 //long id_rut = item.getLong(pos);
                 //Con checkbox
                 Routine item = (Routine) adapter.getItem(position);
-                Cursor r = db.getFreemiumRoutineByName(item.getName());
+                Cursor r = null;
+                if (user_type.equals("free")) r = db.getFreemiumRoutineByName(item.getName());
+                else r = db.getPremiumRoutineByName(item.getName(),gym_name);
                 long id_rut = r.getLong(0);
                 Intent intent = new Intent(v.getContext(), RoutineEditActivity.class);
                 intent.putExtra("MODE","view");
@@ -215,7 +221,6 @@ public class RoutineListActivity extends AppCompatActivity {
         SimpleCursorAdapter notes =
                 new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
 
-        /*TODO: Check box con lista de rutinas*/
         ArrayList<Routine> listOfRoutines = new ArrayList<>();
         //Como necesitamos una lista de rutinas, pasamos del cursor a esta lista
 
@@ -321,10 +326,11 @@ public class RoutineListActivity extends AppCompatActivity {
         if (item.getItemId() == DELETE_ID) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             Adapter adapter = l.getAdapter();
-
-            Cursor c = (Cursor) adapter.getItem(info.position);
-            int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID);
-            long id = c.getLong(pos);
+            Routine routine = (Routine) adapter.getItem(info.position);
+            Cursor r;
+            if (user_type.equals("free")) r = db.getFreemiumRoutineByName(routine.getName());
+            else r = db.getPremiumRoutineByName(routine.getName(),gym_name);
+            long id = r.getLong(0);
             if (user_type.equals("trainer")) {
                 task=new DeleteRoutineTask(id, this);
                 task.execute((Void) null);
@@ -390,7 +396,7 @@ public class RoutineListActivity extends AppCompatActivity {
 
 
     /*Funcion que compruba cuantos checkboxes hay seleccionados, y borra las rutinas asociadas a ellos*/
-    public void countCheckMarks(View v) {
+    public void countCheckMarks() {
         int total = 0 ;
         int mListLength = l.getCount();
         Adapter adapter = l.getAdapter();
@@ -411,7 +417,8 @@ public class RoutineListActivity extends AppCompatActivity {
                     total++ ;
                     Cursor c = db.getPremiumRoutineByName(item.getName(),gym_name);
                     long id = c.getLong(0);
-                    db.deleteRoutine(id);
+                    task=new DeleteRoutineTask(id, this);
+                    task.execute((Void) null);
                 }
             }
         }
@@ -429,11 +436,55 @@ public class RoutineListActivity extends AppCompatActivity {
         if (total == 0) {
             //Toast.makeText(
             //        this, "No hay rutinas seleccionadas para borrar",Toast.LENGTH_LONG).show();
+
         }
         else{
             //Toast.makeText(
             //        this, "Se han borrado " + total + " rutinas",Toast.LENGTH_LONG).show();
         }
     }
+
+    public int countRoutinesMarked() {
+        int total = 0 ;
+        int mListLength = l.getCount();
+        Adapter adapter = l.getAdapter();
+            for (int i = 0; i < mListLength ; i++) {
+                Routine item = (Routine) adapter.getItem(i);
+                if (item.isChecked()) {
+                    total++ ;
+                }
+            }
+            return total;
+    }
+
+    public void delete(View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(RoutineListActivity.this);
+        builder.setCancelable(true);
+        builder.setTitle("Confirmacion");
+        builder.setMessage("Desea borrar " + countRoutinesMarked() + " rutinas?");
+        builder.setPositiveButton("SI",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                            countCheckMarks();
+                    }
+                });
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void Prueba(View v) {
+        String msg = "WOAS";
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+
 }
 

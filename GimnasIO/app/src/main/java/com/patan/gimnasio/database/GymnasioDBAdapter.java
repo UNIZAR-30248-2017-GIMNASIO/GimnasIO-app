@@ -323,7 +323,7 @@ public class GymnasioDBAdapter {
      */
     public Cursor getExercisesByTag(String tag) throws SQLException {
         Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Exercise + " WHERE " + KEY_EX_TAG
-                + " LIKE '%#" + tag + ",%';", null);
+                + " LIKE '%#" + tag + "%';", null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
