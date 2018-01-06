@@ -12,15 +12,16 @@ import android.widget.Toast;
 
 import com.patan.gimnasio.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CustomAdapterRoutine  extends ArrayAdapter<Routine> implements
+public class CustomAdapterExercise extends ArrayAdapter<Exercise> implements
         View.OnClickListener  {
 
     private LayoutInflater layoutInflater;
 
 
-    public CustomAdapterRoutine(Context context, List<Routine> objects)
+    public CustomAdapterExercise(Context context, List<Exercise> objects)
     {
         super(context, 0, objects);
         layoutInflater = LayoutInflater.from(context);
@@ -31,25 +32,31 @@ public class CustomAdapterRoutine  extends ArrayAdapter<Routine> implements
     public View getView(int position, View convertView, ViewGroup parent)
     {
         // holder pattern
-        Holder holder = null;
+        CustomAdapterExercise.Holder holder = null;
         if (convertView == null)
         {
-            holder = new Holder();
+            holder = new CustomAdapterExercise.Holder();
 
-            convertView = layoutInflater.inflate(R.layout.routines_row_checkbox, null);
-            holder.setTextViewTitle((TextView) convertView.findViewById(R.id.ro_rowcb));
-            //holder.setTextViewSubtitle((TextView) convertView.findViewById(R.id.textViewSubtitle));
+            convertView = layoutInflater.inflate(R.layout.exercises_row_checkbox, null);
+            holder.setExerciseName((TextView) convertView.findViewById(R.id.ex_row));
+            holder.setTags((TextView) convertView.findViewById(R.id.ex_row2));
             holder.setCheckBox((CheckBox) convertView
                     .findViewById(R.id.checkBoxExercise));
             convertView.setTag(holder);
         }
         else
         {
-            holder = (Holder) convertView.getTag();
+            holder = (CustomAdapterExercise.Holder) convertView.getTag();
         }
 
-        Routine r = getItem(position);
-        holder.getRoutineName().setText(r.getName());
+        Exercise r = getItem(position);
+        holder.getExerciseName().setText(r.getName());
+        ArrayList<String> tagsplit = r.getTags();
+        String aux = "";
+        for(String s : tagsplit) {
+            aux += " " + s;
+        }
+        holder.getTags().setText(aux);
         holder.getCheckBox().setTag(position);
         holder.getCheckBox().setChecked(r.isChecked());
         holder.getCheckBox().setOnClickListener(this);
@@ -65,8 +72,8 @@ public class CustomAdapterRoutine  extends ArrayAdapter<Routine> implements
 
 
 
-        String msg = "Has seleccionado la rutina: " + getItem(position).getName();
-        Toast.makeText(this.getContext(), msg, Toast.LENGTH_SHORT).show();
+        //String msg = "Has seleccionado la rutina: " + getItem(position).getName();
+        //Toast.makeText(this.getContext(), msg, Toast.LENGTH_SHORT).show();
 
 
     }
@@ -75,19 +82,29 @@ public class CustomAdapterRoutine  extends ArrayAdapter<Routine> implements
 
     static class Holder
     {
-        TextView RoutineName;
+        TextView ExerciseName;
+        TextView tags;
         CheckBox checkBox;
 
-        public TextView getRoutineName()
+        public TextView getExerciseName()
         {
-            return RoutineName;
+            return ExerciseName;
         }
 
-        public void setTextViewTitle(TextView name)
+        public void setExerciseName(TextView name)
         {
-            this.RoutineName = name;
+            this.ExerciseName = name;
         }
 
+        public TextView getTags()
+        {
+            return tags;
+        }
+
+        public void setTags(TextView name)
+        {
+            this.tags = name;
+        }
 
         public CheckBox getCheckBox()
         {
@@ -99,4 +116,5 @@ public class CustomAdapterRoutine  extends ArrayAdapter<Routine> implements
         }
 
     }
+
 }

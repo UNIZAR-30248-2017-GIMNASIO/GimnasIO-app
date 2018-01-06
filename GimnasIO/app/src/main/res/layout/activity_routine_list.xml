@@ -17,8 +17,9 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/floatingActionButton"
         android:clickable="true"
-        android:onClick="countCheckMarks"
-        app:srcCompat="@drawable/ic_menu_delete" />
+        android:onClick="delete"
+        android:visibility="visible"
+        app:srcCompat="@android:drawable/ic_menu_delete" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton"
@@ -28,6 +29,7 @@
         android:layout_alignParentRight="true"
         android:clickable="true"
         android:onClick="goToRoutineEditCreate"
+        android:visibility="visible"
         app:srcCompat="@drawable/add_icon" />
 
     <android.support.constraint.ConstraintLayout

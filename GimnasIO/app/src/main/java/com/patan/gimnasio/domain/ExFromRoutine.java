@@ -1,6 +1,8 @@
 package com.patan.gimnasio.domain;
 
-public class ExFromRoutine {
+import java.io.Serializable;
+
+public class ExFromRoutine implements Serializable {
     private long id;
     private int repetitions;
     private int series;
