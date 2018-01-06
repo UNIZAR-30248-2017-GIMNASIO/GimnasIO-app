@@ -15,20 +15,25 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -40,6 +45,7 @@ import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 // En esta actividad se mostrara una lista de rutinas creadas ademas de la opcion de crear una nueva rutina
 //  - Crear rutina (boton flotante) llevara a una RoutineEditActivity vacia
@@ -68,6 +74,8 @@ public class RoutineListActivity extends AppCompatActivity {
         return db;
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,10 +87,10 @@ public class RoutineListActivity extends AppCompatActivity {
         fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         busqueda = (EditText) (findViewById(R.id.busqueda));
         spinner = (Spinner) findViewById(R.id.spinner);
-        deleteAll = (FloatingActionButton) findViewById(R.id.deletebutton);
+        //deleteAll = (FloatingActionButton) findViewById(R.id.deletebutton);
         //check = (CheckBox) findViewById(R.id.checkBox);
         //Mio
-
+        SearchView sv = (SearchView) findViewById(R.id.search);
 
         ArrayList<String> categories = new ArrayList<String>();
         categories.add("Nombre");
@@ -151,6 +159,49 @@ public class RoutineListActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        l.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        l.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                menu.add(0,1,1,"Eliminar");
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if(item.getItemId() == 1){ // Eliminar
+                    delete();
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
+            }
+        });
+
+        l.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("hola");
+                view.setSelected(true);
+                l.setItemChecked(position, true);
+                return false;
+            }
+        });
+
         Intent intent = getIntent();
         user_type = intent.getStringExtra("USERTYPE");
 
@@ -168,6 +219,9 @@ public class RoutineListActivity extends AppCompatActivity {
         if (user_type.equals("premium") || user_type.equals("trainer")) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.routine_list_menu, menu);
+        } else {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.routine_list_menu2, menu);
         }
         return true;
     }
@@ -230,9 +284,8 @@ public class RoutineListActivity extends AppCompatActivity {
             routines.moveToNext();
         }
 
-       l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));//
-        // l.setAdapter(notes);
-        registerForContextMenu(l);
+        l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));//
+        //registerForContextMenu(l);
     }
 
 
@@ -265,7 +318,7 @@ public class RoutineListActivity extends AppCompatActivity {
         l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));//
 
         //l.setAdapter(notes);
-        registerForContextMenu(l);
+        //registerForContextMenu(l);
     }
 
     private void fillDataByObj(String obj) {
@@ -297,7 +350,7 @@ public class RoutineListActivity extends AppCompatActivity {
 
         l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));//
         //l.setAdapter(notes);
-        registerForContextMenu(l);
+        //registerForContextMenu(l);
     }
 
 
@@ -313,44 +366,45 @@ public class RoutineListActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        if (!user_type.equals("premium")) {
-            super.onCreateContextMenu(menu,v,menuInfo);
-            menu.add(Menu.NONE, DELETE_ID, Menu.NONE, R.string.menu_delete);
-        }
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        if (item.getItemId() == DELETE_ID) {
-            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-            Adapter adapter = l.getAdapter();
-            Routine routine = (Routine) adapter.getItem(info.position);
-            Cursor r;
-            if (user_type.equals("free")) r = db.getFreemiumRoutineByName(routine.getName());
-            else r = db.getPremiumRoutineByName(routine.getName(),gym_name);
-            long id = r.getLong(0);
-            if (user_type.equals("trainer")) {
-                task=new DeleteRoutineTask(id, this);
-                task.execute((Void) null);
-            } else {
-                db.deleteRoutine(id);
-            }
-
-            fillData();
-            return true;
-
-        } else {
-            return false;
-        }
-    }
+//    @Override
+//    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+//        if (!user_type.equals("premium")) {
+//            super.onCreateContextMenu(menu,v,menuInfo);
+//            menu.add(Menu.NONE, DELETE_ID, Menu.NONE, R.string.menu_delete);
+//        }
+//    }
+//
+//    @Override
+//    public boolean onContextItemSelected(MenuItem item) {
+//        if (item.getItemId() == DELETE_ID) {
+//            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+//            Adapter adapter = l.getAdapter();
+//            Routine routine = (Routine) adapter.getItem(info.position);
+//            Cursor r;
+//            if (user_type.equals("free")) r = db.getFreemiumRoutineByName(routine.getName());
+//            else r = db.getPremiumRoutineByName(routine.getName(),gym_name);
+//            long id = r.getLong(0);
+//            if (user_type.equals("trainer")) {
+//                task=new DeleteRoutineTask(id, this);
+//                task.execute((Void) null);
+//            } else {
+//                db.deleteRoutine(id);
+//            }
+//
+//            fillData();
+//            return true;
+//
+//        } else {
+//            return false;
+//        }
+//    }
 
     @Override
     protected void onResume() {
         super.onResume();
         fillData();
     }
+
 
     public class DeleteRoutineTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -401,20 +455,22 @@ public class RoutineListActivity extends AppCompatActivity {
         int mListLength = l.getCount();
         Adapter adapter = l.getAdapter();
         if (user_type.equals("free")) {
-            for (int i = 0; i < mListLength ; i++) {
-                Routine item = (Routine) adapter.getItem(i);
-                if (item.isChecked()) {
-                    total++ ;
+            SparseBooleanArray pos = l.getCheckedItemPositions();
+            System.out.println("ay: " + pos.toString());
+            for (int i = 0; i < pos.size(); i++) {
+                if(pos.valueAt(i)){
+                    Routine item = (Routine) adapter.getItem(pos.keyAt(i));
                     Cursor c = db.getFreemiumRoutineByName(item.getName());
                     long id = c.getLong(0);
                     db.deleteRoutine(id);
                 }
             }
         } else {
-            for (int i = 0; i < mListLength ; i++) {
-                Routine item = (Routine) adapter.getItem(i);
-                if (item.isChecked()) {
-                    total++ ;
+            SparseBooleanArray pos = l.getCheckedItemPositions();
+            System.out.println("ay: " + pos.toString());
+            for (int i = 0; i < pos.size() ; i++) {
+                if (pos.valueAt(i)) {
+                    Routine item = (Routine) adapter.getItem(pos.keyAt(i));
                     Cursor c = db.getPremiumRoutineByName(item.getName(),gym_name);
                     long id = c.getLong(0);
                     task=new DeleteRoutineTask(id, this);
@@ -444,24 +500,11 @@ public class RoutineListActivity extends AppCompatActivity {
         }
     }
 
-    public int countRoutinesMarked() {
-        int total = 0 ;
-        int mListLength = l.getCount();
-        Adapter adapter = l.getAdapter();
-            for (int i = 0; i < mListLength ; i++) {
-                Routine item = (Routine) adapter.getItem(i);
-                if (item.isChecked()) {
-                    total++ ;
-                }
-            }
-            return total;
-    }
-
-    public void delete(View v){
+    public void delete(){
         AlertDialog.Builder builder = new AlertDialog.Builder(RoutineListActivity.this);
         builder.setCancelable(true);
         builder.setTitle("Confirmacion");
-        builder.setMessage("Desea borrar " + countRoutinesMarked() + " rutinas?");
+        builder.setMessage("Desea borrar " + l.getCheckedItemCount() + " rutinas?");
         builder.setPositiveButton("SI",
                 new DialogInterface.OnClickListener() {
                     @Override

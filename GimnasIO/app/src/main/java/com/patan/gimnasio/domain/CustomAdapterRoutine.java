@@ -39,8 +39,8 @@ public class CustomAdapterRoutine  extends ArrayAdapter<Routine> implements
             convertView = layoutInflater.inflate(R.layout.routines_row_checkbox, null);
             holder.setTextViewTitle((TextView) convertView.findViewById(R.id.ro_rowcb));
             //holder.setTextViewSubtitle((TextView) convertView.findViewById(R.id.textViewSubtitle));
-            holder.setCheckBox((CheckBox) convertView
-                    .findViewById(R.id.checkBoxExercise));
+//            holder.setCheckBox((CheckBox) convertView
+//                    .findViewById(R.id.checkBoxExercise));
             convertView.setTag(holder);
         }
         else
@@ -50,9 +50,9 @@ public class CustomAdapterRoutine  extends ArrayAdapter<Routine> implements
 
         Routine r = getItem(position);
         holder.getRoutineName().setText(r.getName());
-        holder.getCheckBox().setTag(position);
-        holder.getCheckBox().setChecked(r.isChecked());
-        holder.getCheckBox().setOnClickListener(this);
+//        holder.getCheckBox().setTag(position);
+//        holder.getCheckBox().setChecked(r.isChecked());
+//        holder.getCheckBox().setOnClickListener(this);
         return convertView;
     }
 
@@ -63,14 +63,9 @@ public class CustomAdapterRoutine  extends ArrayAdapter<Routine> implements
         int position = (Integer) v.getTag();
         getItem(position).setChecked(checkBox.isChecked());
 
-
-
         String msg = "Has seleccionado la rutina: " + getItem(position).getName();
         Toast.makeText(this.getContext(), msg, Toast.LENGTH_SHORT).show();
-
-
     }
-
 
 
     static class Holder
@@ -89,14 +84,14 @@ public class CustomAdapterRoutine  extends ArrayAdapter<Routine> implements
         }
 
 
-        public CheckBox getCheckBox()
-        {
-            return checkBox;
-        }
-        public void setCheckBox(CheckBox checkBox)
-        {
-            this.checkBox = checkBox;
-        }
+//        public CheckBox getCheckBox()
+//        {
+//            return checkBox;
+//        }
+//        public void setCheckBox(CheckBox checkBox)
+//        {
+//            this.checkBox = checkBox;
+//        }
 
     }
 }
