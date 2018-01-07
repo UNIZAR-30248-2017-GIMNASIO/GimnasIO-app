@@ -27,11 +27,13 @@ import com.patan.gimnasio.R;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
+import com.uncopt.android.widget.text.justify.JustifiedEditText;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 // Aqui se mostrara toda la informacion de una rutina con ejercicios, etc. Mediante el boton flotante se podran añadir nuevos ejercicios
 // Si se accedio mediante crear rutina esta activididad estara vacia
@@ -45,7 +47,7 @@ public class RoutineEditActivity extends AppCompatActivity {
 
     private EditText textName;
     private EditText textGym;
-    private EditText textObjetivo;
+    private JustifiedEditText textObjetivo;
     private FloatingActionButton fab;
     private Menu optionsMenu;
 
@@ -73,7 +75,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         l = (ListView)findViewById(R.id.routineEditList);
         textName = (EditText) findViewById(R.id.nombreRutina);
         textGym = (EditText) findViewById(R.id.gimnasioRutina);
-        textObjetivo = (EditText) findViewById(R.id.objetivoRutina);
+        textObjetivo = (JustifiedEditText) findViewById(R.id.objetivoRutina);
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
         registerForContextMenu(l);
@@ -107,7 +109,7 @@ public class RoutineEditActivity extends AppCompatActivity {
 
         if (mode_in.equals("new")) {
             ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
-            Routine r = new Routine(gym_name,"Rutina sin nombre","");
+            Routine r = new Routine(gym_name,"Rutina sin nombre","", "");
             if (user_type.equals("free")) {
                 id_in = db.createFreemiumRoutine(r,efrArray);
             } else {
@@ -143,9 +145,9 @@ public class RoutineEditActivity extends AppCompatActivity {
                 AdapterView.AdapterContextMenuInfo info_edit = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
                 Adapter adapter_edit = l.getAdapter();
                 Cursor c_edit = (Cursor) adapter_edit.getItem(info_edit.position);
-                int pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EX_ID);
-                long id_edit = c_edit.getLong(pos_edit);
-                pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EX_NAME);
+                //int pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EX_ID);
+                //long id_edit = c_edit.getLong(pos_edit);
+                int pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EX_NAME);
                 String nombre_edit = c_edit.getString(pos_edit);
                 pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXSER);
                 int series_edit = c_edit.getInt(pos_edit);
@@ -154,9 +156,10 @@ public class RoutineEditActivity extends AppCompatActivity {
                 pos_edit = c_edit.getColumnIndex(GymnasioDBAdapter.KEY_EXRO_EXRT);
                 double relax_edit = c_edit.getDouble(pos_edit);
 
+                Cursor idEx = db.getExerciseByName(nombre_edit);
                 Intent intent = new Intent(this, AddExerciseToRoutineActivity.class);
                 intent.putExtra("MODE","EDIT");
-                intent.putExtra("ID",id_edit);
+                intent.putExtra("ID",idEx.getLong(0));
                 intent.putExtra("NAME", nombre_edit);
                 intent.putExtra("SERIES", series_edit);
                 intent.putExtra("REP", rep_edit);
@@ -385,51 +388,74 @@ public class RoutineEditActivity extends AppCompatActivity {
                                     Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
+                //Mirar a ver si es lista de ejercicios o no
                 String mode = data.getStringExtra("MODE");
-                long id = data.getLongExtra("ID",0);  // Cogemos el ID del ejercicio añadido;
-                int series = data.getIntExtra("SERIES",0);
-                int rep = data.getIntExtra("REP",0);
-                double relax = data.getDoubleExtra("RELAX",0);
+                long id = data.getLongExtra("ID", 0);  // Cogemos el ID del ejercicio añadido;
+                int series = data.getIntExtra("SERIES", 0);
+                int rep = data.getIntExtra("REP", 0);
+                double relax = data.getDoubleExtra("RELAX", 0);
+                boolean checkIfList = data.getBooleanExtra("LIST", false);
 
                 ArrayList<ExFromRoutine> efrArray = getExFromRoutineDB();
 
-                if (!mode.equals("EDIT")) {
-                    // Añadimos el nuevo ejercicio
-                    ExFromRoutine efr_new = new ExFromRoutine(id,series,rep,relax);
-                    efrArray.add(efr_new);
+                if (!checkIfList) {
+                    if (!mode.equals("EDIT")) {
+                        // Añadimos el nuevo ejercicio
+                        ExFromRoutine efr_new = new ExFromRoutine(id, series, rep, relax);
+                        efrArray.add(efr_new);
 
 
-                } else {
-                    // Buscamos el indice del ejercicio que queremos modificar
-                    int index = 0;
-                    for (ExFromRoutine ex: efrArray) {
-                        if (ex.getId() == id) {
-                            index = efrArray.indexOf(ex);
-                            break;
+                    } else {
+                        // Buscamos el indice del ejercicio que queremos modificar
+                        int index = 0;
+                        for (ExFromRoutine ex : efrArray) {
+                            if (ex.getId() == id) {
+                                index = efrArray.indexOf(ex);
+                                break;
+                            }
                         }
+                        // Actualizamos los valores del ejercicio
+                        ExFromRoutine ex = efrArray.get(index);
+                        ex.setSeries(series);
+                        ex.setRep(rep);
+                        ex.setRelxTime(relax);
+
+                        // Actualizamos el ejercicio
+                        efrArray.set(index, ex);
                     }
-                    // Actualizamos los valores del ejercicio
-                    ExFromRoutine ex = efrArray.get(index);
-                    ex.setSeries(series);
-                    ex.setRep(rep);
-                    ex.setRelxTime(relax);
 
-                    // Actualizamos el ejercicio
-                    efrArray.set(index,ex);
+                    Routine r = getRoutineFields();
+
+                    // Actualizamos la rutina
+                    if (user_type.equals("free")) {
+                        db.updateFreemiumRoutine(id_in, r, efrArray);
+                    } else if (user_type.equals("trainer")) {
+                        task = new RoutineTask(1, r, efrArray, this, id_in);
+                        task.execute((Void) null);
+                    }
+
+                    populateFields();
+
                 }
+                else{//Nos encontramos ante una lista de ejercicios
+                    ArrayList<ExFromRoutine> newEx;
+                    newEx = (ArrayList<ExFromRoutine>)data.getSerializableExtra("LIST VALUE");
+                    Log.d("NEWEXIO", newEx.toString());
+                    for (ExFromRoutine e : newEx) efrArray.add(e);
+                    Collections.reverse(efrArray);
+                    Log.d("eferio", efrArray.toString());
+                    Routine r = getRoutineFields();
 
-                Routine r = getRoutineFields();
+                    // Actualizamos la rutina
+                    if (user_type.equals("free")) {
+                        db.updateFreemiumRoutine(id_in, r, efrArray);
+                    } else if (user_type.equals("trainer")) {
+                        task = new RoutineTask(1, r, efrArray, this, id_in);
+                        task.execute((Void) null);
+                    }
 
-                // Actualizamos la rutina
-                if (user_type.equals("free")) {
-                    db.updateFreemiumRoutine(id_in,r,efrArray);
-                } else if (user_type.equals("trainer")) {
-                    task = new RoutineTask(1, r, efrArray,this,id_in);
-                    task.execute((Void) null);
+                    populateFields();
                 }
-
-                populateFields();
-
             }
         }
     }

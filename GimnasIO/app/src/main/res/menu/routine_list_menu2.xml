@@ -4,10 +4,9 @@
     <item android:id="@+id/customsearch"
         android:title="Buscar"
         android:icon="@drawable/lupa"
-        app:actionLayout="@layout/search_view"
+        app:actionLayout="@layout/search_view2"
         app:showAsAction="always|collapseActionView"/>
+        <!--app:showAsAction="collapseActionView|ifRoom"
+        app:actionViewClass="android.widget.SearchView" />-->
 
-    <item android:id="@+id/logout"
-        android:title="@string/logout">
-    </item>
 </menu>

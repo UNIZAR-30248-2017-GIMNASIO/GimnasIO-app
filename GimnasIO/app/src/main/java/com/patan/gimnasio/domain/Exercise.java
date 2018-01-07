@@ -10,6 +10,7 @@ public class Exercise {
     private String description;
     private String image;
     private ArrayList<String> tags;
+    private boolean checked;
 
 
     public Exercise(String name,String muscle,String description,String image,ArrayList<String> tags){
@@ -84,5 +85,15 @@ public class Exercise {
     }
     public boolean equals(Exercise otro){
         return (this.name.equals(otro.getName()) && this.description.equals(otro.getDescription()) && otro.getMuscle().equals(this.muscle) && this.image.equals(otro.getImage()) && equalList(this.tags,otro.getTags()));
+    }
+
+    public boolean isChecked()
+    {
+        return checked;
+    }
+
+    public void setChecked(boolean checked)
+    {
+        this.checked = checked;
     }
 }

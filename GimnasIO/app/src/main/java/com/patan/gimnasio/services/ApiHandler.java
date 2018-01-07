@@ -361,6 +361,7 @@ public class ApiHandler {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d("PETICION", json.toString());
         ANRequest request = AndroidNetworking.delete(urlNewRoutine)
                 .addHeaders("user", u)
                 .addHeaders("pwd", p)

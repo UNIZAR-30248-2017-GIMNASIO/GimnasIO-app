@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:layout_weight="1">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="180sp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="start|center_vertical"
+            android:cursorVisible="true"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:textColor="@android:color/white"
+            android:textCursorDrawable="@null"
+            />
+
+        <Spinner
+            android:id="@+id/spinnerAb"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="end|center_vertical"
+            android:dropDownWidth="match_parent"
+
+            />
+
+</LinearLayout>

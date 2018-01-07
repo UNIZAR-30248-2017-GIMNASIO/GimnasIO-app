@@ -10,6 +10,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.patan.gimnasio.R;
+import com.patan.gimnasio.domain.ExFromRoutine;
+
+import java.util.ArrayList;
 
 public class AddExerciseToRoutineActivity extends AppCompatActivity {
 
@@ -53,6 +56,11 @@ public class AddExerciseToRoutineActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        //nothing
+    }
+
     public void fillFields() {
         textoSeries.setText(String.valueOf(series));
         textoRep.setText(String.valueOf(rep));
@@ -74,13 +82,14 @@ public class AddExerciseToRoutineActivity extends AppCompatActivity {
             relax = Double.parseDouble(textoRelax.getText().toString());
         } else relax = 0.0;
 
-        i.putExtra("MODE",mode_in);
-        i.putExtra("ID",id_in);
-        i.putExtra("SERIES",series);
-        i.putExtra("REP",rep);
-        i.putExtra("RELAX",relax);
+            i.putExtra("MODE", mode_in);
+            i.putExtra("ID", id_in);
+            i.putExtra("SERIES", series);
+            i.putExtra("REP", rep);
+            i.putExtra("RELAX", relax);
 
-        setResult(RESULT_OK,i);
-        finish();       // Forzamos volver a la actividad anterior
+            setResult(RESULT_OK, i);
+            finish();       // Forzamos volver a la actividad anterior
+
     }
 }

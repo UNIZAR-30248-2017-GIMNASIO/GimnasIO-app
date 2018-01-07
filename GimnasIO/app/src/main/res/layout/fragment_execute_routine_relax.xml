@@ -26,7 +26,8 @@
             android:id="@+id/imageView5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_menu_gallery" />
+            android:adjustViewBounds="false"
+            android:src="@drawable/relax" />
 
         <TextView
             android:id="@+id/relaxTimeCountdown"
@@ -52,6 +53,7 @@
         android:id="@+id/ll2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="bottom|center"></LinearLayout>
+        android:gravity="bottom|center"
+        android:orientation="horizontal" />
 
 </android.support.constraint.ConstraintLayout>
