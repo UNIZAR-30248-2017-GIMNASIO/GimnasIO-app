@@ -64,7 +64,8 @@ public class EspressoTest {
         onView(withId(R.id.nombreRutina)).perform(replaceText("Rutina Espresso Editada"));
         onView(withId(R.id.fab)).perform(click());
         onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(0).perform(longClick());
-        onView(withText("Añadir a rutina")).perform(click());
+        onView(withText("Añadir")).perform(click());
+        onView(withText("SI")).perform(click());
         onView(withId(R.id.seriesField)).perform(replaceText("2"));
         onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
         onView(withId(R.id.relaxField)).perform(replaceText("2"));
@@ -74,6 +75,7 @@ public class EspressoTest {
         onView(withText("Rutina Espresso Editada")).perform(longClick());
         //onData(anything()).inAdapterView(withId(R.id.dbRoutinesList)).atPosition(0).perform(longClick());
         onView(withText("Eliminar")).perform(click());
+        onView(withText("SI")).perform(click());
     }
 
     @Test
@@ -114,7 +116,8 @@ public class EspressoTest {
         onView(withId(R.id.nombreRutina)).perform(replaceText("Rutina Espresso Premium Editada"));
         onView(withId(R.id.fab)).perform(click());
         onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(0).perform(longClick());
-        onView(withText("Añadir a rutina")).perform(click());
+        onView(withText("Añadir")).perform(click());
+        onView(withText("SI")).perform(click());
         onView(withId(R.id.seriesField)).perform(replaceText("2"));
         onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
         onView(withId(R.id.relaxField)).perform(replaceText("2"));
@@ -124,8 +127,7 @@ public class EspressoTest {
         onView(withText("Rutina Espresso Premium Editada")).perform(longClick());
         //onData(anything()).inAdapterView(withId(R.id.dbRoutinesList)).atPosition(0).perform(longClick());
         onView(withText("Eliminar")).perform(click());
-        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-        onView(withText("Cerrar sesión")).perform(click());
+        onView(withText("SI")).perform(click());
     }
 
     @Test
@@ -135,10 +137,11 @@ public class EspressoTest {
         onView(withId(R.id.nombreRutina)).perform(replaceText("Rutina Espresso Testing"));
         onView(withId(R.id.objetivoRutina)).perform(replaceText("Test Espresso Testing"));
 
-        // Añadimos ejercicio
+        // Añadimos los ejercicios
         onView(withId(R.id.fab)).perform(click());
         onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(0).perform(longClick());
-        onView(withText("Añadir a rutina")).perform(click());
+        onView(withText("Añadir")).perform(click());
+        onView(withText("SI")).perform(click());
         onView(withId(R.id.seriesField)).perform(replaceText("2"));
         onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
         onView(withId(R.id.relaxField)).perform(replaceText("2"));
@@ -158,6 +161,7 @@ public class EspressoTest {
         onView(withText("Rutina Espresso Testing")).perform(longClick());
         //onData(anything()).inAdapterView(withId(R.id.dbRoutinesList)).atPosition(0).perform(longClick());
         onView(withText("Eliminar")).perform(click());
+        onView(withText("SI")).perform(click());
     }
 
     @Test
@@ -167,28 +171,21 @@ public class EspressoTest {
         onView(withId(R.id.nombreRutina)).perform(replaceText("Rutina Espresso Testing"));
         onView(withId(R.id.objetivoRutina)).perform(replaceText("Test Espresso Testing"));
 
-        // Añadimos ejercicio
+        // Añadimos los ejercicios
         onView(withId(R.id.fab)).perform(click());
         onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(0).perform(longClick());
-        onView(withText("Añadir a rutina")).perform(click());
+        onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(1).perform(click());
+        onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(2).perform(click());
+        onView(withText("Añadir")).perform(click());
+        onView(withText("SI")).perform(click());
         onView(withId(R.id.seriesField)).perform(replaceText("2"));
         onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
         onView(withId(R.id.relaxField)).perform(replaceText("2"));
         onView(withId(R.id.buttonAdd)).perform(click());
-
-        // Añadimos ejercicio
-        onView(withId(R.id.fab)).perform(click());
-        onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(1).perform(longClick());
-        onView(withText("Añadir a rutina")).perform(click());
         onView(withId(R.id.seriesField)).perform(replaceText("2"));
         onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
         onView(withId(R.id.relaxField)).perform(replaceText("2"));
         onView(withId(R.id.buttonAdd)).perform(click());
-
-        // Añadimos ejercicios
-        onView(withId(R.id.fab)).perform(click());
-        onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(3).perform(longClick());
-        onView(withText("Añadir a rutina")).perform(click());
         onView(withId(R.id.seriesField)).perform(replaceText("2"));
         onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
         onView(withId(R.id.relaxField)).perform(replaceText("2"));
@@ -208,52 +205,7 @@ public class EspressoTest {
         onView(withText("Rutina Espresso Testing")).perform(longClick());
         //onData(anything()).inAdapterView(withId(R.id.dbRoutinesList)).atPosition(0).perform(longClick());
         onView(withText("Eliminar")).perform(click());
-    }
-
-    @Test
-    public void testEjecutarRutina() {
-        onView(withId(R.id.imageView)).perform(click());
-        onView(withId(R.id.floatingActionButton)).perform(click());
-        onView(withId(R.id.nombreRutina)).perform(replaceText("Rutina Espresso Testing Ejecutar"));
-        onView(withId(R.id.objetivoRutina)).perform(replaceText("Test Espresso Testing Ejecutar"));
-
-        // Añadimos ejercicio
-        onView(withId(R.id.fab)).perform(click());
-        onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(0).perform(longClick());
-        onView(withText("Añadir a rutina")).perform(click());
-        onView(withId(R.id.seriesField)).perform(replaceText("2"));
-        onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
-        onView(withId(R.id.relaxField)).perform(replaceText("2"));
-        onView(withId(R.id.buttonAdd)).perform(click());
-
-        // Añadimos ejercicio
-        onView(withId(R.id.fab)).perform(click());
-        onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(1).perform(longClick());
-        onView(withText("Añadir a rutina")).perform(click());
-        onView(withId(R.id.seriesField)).perform(replaceText("2"));
-        onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
-        onView(withId(R.id.relaxField)).perform(replaceText("2"));
-        onView(withId(R.id.buttonAdd)).perform(click());
-
-        // Guardamos la rutina
-        onView(withId(R.id.action_edit_2)).perform(click());
-
-        // Ejecutamos la rutina
-        onView(withId(R.id.executeButton)).perform(click());
-
-        onView(withId(R.id.startButton)).perform(click());
-        onView(withId(R.id.stopButton)).perform(click());
-        onView(withId(R.id.startButton)).perform(click());
-
-        onView(withId(R.id.StartDisplay)).perform(swipeLeft());
-        onView(withId(R.id.ex_series)).perform(swipeLeft());
-        onView(withId(R.id.titleText)).perform(swipeLeft());
-        onView(withId(R.id.ex_series)).perform(swipeLeft());
-        onView(withId(R.id.titleText)).perform(swipeLeft());
-
-        onView(withId(R.id.finButton)).perform(click());
-
-        Espresso.pressBack();
+        onView(withText("SI")).perform(click());
     }
 
     /*Metodo que duerme al test durante 3 segundos para facilitar la visualizacion de las acciones
