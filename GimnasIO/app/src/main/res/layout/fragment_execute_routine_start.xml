@@ -44,20 +44,20 @@
                 android:id="@+id/swipe"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@drawable/swipe" />
+                android:src="@drawable/swipecentro" />
 
             <ImageView
                 android:id="@+id/swipe2"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@drawable/swipe"
+                android:src="@drawable/swipecentro"
                 android:visibility="invisible" />
 
             <ImageView
                 android:id="@+id/swipe3"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@drawable/swipe" />
+                android:src="@drawable/swipecentro" />
         </ViewAnimator>
 
     </LinearLayout>

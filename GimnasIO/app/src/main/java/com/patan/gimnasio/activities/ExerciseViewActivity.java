@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.R;
+import com.uncopt.android.widget.text.justify.JustifiedTextView;
 
 import java.io.File;
 
@@ -21,7 +22,7 @@ public class ExerciseViewActivity extends AppCompatActivity {
     private TextView muscle;
     private TextView tags;
     private ImageView image;
-    private TextView desc;
+    private JustifiedTextView desc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +35,7 @@ public class ExerciseViewActivity extends AppCompatActivity {
         muscle = (TextView) findViewById(R.id.muscle);
         image = (ImageView) findViewById(R.id.image);
         tags = (TextView) findViewById(R.id.tags);
-        desc  = (TextView) findViewById(R.id.ScrollText);
+        desc  = (JustifiedTextView) findViewById(R.id.ScrollText);
 
 
         long idEj = getIntent().getLongExtra("ID",0);

@@ -56,6 +56,11 @@ public class AddExerciseToRoutineActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        //nothing
+    }
+
     public void fillFields() {
         textoSeries.setText(String.valueOf(series));
         textoRep.setText(String.valueOf(rep));

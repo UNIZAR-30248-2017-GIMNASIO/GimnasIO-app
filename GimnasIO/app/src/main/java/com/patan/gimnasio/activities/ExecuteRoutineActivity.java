@@ -36,6 +36,7 @@ import android.widget.ViewAnimator;
 import com.patan.gimnasio.R;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.domain.ExerciseFull;
+import com.uncopt.android.widget.text.justify.JustifiedTextView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -186,27 +187,20 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         stopButton.setVisibility(View.INVISIBLE);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_execute_routine, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     public class ReverseInterpolator implements Interpolator {
         @Override
@@ -327,7 +321,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
             imageView.setImageBitmap(myBitmap);
             imageView.setAdjustViewBounds(true);
 
-            TextView descriptionTv = (TextView) rootView.findViewById(R.id.ex_description);
+            JustifiedTextView descriptionTv = (JustifiedTextView) rootView.findViewById(R.id.ex_description);
             descriptionTv.setText(getArguments().getString("description"));
 
 //            TextView tagsTv = (TextView) rootView.findViewById(R.id.ex_tags);
@@ -484,6 +478,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_execute_routine_end, container, false);
+
             return rootView;
         }
     }

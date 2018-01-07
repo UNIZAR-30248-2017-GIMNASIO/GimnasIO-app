@@ -27,11 +27,13 @@ import com.patan.gimnasio.R;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Routine;
 import com.patan.gimnasio.services.ApiHandler;
+import com.uncopt.android.widget.text.justify.JustifiedEditText;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 // Aqui se mostrara toda la informacion de una rutina con ejercicios, etc. Mediante el boton flotante se podran añadir nuevos ejercicios
 // Si se accedio mediante crear rutina esta activididad estara vacia
@@ -45,7 +47,7 @@ public class RoutineEditActivity extends AppCompatActivity {
 
     private EditText textName;
     private EditText textGym;
-    private EditText textObjetivo;
+    private JustifiedEditText textObjetivo;
     private FloatingActionButton fab;
     private Menu optionsMenu;
 
@@ -73,7 +75,7 @@ public class RoutineEditActivity extends AppCompatActivity {
         l = (ListView)findViewById(R.id.routineEditList);
         textName = (EditText) findViewById(R.id.nombreRutina);
         textGym = (EditText) findViewById(R.id.gimnasioRutina);
-        textObjetivo = (EditText) findViewById(R.id.objetivoRutina);
+        textObjetivo = (JustifiedEditText) findViewById(R.id.objetivoRutina);
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
         registerForContextMenu(l);
@@ -107,7 +109,7 @@ public class RoutineEditActivity extends AppCompatActivity {
 
         if (mode_in.equals("new")) {
             ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
-            Routine r = new Routine(gym_name,"Rutina sin nombre","");
+            Routine r = new Routine(gym_name,"Rutina sin nombre","", "");
             if (user_type.equals("free")) {
                 id_in = db.createFreemiumRoutine(r,efrArray);
             } else {
@@ -438,8 +440,10 @@ public class RoutineEditActivity extends AppCompatActivity {
                 else{//Nos encontramos ante una lista de ejercicios
                     ArrayList<ExFromRoutine> newEx;
                     newEx = (ArrayList<ExFromRoutine>)data.getSerializableExtra("LIST VALUE");
+                    Log.d("NEWEXIO", newEx.toString());
                     for (ExFromRoutine e : newEx) efrArray.add(e);
-
+                    Collections.reverse(efrArray);
+                    Log.d("eferio", efrArray.toString());
                     Routine r = getRoutineFields();
 
                     // Actualizamos la rutina

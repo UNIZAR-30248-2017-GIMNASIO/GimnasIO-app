@@ -8,28 +8,34 @@
 
     <TextView
         android:id="@+id/nombreEjercicioText"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Ejercicio a añadir: " />
 
     <TextView
         android:id="@+id/nombreEjercicio"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="italic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="" />
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="10dp" />
 
     <TextView
         android:id="@+id/textSeries"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:labelFor="@+id/seriesField"
         android:text="Series:" />
 
     <EditText
         android:id="@+id/seriesField"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -37,12 +43,15 @@
 
     <TextView
         android:id="@+id/textRepeticiones"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:labelFor="@+id/repeticionesField"
         android:text="Repeticiones:" />
 
     <EditText
         android:id="@+id/repeticionesField"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -50,12 +59,15 @@
 
     <TextView
         android:id="@+id/textRelax"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:labelFor="@+id/relaxField"
         android:text="Tiempo de descanso:" />
 
     <EditText
         android:id="@+id/relaxField"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"

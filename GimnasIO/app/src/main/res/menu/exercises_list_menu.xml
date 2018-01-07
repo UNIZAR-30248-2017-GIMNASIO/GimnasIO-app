@@ -3,11 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/customsearch"
         android:title="Buscar"
-        android:icon="@drawable/lupa"
+        android:icon="@android:drawable/ic_menu_search"
         app:actionLayout="@layout/search_view"
         app:showAsAction="always|collapseActionView"/>
 
-    <item android:id="@+id/logout"
-        android:title="@string/logout">
-    </item>
 </menu>
