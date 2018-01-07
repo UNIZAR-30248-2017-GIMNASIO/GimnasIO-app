@@ -1,19 +1,14 @@
 package com.patan.gimnasio;
 
-import android.content.Context;
 import android.database.Cursor;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
 
-import com.patan.gimnasio.activities.ExerciseListActivity;
+import com.patan.gimnasio.activities.MainActivity;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.domain.ExFromRoutine;
 import com.patan.gimnasio.domain.Exercise;
@@ -21,61 +16,40 @@ import com.patan.gimnasio.domain.Routine;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
 
 @RunWith(AndroidJUnit4.class)
-public class DatabaseTest extends ActivityInstrumentationTestCase2<ExerciseListActivity> {
+public class DatabaseTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private ExerciseListActivity exerciseList;
+    private MainActivity mainAct;
     private GymnasioDBAdapter db;
     private long id1,id2,id3,idr1,idr2,idr3;
-    private ArrayList<Long> ExercisesList = new ArrayList<>();
+    private ArrayList<Long> exercisesList = new ArrayList<>();
 
     public DatabaseTest() {
-        super(ExerciseListActivity.class);
+        super(MainActivity.class);
     }
 
-    @Test
+    /*@Test
     public void useAppContext() throws Exception {
          //Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
         assertEquals("com.patan.gimnasio", appContext.getPackageName());
-    }
+    }*/
 
     @Before
     public void setUp() throws Exception{
         injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-        exerciseList = getActivity();
-        db = exerciseList.getGymnasioDbAdapter();
-        ExercisesList.add((long)1);
+        mainAct = getActivity();
+        db = mainAct.getGymnasioDbAdapter();
+        exercisesList.add((long)1);
     }
 
-    /*Test que simula una actualización de la  BD*/
-    @Ignore
-    @Test
-    public void upgradeTest() throws Exception{
-
-        Cursor c = db.checkForUpdates();
-        c.moveToFirst();
-
-        int id = c.getCount();
-        String date =  c.getString(1);
-
-        Date currentTime = Calendar.getInstance().getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String currentDateandTime = sdf.format(currentTime);
-
-        long after = db.updateLastUpdate(id,currentDateandTime);
-        assertTrue(after == id && currentDateandTime != date);
-
-    }
 
     /*Tests of exercises*/
     /*Test que comrpueba que la bd añade ejercicios correctamente*/
