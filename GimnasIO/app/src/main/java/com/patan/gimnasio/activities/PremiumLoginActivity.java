@@ -429,6 +429,7 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
     }
 
     private void updateDatabase(JSONObject listaRutinas) throws JSONException {
+        Log.d("UpdPrem", listaRutinas.toString());
         db = new GymnasioDBAdapter(this);
         db.open();
         Log.d("UpdPrem",listaRutinas.toString());
@@ -441,18 +442,17 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                 String nameGym = rutina.getString("nameGym");
                 String objective = rutina.getString("objective");
                 JSONObject exercises = rutina.getJSONObject("exercises");
-                Routine r = new Routine(nameGym,name,objective);
-                Log.d("id","" + idR);
+                Routine r = new Routine(nameGym,name,objective, idR);
+                Log.d("idR","" + idR);
                 Log.d("name","" + name);
                 Log.d("gym","" + nameGym);
                 Log.d("obj","" + objective);
                 Log.d("ej","" + exercises.toString());
 
-                r.setIdR(idR);
                 ArrayList<ExFromRoutine> efrArray = new ArrayList<>();
-                for ( int j = 0; i < exercises.length(); j++ ) {
+                for ( int j = 0; j < exercises.length(); j++ ) {
 
-                    JSONObject ejercicio = exercises.getJSONObject(j + "");
+                    JSONObject ejercicio = exercises.getJSONObject(Integer.toString(j));
                     Log.d("UpdPrem", "Including exercise from json: " + ejercicio.toString());
                     String nameEj = ejercicio.getString("name");
                     int rep = ejercicio.getInt("repetitions");
@@ -465,9 +465,9 @@ public class PremiumLoginActivity extends AppCompatActivity implements LoaderCal
                         efrArray.add(ej);
                     }
                 }
-                Cursor uOC = db.getPremiumRoutineByName(name,nameGym);
+                Cursor uOC = db.getPremiumRoutineByIdR(idR, nameGym);
                 Log.d("PRUEBICA", name);
-                Log.d("PRUEBICA",uOC.getString(uOC.getColumnIndex("name")));
+//                Log.d("PRUEBICA",uOC.getString(uOC.getColumnIndex(GymnasioDBAdapter.KEY_EX_NAME)));
                 if (uOC.getCount() == 0){
                     Log.d("CrtPrRouLoc","Creating premium routine with name " + r.getName());
                     db.createPremiumRoutine(r,efrArray);

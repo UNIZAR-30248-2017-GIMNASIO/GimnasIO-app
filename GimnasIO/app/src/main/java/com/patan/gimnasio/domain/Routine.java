@@ -19,6 +19,13 @@ public class Routine{
         this.objective = objective;
     }
 
+    public Routine(String nameGym,String name,String objective, String idR){
+        this.nameGym = nameGym;
+        this.name = name;
+        this.objective = objective;
+        this.idR = idR;
+    }
+
 
 
     public void setIdR(String idR){

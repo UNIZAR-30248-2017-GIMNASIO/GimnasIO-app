@@ -63,7 +63,6 @@ public class CustomAdapterExercise extends ArrayAdapter<Exercise> {
     {
         TextView ExerciseName;
         TextView tags;
-        CheckBox checkBox;
 
         public TextView getExerciseName()
         {
@@ -83,15 +82,6 @@ public class CustomAdapterExercise extends ArrayAdapter<Exercise> {
         public void setTags(TextView name)
         {
             this.tags = name;
-        }
-
-        public CheckBox getCheckBox()
-        {
-            return checkBox;
-        }
-        public void setCheckBox(CheckBox checkBox)
-        {
-            this.checkBox = checkBox;
         }
 
     }

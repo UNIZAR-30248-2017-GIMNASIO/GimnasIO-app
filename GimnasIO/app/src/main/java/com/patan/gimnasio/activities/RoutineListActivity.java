@@ -1,5 +1,6 @@
 package com.patan.gimnasio.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -23,6 +24,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -32,7 +35,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -62,12 +67,15 @@ public class RoutineListActivity extends AppCompatActivity {
     private String gym_name = "Rutina gratuita";
     private FloatingActionButton fab;
     private FloatingActionButton deleteAll;
-    private Spinner spinner;
+//    private Spinner spinner;
     private Button boton;
     private CheckBox check;
-    private EditText busqueda;
+//    private EditText busqueda;
     private DeleteRoutineTask task;
     private Menu optionsMenu;
+
+    private EditText sv;
+    private Spinner sp;
 
 
     public GymnasioDBAdapter getGymnasioDBAdapter(){
@@ -84,58 +92,59 @@ public class RoutineListActivity extends AppCompatActivity {
         db = new GymnasioDBAdapter(this);
         db.open();
         l = (ListView)findViewById(R.id.dbRoutinesList);
+
         fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
-        busqueda = (EditText) (findViewById(R.id.busqueda));
-        spinner = (Spinner) findViewById(R.id.spinner);
+//        busqueda = (EditText) (findViewById(R.id.busqueda));
+//        spinner = (Spinner) findViewById(R.id.spinner);
         //deleteAll = (FloatingActionButton) findViewById(R.id.deletebutton);
         //check = (CheckBox) findViewById(R.id.checkBox);
         //Mio
-        SearchView sv = (SearchView) findViewById(R.id.search);
+
 
         ArrayList<String> categories = new ArrayList<String>();
         categories.add("Nombre");
         categories.add("Objetivo");
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
-        spinner.setAdapter(dataAdapter);
+//        spinner.setAdapter(dataAdapter);
+//
+//        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                busqueda.setText("");
+//                fillData();
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
+//
+//
+//        busqueda.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
+//                if (s.length() == 0) {
+//                    fillData();
+//                } else if (text.equals("Nombre")) {
+//                    fillDataByName(s.toString());
+//                } else if (text.equals("Objetivo")) {
+//                    fillDataByObj(s.toString());
+//                }
+//            }
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                busqueda.setText("");
-                fillData();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-
-        busqueda.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
-                if (s.length() == 0) {
-                    fillData();
-                } else if (text.equals("Nombre")) {
-                    fillDataByName(s.toString());
-                } else if (text.equals("Objetivo")) {
-                    fillDataByObj(s.toString());
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//
+//            }
+//        });
 
         l.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -164,7 +173,11 @@ public class RoutineListActivity extends AppCompatActivity {
         l.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-
+                if(l.getCheckedItemCount() <= 0) {
+                    fab.setVisibility(View.VISIBLE);
+                } else {
+                    fab.setVisibility(View.INVISIBLE);
+                }
             }
 
             @Override
@@ -188,7 +201,6 @@ public class RoutineListActivity extends AppCompatActivity {
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-
             }
         });
 
@@ -223,6 +235,54 @@ public class RoutineListActivity extends AppCompatActivity {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.routine_list_menu2, menu);
         }
+
+        LinearLayout rl = (LinearLayout) menu.findItem(R.id.customsearch).getActionView();
+        sv = (EditText) rl.findViewById(R.id.etSearch);
+        sp = (Spinner) rl.findViewById(R.id.spinnerAb);
+
+
+        ArrayList<String> categories = new ArrayList<String>();
+        categories.add("Nombre");
+        categories.add("Objetivo");
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, categories);
+        sp.setAdapter(dataAdapter);
+
+        sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sv.setText("");
+                fillData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        sv.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = sp.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
+                if (s.length() == 0) {
+                    fillData();
+                } else if (text.equals("Nombre")) {
+                    fillDataByName(s.toString());
+                } else if (text.equals("Objetivo")) {
+                    fillDataByObj(s.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         return true;
     }
 
@@ -242,10 +302,13 @@ public class RoutineListActivity extends AppCompatActivity {
     // Si pulsa el boton de volver atras y esta en modo premium o trainer volvera al menu principal
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         Intent intent = new Intent(this,MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        sv.setText("");
+        Log.d("BACK PRESSED", sv.getText().toString());
         startActivity(intent);
+        super.onBackPressed();
+
     }
 
 
@@ -268,22 +331,27 @@ public class RoutineListActivity extends AppCompatActivity {
         }
         Log.d("Tamanio: ", ""+routines.getCount());
         // Create an array to specify the fields we want to display in the list (only NAME)
-        String[] from = new String[] {GymnasioDBAdapter.KEY_RO_NAME};
+        String[] from = new String[] {GymnasioDBAdapter.KEY_RO_NAME, GymnasioDBAdapter.KEY_RO_OBJ};
         // and an array of the fields we want to bind those fields to (in this case just text1)
         int[] to = new int[] { R.id.ro_row };
         // Now create an array adapter and set it to display using our row
         SimpleCursorAdapter notes =
-                new SimpleCursorAdapter(this, R.layout.routines_row, routines, from, to,0);
+                new SimpleCursorAdapter(this, R.layout.routines_row_checkbox, routines, from, to,0);
 
         ArrayList<Routine> listOfRoutines = new ArrayList<>();
         //Como necesitamos una lista de rutinas, pasamos del cursor a esta lista
 
         routines.moveToFirst();
         for(int i = 0; i < routines.getCount();i++){
-            listOfRoutines.add(new Routine(routines.getString(4),routines.getString(2),routines.getString(1)));
+            String idR = routines.getString(routines.getColumnIndex(GymnasioDBAdapter.KEY_RO_IDR));
+            Routine nR = new Routine(routines.getString(4),
+                    routines.getString(2),
+                    routines.getString(1),
+                    idR);
+            listOfRoutines.add(nR);
             routines.moveToNext();
+            Log.d("ARRAY Routines ", nR.getIdR() + " " + nR.getName() + " " + nR.getNameGym() + " " + nR.getObjective());
         }
-
         l.setAdapter(new CustomAdapterRoutine(this, listOfRoutines));//
         //registerForContextMenu(l);
     }
@@ -366,39 +434,6 @@ public class RoutineListActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-//    @Override
-//    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-//        if (!user_type.equals("premium")) {
-//            super.onCreateContextMenu(menu,v,menuInfo);
-//            menu.add(Menu.NONE, DELETE_ID, Menu.NONE, R.string.menu_delete);
-//        }
-//    }
-//
-//    @Override
-//    public boolean onContextItemSelected(MenuItem item) {
-//        if (item.getItemId() == DELETE_ID) {
-//            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-//            Adapter adapter = l.getAdapter();
-//            Routine routine = (Routine) adapter.getItem(info.position);
-//            Cursor r;
-//            if (user_type.equals("free")) r = db.getFreemiumRoutineByName(routine.getName());
-//            else r = db.getPremiumRoutineByName(routine.getName(),gym_name);
-//            long id = r.getLong(0);
-//            if (user_type.equals("trainer")) {
-//                task=new DeleteRoutineTask(id, this);
-//                task.execute((Void) null);
-//            } else {
-//                db.deleteRoutine(id);
-//            }
-//
-//            fillData();
-//            return true;
-//
-//        } else {
-//            return false;
-//        }
-//    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -420,8 +455,9 @@ public class RoutineListActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground (Void... params) {
-            Log.d("Premium", "Deleting premium routine on remote server with id " + id);
+
             String idR = db.getPremiumIdr(id);
+            Log.d("Premium", "Deleting premium routine on remote server with id " + idR);
             boolean ok = api.deletePremiumRoutine(idR);
             if (ok) {
                 return true;
@@ -458,6 +494,7 @@ public class RoutineListActivity extends AppCompatActivity {
             SparseBooleanArray pos = l.getCheckedItemPositions();
             System.out.println("ay: " + pos.toString());
             for (int i = 0; i < pos.size(); i++) {
+                //l.setItemChecked(pos.keyAt(i), false);
                 if(pos.valueAt(i)){
                     Routine item = (Routine) adapter.getItem(pos.keyAt(i));
                     Cursor c = db.getFreemiumRoutineByName(item.getName());
@@ -469,10 +506,13 @@ public class RoutineListActivity extends AppCompatActivity {
             SparseBooleanArray pos = l.getCheckedItemPositions();
             System.out.println("ay: " + pos.toString());
             for (int i = 0; i < pos.size() ; i++) {
+                //l.setItemChecked(pos.keyAt(i), false);
                 if (pos.valueAt(i)) {
+
                     Routine item = (Routine) adapter.getItem(pos.keyAt(i));
-                    Cursor c = db.getPremiumRoutineByName(item.getName(),gym_name);
-                    long id = c.getLong(0);
+                    Cursor c = db.getPremiumRoutineByIdR(item.getIdR(), item.getNameGym());
+                    Log.d("DELETE ROUTINE", "ID: " + item.getIdR() + " namegym: " + item.getNameGym());
+                    long id = c.getLong(c.getColumnIndex(GymnasioDBAdapter.KEY_RO_ID));
                     task=new DeleteRoutineTask(id, this);
                     task.execute((Void) null);
                 }
@@ -480,12 +520,12 @@ public class RoutineListActivity extends AppCompatActivity {
         }
 
         //Tenemos que mirar si el usuario borró mientras estaba buscando
-        if(TextUtils.isEmpty(busqueda.toString())) fillData();
+        if(TextUtils.isEmpty(sv.toString())) fillData();
         else{
-            String s = busqueda.getText().toString();
-             if (spinner.getSelectedItem().toString().equals("Nombre")) {
+            String s = sv.getText().toString();
+             if (sp.getSelectedItem().toString().equals("Nombre")) {
                  fillDataByName(s);
-             } else if (spinner.getSelectedItem().toString().equals("Objetivo")) {
+             } else if (sp.getSelectedItem().toString().equals("Objetivo")) {
                  fillDataByObj(s);
              }
         }

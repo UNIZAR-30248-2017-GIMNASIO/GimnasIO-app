@@ -15,6 +15,7 @@ import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -24,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -42,11 +44,12 @@ public class ExerciseListActivity extends AppCompatActivity {
 
     private ListView l;
     private GymnasioDBAdapter db;
-    private Spinner spinner;
-    private EditText busqueda;
     private static final int ADD_ID = 1;
     private String mode_in;
     private ArrayList<ExFromRoutine> ex = new ArrayList<>();
+
+    private Spinner sp;
+    private EditText sv;
 
     public GymnasioDBAdapter getGymnasioDbAdapter() {
         return db;
@@ -58,8 +61,6 @@ public class ExerciseListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_exercises_list);
         db = new GymnasioDBAdapter(this);
         db.open();
-        busqueda = (EditText) (findViewById(R.id.busqueda));
-        spinner = (Spinner) findViewById(R.id.spinner);
         //We declare the search options
         ArrayList<String> categories = new ArrayList<String>();
         categories.add("Nombre");
@@ -67,7 +68,6 @@ public class ExerciseListActivity extends AppCompatActivity {
         categories.add("Tag");
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
-        spinner.setAdapter(dataAdapter);
 
         l = (ListView) findViewById(R.id.dbExercisesList);
 
@@ -94,47 +94,6 @@ public class ExerciseListActivity extends AppCompatActivity {
                 }
             }
         });
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                busqueda.setText("");
-                fillData();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-
-        busqueda.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String text = spinner.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
-                if (s.length() == 0) {
-                    fillData();
-                } else if (text.equals("Musculo")) {
-                    fillDataByMuscle(s.toString());
-                } else if (text.equals("Tag")) {
-                    fillDataByTag(s.toString());
-                } else if (text.equals("Nombre")) {
-                    fillDataByName(s.toString());
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
 
         Intent intent = getIntent();
         mode_in = intent.getStringExtra("MODE");
@@ -178,36 +137,69 @@ public class ExerciseListActivity extends AppCompatActivity {
 
     }
 
-//    @Override
-//    public boolean onContextItemSelected(MenuItem item) {
-//        if (item.getItemId() == ADD_ID) {
-//            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-//            Adapter adapter = l.getAdapter();
-//            //DE ALberto
-//            /*Cursor c = (Cursor) adapter.getItem(info.position);
-//            int pos = c.getColumnIndex(GymnasioDBAdapter.KEY_EX_ID);
-//            long id = c.getLong(pos);
-//            int name = c.getColumnIndex(GymnasioDBAdapter.KEY_EX_NAME);
-//            String nombre = c.getString(name);*/
-//
-//            Exercise ejercicio = (Exercise) adapter.getItem(info.position);
-//            Cursor c = db.getExerciseByName(ejercicio.getName());
-//            c.moveToFirst();
-//            Intent intent = new Intent(this, AddExerciseToRoutineActivity.class);
-//            intent.putExtra("MODE", "ADD");
-//            long id = c.getLong(0);
-//            String nombre = c.getString(1);
-//            intent.putExtra("ID", id);
-//            intent.putExtra("NAME",nombre);
-//            intent.putExtra("LAST","ONE");
-//            intent.putExtra("LIST","");
-//            startActivityForResult(intent, 1);
-//
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
+
+
+    // Menu que se crea unicamente en modo premium o trainer
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.routine_list_menu2, menu);
+
+//        SearchView sv = (SearchView) menu.findItem(R.id.customsearch).getActionView();
+        LinearLayout rl = (LinearLayout) menu.findItem(R.id.customsearch).getActionView();
+        sv = (EditText) rl.findViewById(R.id.etSearch);
+        sp = (Spinner) rl.findViewById(R.id.spinnerAb);
+
+
+        ArrayList<String> categories = new ArrayList<String>();
+        categories.add("Nombre");
+        categories.add("Músculo");
+        categories.add("Tag");
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, categories);
+        sp.setAdapter(dataAdapter);
+
+        sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sv.setText("");
+                fillData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        sv.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = sp.getSelectedItem().toString(); //Para saber sobre que categoria se etsa buscando
+                if (s.length() == 0) {
+                    fillData();
+                } else if (text.equals("Nombre")) {
+                    fillDataByName(s.toString());
+                } else if (text.equals("Músculo")) {
+                    fillDataByMuscle(s.toString());
+                } else if (text.equals("Tag")) {
+                    fillDataByTag(s.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        return true;
+    }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode,

@@ -3,21 +3,22 @@
     android:id="@+id/content_routine_list_check"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
+    android:orientation="vertical"
+    android:background="@drawable/menu_item_background_selector"
     >
-
-
-    <!--<CheckBox-->
-        <!--android:id="@+id/checkBoxExercise"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="" />-->
 
     <TextView
         android:id="@+id/ro_rowcb"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        android:background="@drawable/menu_item_background_selector"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="TextView" />
+
+    <!--<com.uncopt.android.widget.text.justify.JustifiedTextView-->
+    <TextView
+        android:id="@+id/ro_rowobj"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="TextView" />
 </LinearLayout>

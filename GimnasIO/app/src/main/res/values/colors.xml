@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#a05fab</color>
-    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimaryDark">#212121</color>
     <color name="colorAccent">#ba0de1</color>
     <color name="colorText">#ffffff</color>
     <color name="labelColor">#000000</color>
     <color name="listRow">#D3D3D3</color>
     <color name="griseciyo">#e6e6e6</color>
+    <color name="IOGreenLight">#2dbf7f</color>
+    <color name="IOGreenDark">#219360</color>
 </resources>

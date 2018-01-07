@@ -372,7 +372,7 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, true);
-        v.put(KEY_RO_IDR,"");
+        v.put(KEY_RO_IDR, r.getIdR());
         //Introducimos la rutina
         long id = Db.insert(Table_Routine,null,v);
         //Añadimos los ejercicios de la rutina
@@ -437,7 +437,7 @@ public class GymnasioDBAdapter {
         v.put(KEY_RO_GYM, r.getNameGym());
         v.put(KEY_RO_OBJ, r.getObjective());
         v.put(KEY_RO_PREMIUM, true);
-        v.put(KEY_RO_IDR,r.getIdR());
+        v.put(KEY_RO_IDR, r.getIdR());
         boolean updateRo = Db.update(Table_Routine, v, KEY_RO_ID + "=" + id, null)>0;
         Db.delete(Table_ExOfRoutine,KEY_EXRO_IDR+"="+id,null);
         if (ex != null || ex.size() != 0) {
@@ -539,8 +539,26 @@ public class GymnasioDBAdapter {
         return mCursor;
     }
 
+    public Cursor getPremiumRoutineByIdR(String idR, String gymName) throws SQLException {
+        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_IDR
+                + " = '" + idR + "' AND " + KEY_RO_PREMIUM + " = " + 1 + " AND " + KEY_RO_GYM + " = " + "'"+ gymName +"';", null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
     public String getPremiumIdr (long id) {
-        Cursor mCursor =  Db.query(Table_Routine,RO_ROWS,KEY_RO_ID +"="+id,null,null,null,null,null);
+        Cursor mCursor = Db.query(Table_Routine, RO_ROWS, KEY_RO_ID + "=" + id, null,
+                        null, null, null, null);
+        Log.d("PREMIUM ID", Long.toString(id));
+        Log.d("PREMIUM ID", Long.toString(mCursor.getColumnIndex(KEY_RO_IDR)));
+        //Cursor c = fetchRoutine(id);
+        //Log.d("PREMIUM ID", c.getString(c.getColumnIndex(KEY_RO_IDR)));
+
+//        Cursor mCursor = Db.rawQuery("SELECT * FROM " + Table_Routine + " WHERE " + KEY_RO_ID
+//                + " LIKE '%" + id + "%' AND " + KEY_RO_PREMIUM + " = " + 1 +";", null);
+        //Log.d("PREMIUM ID", mCursor.getString(mCursor.getColumnIndex(KEY_RO_IDR)));
         if (mCursor != null) {
             mCursor.moveToFirst();
             return mCursor.getString(mCursor.getColumnIndex(KEY_RO_IDR));

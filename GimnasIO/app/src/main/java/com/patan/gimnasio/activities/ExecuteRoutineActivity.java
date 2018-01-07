@@ -36,6 +36,7 @@ import android.widget.ViewAnimator;
 import com.patan.gimnasio.R;
 import com.patan.gimnasio.database.GymnasioDBAdapter;
 import com.patan.gimnasio.domain.ExerciseFull;
+import com.uncopt.android.widget.text.justify.JustifiedTextView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -320,7 +321,7 @@ public class ExecuteRoutineActivity extends AppCompatActivity {
             imageView.setImageBitmap(myBitmap);
             imageView.setAdjustViewBounds(true);
 
-            TextView descriptionTv = (TextView) rootView.findViewById(R.id.ex_description);
+            JustifiedTextView descriptionTv = (JustifiedTextView) rootView.findViewById(R.id.ex_description);
             descriptionTv.setText(getArguments().getString("description"));
 
 //            TextView tagsTv = (TextView) rootView.findViewById(R.id.ex_tags);
