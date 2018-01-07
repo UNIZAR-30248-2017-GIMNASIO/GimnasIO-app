@@ -17,6 +17,7 @@ import static android.support.test.espresso.Espresso.openActionBarOverflowOrOpti
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.action.ViewActions.replaceText;
+import static android.support.test.espresso.action.ViewActions.swipeLeft;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.anything;
@@ -209,6 +210,51 @@ public class EspressoTest {
         onView(withText("Eliminar")).perform(click());
     }
 
+    @Test
+    public void testEjecutarRutina() {
+        onView(withId(R.id.imageView)).perform(click());
+        onView(withId(R.id.floatingActionButton)).perform(click());
+        onView(withId(R.id.nombreRutina)).perform(replaceText("Rutina Espresso Testing Ejecutar"));
+        onView(withId(R.id.objetivoRutina)).perform(replaceText("Test Espresso Testing Ejecutar"));
+
+        // Añadimos ejercicio
+        onView(withId(R.id.fab)).perform(click());
+        onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(0).perform(longClick());
+        onView(withText("Añadir a rutina")).perform(click());
+        onView(withId(R.id.seriesField)).perform(replaceText("2"));
+        onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
+        onView(withId(R.id.relaxField)).perform(replaceText("2"));
+        onView(withId(R.id.buttonAdd)).perform(click());
+
+        // Añadimos ejercicio
+        onView(withId(R.id.fab)).perform(click());
+        onData(anything()).inAdapterView(withId(R.id.dbExercisesList)).atPosition(1).perform(longClick());
+        onView(withText("Añadir a rutina")).perform(click());
+        onView(withId(R.id.seriesField)).perform(replaceText("2"));
+        onView(withId(R.id.repeticionesField)).perform(replaceText("2"));
+        onView(withId(R.id.relaxField)).perform(replaceText("2"));
+        onView(withId(R.id.buttonAdd)).perform(click());
+
+        // Guardamos la rutina
+        onView(withId(R.id.action_edit_2)).perform(click());
+
+        // Ejecutamos la rutina
+        onView(withId(R.id.executeButton)).perform(click());
+
+        onView(withId(R.id.startButton)).perform(click());
+        onView(withId(R.id.stopButton)).perform(click());
+        onView(withId(R.id.startButton)).perform(click());
+
+        onView(withId(R.id.StartDisplay)).perform(swipeLeft());
+        onView(withId(R.id.ex_series)).perform(swipeLeft());
+        onView(withId(R.id.titleText)).perform(swipeLeft());
+        onView(withId(R.id.ex_series)).perform(swipeLeft());
+        onView(withId(R.id.titleText)).perform(swipeLeft());
+
+        onView(withId(R.id.finButton)).perform(click());
+
+        Espresso.pressBack();
+    }
 
     /*Metodo que duerme al test durante 3 segundos para facilitar la visualizacion de las acciones
      realizadas */
