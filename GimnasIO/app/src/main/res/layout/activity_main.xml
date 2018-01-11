@@ -92,13 +92,14 @@
             <ImageView
                 android:id="@+id/imageView2"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="false"
                 android:layout_marginStart="2dp"
                 android:contentDescription="boton"
                 android:scaleType="centerCrop"
-
-                app:srcCompat="@drawable/gym2" />
+                app:srcCompat="@drawable/gym2"
+                tools:layout_editor_absoluteX="2dp"
+                />
 
             <TextView
                 android:id="@+id/textView2"
@@ -143,7 +144,7 @@
             <ImageView
                 android:id="@+id/imageView3"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginStart="2dp"
                 android:layout_marginTop="2dp"
                 android:contentDescription="boton"
